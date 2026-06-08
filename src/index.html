@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qatar to Egypt Vacation Planner | v1.1</title>
+  <style>
+    :root {
+      --bg: #f4f2f3;
+      --surface: #ffffff;
+      --surface-soft: #fbfafb;
+      --surface-tint: #f7eef1;
+      --text: #2f3137;
+      --muted: #6f7179;
+      --line: #e5dde1;
+      --primary: #8f1f43;
+      --primary-2: #b2385d;
+      --primary-soft: #ead0d9;
+      --accent: #c48a9d;
+      --task: #7b8697;
+      --activity: #a64a67;
+      --trip: #8f1f43;
+      --purchase: #c76b87;
+      --shadow: 0 16px 40px rgba(143, 31, 67, 0.10);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --font: "Inter", "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(143,31,67,.08), transparent 24%),
+        radial-gradient(circle at left top, rgba(178,56,93,.06), transparent 22%),
+        linear-gradient(180deg, #f7f5f6, #f2eff1 38%, #f8f7f8 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(143,31,67,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(143,31,67,0.03) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+      z-index: -1;
+    }
+
+    .top-strip {
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #cf8ca0, var(--primary));
+      box-shadow: 0 2px 8px rgba(143,31,67,.18);
+    }
+
+    .page {
+      width: min(1600px, calc(100% - 26px));
+      margin: 0 auto;
+      padding: 18px 0 36px;
+    }
+
+    .header {
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(229, 221, 225, .9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 20px;
+      padding: 24px;
+      align-items: center;
+    }
+
+    .brandline {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .branddot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 0 0 8px rgba(143,31,67,.08);
+    }
+
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(32px, 4.6vw, 58px);
+      line-height: .98;
+      letter-spacing: -0.05em;
+      color: #31262a;
+    }
+
+    .hero-note {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 900px;
+      font-size: 16px;
+    }
+
+    .hero-actions, .toolbar, .filters, .inline-fields, .tabbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .hero-actions { margin-top: 18px; }
+
+    .summary-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(247,238,241,.9));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, transparent 35%, rgba(143,31,67,.06));
+      pointer-events: none;
+    }
+
+    .summary-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 90px;
+    }
+
+    .stat label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      color: var(--primary);
+      letter-spacing: -.03em;
+    }
+
+    .tabs {
+      margin-top: 18px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tabbar {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(143,31,67,.04), rgba(196,138,157,.06), rgba(255,255,255,.65));
+    }
+
+    .tablink {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tablink.active {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 8px 20px rgba(143,31,67,.18);
+    }
+
+    .tabpane { padding: 18px; }
+    .hidden { display: none !important; }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button, .button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+      box-shadow: 0 8px 20px rgba(31, 34, 43, .04);
+    }
+
+    button:hover, .button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(143,31,67,.35);
+      box-shadow: 0 10px 24px rgba(143,31,67,.08);
+    }
+
+    button.primary, .button.primary {
+      color: white;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    button.soft {
+      background: var(--surface-tint);
+      color: var(--primary);
+      border-color: #e9d2da;
+    }
+
+    button.ghost {
+      background: rgba(255,255,255,.7);
+    }
+
+    button.danger {
+      background: #fff5f7;
+      color: #a3294d;
+      border-color: #f2cfd8;
+    }
+
+    button.small { padding: 8px 10px; border-radius: 12px; font-size: 12px; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(143,31,67,.45);
+      box-shadow: 0 0 0 4px rgba(143,31,67,.08);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    .toolbar {
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 14px;
+    }
+
+    .calendar-layout {
+      display: grid;
+      grid-template-columns: 2fr minmax(320px, .95fr);
+      gap: 18px;
+    }
+
+    .calendar-area, .side-panel, .purchases-shell {
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .section-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(143,31,67,.05), rgba(255,255,255,.75));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-head h2, .section-head h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+      color: #31262a;
+    }
+
+    .section-body { padding: 16px; }
+
+    .month-card {
+      border: 1px solid #ede7ea;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(251,250,251,.92));
+      box-shadow: 0 10px 24px rgba(143,31,67,.05);
+    }
+
+    .month-card + .month-card { margin-top: 18px; }
+
+    .month-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee7ea;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(90deg, rgba(143,31,67,.08), rgba(255,255,255,.9));
+    }
+
+    .month-head h3 { margin: 0; font-size: 18px; color: var(--primary); }
+
+    .month-grid, .weekday-row {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .weekday-row div {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      border-bottom: 1px solid #f0eaed;
+      background: #fbf9fa;
+      font-weight: 700;
+    }
+
+    .day-cell {
+      min-height: 130px;
+      border-right: 1px solid #f0eaed;
+      border-bottom: 1px solid #f0eaed;
+      padding: 8px;
+      background: rgba(255,255,255,.85);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      position: relative;
+      transition: background .18s ease, transform .18s ease;
+    }
+
+    .day-cell:nth-child(7n) { border-right: 0; }
+    .day-cell:hover { background: #fff8fa; }
+    .day-cell.muted { background: #faf8f9; color: #b6afb4; cursor: default; }
+    .day-cell.in-range .date-number { color: #3b3035; }
+    .day-cell.selected { box-shadow: inset 0 0 0 2px rgba(143,31,67,.65); background: #fff7f9; }
+    .day-cell.today { box-shadow: inset 0 0 0 1px rgba(143,31,67,.25); }
+
+    .date-top { display: flex; justify-content: space-between; align-items: center; }
+    .date-number {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .selected .date-number {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+    }
+
+    .mini-tag {
+      font-size: 11px;
+      color: var(--primary);
+      background: #f8eaf0;
+      border: 1px solid #eed8e0;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-weight: 700;
+    }
+
+    .events-stack { display: grid; gap: 6px; }
+
+    .event-pill {
+      display: block;
+      width: 100%;
+      border-radius: 12px;
+      padding: 7px 9px;
+      font-size: 12px;
+      line-height: 1.25;
+      border: 1px solid transparent;
+      color: #432b33;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 700;
+    }
+
+    .event-pill.trip { background: #f5dfe5; border-color: #e8becb; color: #7d183a; }
+    .event-pill.activity { background: #f6e7ed; border-color: #ebcfd9; color: #8b2e4a; }
+    .event-pill.task { background: #eef1f5; border-color: #d7dfe7; color: #5f6d7d; }
+    .event-pill.purchaseActivity { background: #f9edf2; border-color: #ecd4dd; color: #a24462; }
+    .event-pill.child { padding-left: 12px; }
+
+    .more-indicator {
+      font-size: 11px;
+      color: var(--muted);
+      padding: 2px 1px;
+      font-weight: 700;
+    }
+
+    .side-panel { position: sticky; top: 14px; height: fit-content; }
+
+    .day-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .day-title h3 { margin: 0; font-size: 22px; color: var(--primary); }
+    .day-sub { color: var(--muted); font-size: 13px; }
+
+    .count-badge {
+      background: #f9edf2;
+      color: var(--primary);
+      border: 1px solid #ecd6de;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .agenda-list { display: grid; gap: 12px; }
+
+    .agenda-card {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 18px rgba(143,31,67,.05);
+    }
+
+    .agenda-card.trip { border-left: 5px solid var(--trip); }
+    .agenda-card.activity { border-left: 5px solid var(--activity); }
+    .agenda-card.task { border-left: 5px solid var(--task); }
+    .agenda-card.purchaseActivity { border-left: 5px solid var(--purchase); }
+
+    .card-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+    .card-top strong { color: #30282b; font-size: 15px; }
+    .card-meta { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+
+    .tag {
+      background: #faf7f8;
+      border: 1px solid #ece3e6;
+      color: #6f5861;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .subactivities {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #eadfe4;
+      display: grid;
+      gap: 10px;
+    }
+
+    .subactivity-item {
+      background: #fcfafb;
+      border: 1px solid #eee7ea;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .note-box {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .note-box h4 { margin: 0 0 10px; color: var(--primary); }
+
+    .empty-state {
+      padding: 18px;
+      border: 1px dashed #dfcdd4;
+      border-radius: 18px;
+      background: #fffafb;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .purchase-layout {
+      display: grid;
+      grid-template-columns: minmax(300px,.9fr) 1.4fr;
+      gap: 18px;
+    }
+
+    .form-card, .list-card {
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #efe8eb;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 12px;
+      background: #fcfafb;
+    }
+
+    .table-wrap { overflow: auto; }
+
+    .statusbar {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-wrap {
+      position: fixed;
+      inset: 0;
+      background: rgba(62, 31, 41, .28);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-wrap.open { display: flex; }
+
+    .modal {
+      width: min(720px, 100%);
+      background: #fff;
+      border: 1px solid #eadfe4;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(82, 33, 48, .18);
+    }
+
+    .modal-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, rgba(143,31,67,.06), rgba(255,255,255,.9));
+    }
+
+    .modal-body { padding: 18px; }
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 16px 18px;
+      border-top: 1px solid var(--line);
+      background: #fcfafb;
+    }
+
+    .pill-key {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .key-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .key-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .key-dot.trip { background: #d998ac; }
+    .key-dot.activity { background: #dfb2c0; }
+    .key-dot.task { background: #cdd5df; }
+    .key-dot.purchaseActivity { background: #efc3d1; }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.55;
+    }
+
+    .split-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 1200px) {
+      .calendar-layout, .purchase-layout, .header-inner {
+        grid-template-columns: 1fr;
+      }
+      .side-panel { position: static; }
+    }
+
+    @media (max-width: 800px) {
+      .page { width: min(100%, calc(100% - 12px)); }
+      .day-cell { min-height: 115px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-strip"></div>
+  <div class="page">
+    <header class="header">
+      <div class="header-inner">
+        <div>
+          <div class="brandline"><span class="branddot"></span> Vacation Planner · Qatar → Egypt</div>
+          <h1>Outlook-style vacation calendar for your summer trip</h1>
+          <p class="hero-note">
+            Plan activities, multi-day trips, day-specific tasks, and purchase activities in one light, modern workspace.
+            Purchases are managed on a dedicated page and can be assigned to any <strong>Purchase Activity</strong> created on the calendar.
+          </p>
+          <div class="hero-actions">
+            <button class="primary" id="addActivityBtn">＋ Add Activity</button>
+            <button class="soft" id="addTripBtn">✈ Add Trip</button>
+            <button class="soft" id="addTaskBtn">✓ Add Task</button>
+            <button class="soft" id="addPurchaseActivityBtn">🛍 Add Purchase Activity</button>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-grid">
+            <div class="stat">
+              <label>Trip Window</label>
+              <strong id="statRange">16 Jul – 23 Aug 2026</strong>
+            </div>
+            <div class="stat">
+              <label>Total Days</label>
+              <strong id="statDays">39</strong>
+            </div>
+            <div class="stat">
+              <label>Total Events</label>
+              <strong id="statEvents">0</strong>
+            </div>
+            <div class="stat">
+              <label>Planned Purchases</label>
+              <strong id="statPurchases">0</strong>
+            </div>
+          </div>
+          <div class="statusbar" id="saveStatus">Connecting to Azure...</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="tabs">
+      <div class="tabbar">
+        <button class="tablink active" data-tab="calendarTab">Calendar</button>
+        <button class="tablink" data-tab="purchasesTab">Purchases</button>
+      </div>
+
+      <div class="tabpane" id="calendarTab">
+        <div class="toolbar">
+          <div class="filters">
+            <input type="date" id="jumpDate" style="max-width: 180px;" />
+            <button id="jumpBtn">Jump to Date</button>
+            <button class="ghost" id="todayBtn">Trip Start</button>
+            <span class="helper">Corrected calendar alignment: <strong>Thursday, 16 July 2026</strong>.</span>
+          </div>
+          <div class="split-actions">
+            <div class="pill-key">
+              <span class="key-item"><span class="key-dot trip"></span>Trip</span>
+              <span class="key-item"><span class="key-dot activity"></span>Activity</span>
+              <span class="key-item"><span class="key-dot task"></span>Task</span>
+              <span class="key-item"><span class="key-dot purchaseActivity"></span>Purchase Activity</span>
+            </div>
+            <div class="filters">
+              <button id="exportBtn">Export JSON</button>
+              <label class="button ghost" for="importInput">Import JSON</label>
+              <input type="file" id="importInput" accept="application/json" class="hidden" />
+              <button class="danger" id="resetBtn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="calendar-layout">
+          <div class="calendar-area">
+            <div class="section-head">
+              <h2>Monthly Calendar</h2>
+              <span class="helper">Click any day to review or plan activities in parallel with trips.</span>
+            </div>
+            <div class="section-body" id="calendarMonths"></div>
+          </div>
+
+          <aside class="side-panel">
+            <div class="section-head">
+              <h2>Selected Day</h2>
+              <div class="filters">
+                <button class="small" id="quickAddDayBtn">Add to Day</button>
+              </div>
+            </div>
+            <div class="section-body" id="selectedDayPanel"></div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="tabpane hidden" id="purchasesTab">
+        <div class="purchase-layout">
+          <div class="form-card">
+            <div class="section-head">
+              <h2>Add / Edit Purchase</h2>
+              <button class="small soft" id="clearPurchaseFormBtn">Clear</button>
+            </div>
+            <div class="section-body">
+              <form id="purchaseForm">
+                <input type="hidden" id="purchaseId" />
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="purchaseItem">Item</label>
+                    <input id="purchaseItem" required placeholder="e.g., Summer clothes" />
+                  </div>
+                  <div class="field">
+                    <label for="purchaseCategory">Category</label>
+                    <input id="purchaseCategory" placeholder="e.g., Clothes, Shoes, Gifts" />
+                  </div>
+                  <div class="field">
+                    <label for="purchaseQty">Quantity</label>
+                    <input id="purchaseQty" type="number" min="1" value="1" />
+                  </div>
+                  <div class="field">
+                    <label for="purchaseBudget">Budget</label>
+                    <input id="purchaseBudget" placeholder="e.g., 600 EGP" />
+                  </div>
+                  <div class="field full">
+                    <label for="purchaseAssignedTo">Assign to Purchase Activity</label>
+                    <select id="purchaseAssignedTo"></select>
+                    <div class="helper">Create purchase activities on the calendar, then assign purchases here.</div>
+                  </div>
+                  <div class="field full">
+                    <label for="purchaseNotes">Notes</label>
+                    <textarea id="purchaseNotes" placeholder="Store, preferred brand, color, reminders..."></textarea>
+                  </div>
+                </div>
+                <div class="hero-actions">
+                  <button type="submit" class="primary">Save Purchase</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="list-card">
+            <div class="section-head">
+              <h2>Purchase Planner</h2>
+              <span class="helper">All purchases can live independently and be attached to a purchase activity later.</span>
+            </div>
+            <div class="section-body table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Budget</th>
+                    <th>Assigned Activity</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="purchaseTableBody"></tbody>
+              </table>
+              <div id="purchaseEmpty" class="empty-state hidden">No purchases yet. Add clothes, gifts, accessories, or any Egypt shopping plan here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-wrap" id="eventModalWrap">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add Event</h3>
+        <button class="small" id="closeModalBtn">✕</button>
+      </div>
+      <form id="eventForm">
+        <div class="modal-body">
+          <input type="hidden" id="eventId" />
+          <div class="form-grid">
+            <div class="field">
+              <label for="eventType">Event Type</label>
+              <select id="eventType">
+                <option value="activity">Activity</option>
+                <option value="trip">Trip</option>
+                <option value="task">Task</option>
+                <option value="purchaseActivity">Purchase Activity</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="eventTitle">Title</label>
+              <input id="eventTitle" required placeholder="Event title" />
+            </div>
+
+            <div class="field js-single-date">
+              <label for="eventDate">Date</label>
+              <input id="eventDate" type="date" />
+            </div>
+            <div class="field js-single-date">
+              <label for="eventTime">Time</label>
+              <input id="eventTime" type="time" />
+            </div>
+
+            <div class="field js-trip-range hidden">
+              <label for="tripStartDate">Start Date</label>
+              <input id="tripStartDate" type="date" />
+            </div>
+            <div class="field js-trip-range hidden">
+              <label for="tripEndDate">End Date</label>
+              <input id="tripEndDate" type="date" />
+            </div>
+            <div class="field js-trip-range hidden">
+              <label for="tripFrom">From</label>
+              <input id="tripFrom" placeholder="e.g., Cairo" />
+            </div>
+            <div class="field js-trip-range hidden">
+              <label for="tripTo">To</label>
+              <input id="tripTo" placeholder="e.g., Alexandria" />
+            </div>
+
+            <div class="field js-location-field">
+              <label for="eventLocation">Location / Place</label>
+              <input id="eventLocation" placeholder="e.g., specific shop or restaurant" />
+            </div>
+            <div class="field js-parent-field">
+              <label for="parentTripId">Attach to Trip (optional)</label>
+              <select id="parentTripId"></select>
+              <div class="helper">Use this for activities that happen inside a multi-day trip.</div>
+            </div>
+            <div class="field full">
+              <label for="eventNotes">Notes</label>
+              <textarea id="eventNotes" placeholder="Extra details, meeting point, what to bring, reminders..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <div>
+            <button type="button" class="danger hidden" id="deleteEventBtn">Delete Event</button>
+          </div>
+          <div class="filters">
+            <button type="button" id="cancelModalBtn">Cancel</button>
+            <button type="submit" class="primary">Save Event</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <script>
+    const TRIP_ID = 'egypt-2026';
+    const DEFAULT_DATA = {
+      version: '2.0-azure',
+      trip: {
+        title: 'Qatar to Egypt Vacation Planner',
+        origin: 'Qatar',
+        destination: 'Egypt',
+        startDate: '2026-07-16',
+        endDate: '2026-08-23',
+        currency: 'QAR / EGP'
+      },
+      settings: {
+        calendarStartDay: 0,
+        selectedDate: '2026-07-16',
+        view: 'month'
+      },
+      events: [],
+      purchases: [],
+      notesByDate: {}
+    };
+
+    let state = clone(DEFAULT_DATA);
+    let isBusy = false;
+
+    const el = {
+      statRange: document.getElementById('statRange'),
+      statDays: document.getElementById('statDays'),
+      statEvents: document.getElementById('statEvents'),
+      statPurchases: document.getElementById('statPurchases'),
+      saveStatus: document.getElementById('saveStatus'),
+      jumpDate: document.getElementById('jumpDate'),
+      calendarMonths: document.getElementById('calendarMonths'),
+      selectedDayPanel: document.getElementById('selectedDayPanel'),
+      purchaseTableBody: document.getElementById('purchaseTableBody'),
+      purchaseEmpty: document.getElementById('purchaseEmpty'),
+      purchaseAssignedTo: document.getElementById('purchaseAssignedTo'),
+      purchaseForm: document.getElementById('purchaseForm'),
+      purchaseId: document.getElementById('purchaseId'),
+      purchaseItem: document.getElementById('purchaseItem'),
+      purchaseCategory: document.getElementById('purchaseCategory'),
+      purchaseQty: document.getElementById('purchaseQty'),
+      purchaseBudget: document.getElementById('purchaseBudget'),
+      purchaseNotes: document.getElementById('purchaseNotes'),
+      eventModalWrap: document.getElementById('eventModalWrap'),
+      eventForm: document.getElementById('eventForm'),
+      eventId: document.getElementById('eventId'),
+      eventType: document.getElementById('eventType'),
+      eventTitle: document.getElementById('eventTitle'),
+      eventDate: document.getElementById('eventDate'),
+      eventTime: document.getElementById('eventTime'),
+      tripStartDate: document.getElementById('tripStartDate'),
+      tripEndDate: document.getElementById('tripEndDate'),
+      tripFrom: document.getElementById('tripFrom'),
+      tripTo: document.getElementById('tripTo'),
+      eventLocation: document.getElementById('eventLocation'),
+      parentTripId: document.getElementById('parentTripId'),
+      eventNotes: document.getElementById('eventNotes'),
+      modalTitle: document.getElementById('modalTitle'),
+      deleteEventBtn: document.getElementById('deleteEventBtn')
+    };
+
+    init();
+
+    async function init() {
+      bindUI();
+      sanitizeState();
+      renderAll();
+      await refreshFromAzure('Connected to Azure.');
+    }
+
+    function bindUI() {
+      document.querySelectorAll('.tablink').forEach(btn => {
+        btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+      });
+
+      document.getElementById('addActivityBtn').addEventListener('click', () => openEventModal('activity', state.settings.selectedDate));
+      document.getElementById('addTripBtn').addEventListener('click', () => openEventModal('trip', state.settings.selectedDate));
+      document.getElementById('addTaskBtn').addEventListener('click', () => openEventModal('task', state.settings.selectedDate));
+      document.getElementById('addPurchaseActivityBtn').addEventListener('click', () => openEventModal('purchaseActivity', state.settings.selectedDate));
+      document.getElementById('quickAddDayBtn').addEventListener('click', () => openEventModal('activity', state.settings.selectedDate));
+
+      document.getElementById('jumpBtn').addEventListener('click', jumpToDate);
+      document.getElementById('todayBtn').addEventListener('click', () => {
+        state.settings.selectedDate = state.trip.startDate;
+        el.jumpDate.value = state.trip.startDate;
+        renderAll();
+        setSaveStatus('Trip start selected.');
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', exportData);
+      document.getElementById('resetBtn').addEventListener('click', resetCloudState);
+      document.getElementById('importInput').addEventListener('change', importData);
+
+      el.eventType.addEventListener('change', syncEventFormType);
+      document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+      document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+      el.deleteEventBtn.addEventListener('click', deleteCurrentEvent);
+      el.eventForm.addEventListener('submit', saveEventFromForm);
+
+      el.purchaseForm.addEventListener('submit', savePurchaseFromForm);
+      document.getElementById('clearPurchaseFormBtn').addEventListener('click', clearPurchaseForm);
+
+      window.addEventListener('click', (event) => {
+        if (event.target === el.eventModalWrap) closeModal();
+      });
+    }
+
+    function sanitizeState() {
+      state.events = Array.isArray(state.events) ? state.events : [];
+      state.purchases = Array.isArray(state.purchases) ? state.purchases : [];
+      state.notesByDate = state.notesByDate || {};
+      state.settings = state.settings || clone(DEFAULT_DATA.settings);
+      if (!state.settings.selectedDate) state.settings.selectedDate = state.trip.startDate;
+      if (!isDateInRange(state.settings.selectedDate, state.trip.startDate, state.trip.endDate)) {
+        state.settings.selectedDate = state.trip.startDate;
+      }
+      el.jumpDate.value = state.settings.selectedDate;
+    }
+
+    async function refreshFromAzure(message = 'Loaded from Azure.') {
+      try {
+        setBusy(true, 'Loading planner from Azure...');
+        const data = await apiGet(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}`);
+        const items = Array.isArray(data.items) ? data.items : [];
+        const previousSelectedDate = state.settings.selectedDate;
+        state = clone(DEFAULT_DATA);
+        state.settings.selectedDate = previousSelectedDate || state.trip.startDate;
+        state.events = items.filter(item => item.kind === 'event').map(mapEventFromApi);
+        state.purchases = items.filter(item => item.kind === 'purchase').map(mapPurchaseFromApi);
+        state.notesByDate = {};
+        items.filter(item => item.kind === 'note').forEach(item => {
+          if (item.date) state.notesByDate[item.date] = item.notes || '';
+        });
+        sanitizeState();
+        renderAll();
+        setSaveStatus(message);
+      } catch (error) {
+        console.error(error);
+        setSaveStatus('Azure load failed: ' + error.message);
+        alert('Azure load failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function setBusy(value, message) {
+      isBusy = value;
+      document.querySelectorAll('button, input, select, textarea').forEach(node => {
+        if (node.id !== 'closeModalBtn' && node.id !== 'cancelModalBtn') node.disabled = value;
+      });
+      if (message) setSaveStatus(message);
+    }
+
+    function renderAll() {
+      renderStats();
+      renderCalendar();
+      renderSelectedDay();
+      renderPurchaseAssignments();
+      renderPurchases();
+    }
+
+    function renderStats() {
+      const tripDays = daysBetweenInclusive(state.trip.startDate, state.trip.endDate);
+      el.statRange.textContent = `${formatShortDate(state.trip.startDate)} – ${formatShortDate(state.trip.endDate)} ${state.trip.endDate.slice(0,4)}`;
+      el.statDays.textContent = tripDays;
+      el.statEvents.textContent = state.events.length;
+      el.statPurchases.textContent = state.purchases.length;
+    }
+
+    function renderCalendar() {
+      const start = new Date(state.trip.startDate + 'T00:00:00');
+      const end = new Date(state.trip.endDate + 'T00:00:00');
+      const months = [];
+      let cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+      while (cursor <= end) {
+        months.push({ year: cursor.getFullYear(), month: cursor.getMonth() });
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      }
+
+      el.calendarMonths.innerHTML = months.map(m => buildMonthHTML(m.year, m.month)).join('');
+      el.calendarMonths.querySelectorAll('.day-cell.in-range').forEach(cell => {
+        cell.addEventListener('click', () => {
+          state.settings.selectedDate = cell.dataset.date;
+          el.jumpDate.value = cell.dataset.date;
+          renderAll();
+          setSaveStatus('Day selected.');
+        });
+      });
+      el.calendarMonths.querySelectorAll('.event-pill[data-event-id]').forEach(pill => {
+        pill.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openExistingEvent(pill.dataset.eventId);
+        });
+      });
+    }
+
+    function buildMonthHTML(year, month) {
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const firstWeekday = first.getDay();
+      const daysInMonth = last.getDate();
+      const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const cells = [];
+
+      for (let i = 0; i < firstWeekday; i++) cells.push(`<div class="day-cell muted"></div>`);
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = toISODate(new Date(year, month, day));
+        const selected = dateStr === state.settings.selectedDate ? 'selected' : '';
+        const inRange = isDateInRange(dateStr, state.trip.startDate, state.trip.endDate);
+        const events = inRange ? getEventsForDate(dateStr) : [];
+        const visibleEvents = events.slice(0, 4).map(evt => {
+          const child = evt.parentTripId ? 'child' : '';
+          return `<span class="event-pill ${evt.type} ${child}" data-event-id="${evt.id}" title="${escapeHtml(evt.title)}">${escapeHtml(compactEventLabel(evt))}</span>`;
+        }).join('');
+        const more = events.length > 4 ? `<div class="more-indicator">+${events.length - 4} more</div>` : '';
+        const tag = dateStr === state.trip.startDate ? '<span class="mini-tag">Start</span>' : (dateStr === state.trip.endDate ? '<span class="mini-tag">End</span>' : '');
+
+        cells.push(`
+          <div class="day-cell in-range ${selected}" data-date="${dateStr}">
+            <div class="date-top">
+              <span class="date-number">${day}</span>
+              ${tag}
+            </div>
+            <div class="events-stack">${visibleEvents}${more}</div>
+          </div>
+        `);
+      }
+
+      while (cells.length % 7 !== 0) cells.push(`<div class="day-cell muted"></div>`);
+
+      return `
+        <div class="month-card" id="month-${year}-${String(month+1).padStart(2,'0')}">
+          <div class="month-head">
+            <h3>${monthName(month)} ${year}</h3>
+            <span class="helper">${daysInMonth} days</span>
+          </div>
+          <div class="weekday-row">${weekdayNames.map(w => `<div>${w}</div>`).join('')}</div>
+          <div class="month-grid">${cells.join('')}</div>
+        </div>
+      `;
+    }
+
+    function renderSelectedDay() {
+      const dateStr = state.settings.selectedDate;
+      const events = getEventsForDate(dateStr);
+      const notes = state.notesByDate[dateStr] || '';
+      const topLevel = events.filter(evt => !evt.parentTripId);
+      const htmlCards = topLevel.map(evt => renderAgendaCard(evt, dateStr)).join('');
+      const count = events.length;
+
+      el.selectedDayPanel.innerHTML = `
+        <div class="day-title">
+          <div>
+            <h3>${formatLongDate(dateStr)}</h3>
+            <div class="day-sub">${count ? 'Showing all events for the selected day, including activities inside trips.' : 'No events planned for this day yet.'}</div>
+          </div>
+          <span class="count-badge">${count} event${count === 1 ? '' : 's'}</span>
+        </div>
+        <div class="agenda-list">
+          ${htmlCards || `<div class="empty-state">Use <strong>Add Activity</strong>, <strong>Add Trip</strong>, <strong>Add Task</strong>, or <strong>Add Purchase Activity</strong> to start planning this day.</div>`}
+        </div>
+        <div class="note-box">
+          <h4>Day Notes</h4>
+          <textarea id="dayNotesArea" placeholder="General note for ${formatLongDate(dateStr)}">${escapeHtml(notes)}</textarea>
+          <div class="hero-actions" style="margin-top:10px;">
+            <button id="saveDayNoteBtn" class="small primary">Save Note</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('saveDayNoteBtn').addEventListener('click', async () => {
+        const value = document.getElementById('dayNotesArea').value.trim();
+        await saveDayNote(dateStr, value);
+      });
+
+      el.selectedDayPanel.querySelectorAll('[data-edit-event]').forEach(btn => {
+        btn.addEventListener('click', () => openExistingEvent(btn.dataset.editEvent));
+      });
+    }
+
+    function renderAgendaCard(evt, dateStr) {
+      const childActivities = state.events.filter(item => item.parentTripId === evt.id && item.date === dateStr).sort(sortByTimeThenTitle);
+      const linkedPurchases = evt.type === 'purchaseActivity' ? state.purchases.filter(p => p.assignedTo === evt.id) : [];
+      const tripMeta = evt.type === 'trip'
+        ? `${formatShortDate(evt.startDate)} → ${formatShortDate(evt.endDate)}${evt.from || evt.to ? ` · ${escapeHtml(evt.from || '—')} → ${escapeHtml(evt.to || '—')}` : ''}`
+        : `${evt.date ? formatLongDate(evt.date) : ''}${evt.time ? ` · ${evt.time}` : ''}${evt.location ? ` · ${escapeHtml(evt.location)}` : ''}`;
+
+      return `
+        <div class="agenda-card ${evt.type}">
+          <div class="card-top">
+            <div>
+              <strong>${escapeHtml(evt.title)}</strong>
+              <div class="card-meta">${tripMeta}</div>
+            </div>
+            <button class="small" data-edit-event="${evt.id}">Edit</button>
+          </div>
+          ${evt.notes ? `<div class="card-meta">${escapeHtml(evt.notes)}</div>` : ''}
+          <div class="tag-row">
+            <span class="tag">${labelForType(evt.type)}</span>
+            ${evt.parentTripId ? `<span class="tag">Inside trip</span>` : ''}
+            ${linkedPurchases.length ? `<span class="tag">${linkedPurchases.length} linked purchase${linkedPurchases.length === 1 ? '' : 's'}</span>` : ''}
+          </div>
+          ${evt.type === 'trip' ? renderTripChildrenSection(evt, dateStr, childActivities) : ''}
+          ${evt.type === 'purchaseActivity' && linkedPurchases.length ? renderLinkedPurchases(linkedPurchases) : ''}
+        </div>
+      `;
+    }
+
+    function renderTripChildrenSection(trip, dateStr, childActivities) {
+      const allChildrenInTrip = state.events.filter(item => item.parentTripId === trip.id).sort((a,b) => (a.date || '').localeCompare(b.date || '') || sortByTimeThenTitle(a,b));
+      const content = childActivities.length
+        ? childActivities.map(item => `
+            <div class="subactivity-item">
+              <strong>${escapeHtml(item.title)}</strong>
+              <div class="card-meta">${item.time ? item.time + ' · ' : ''}${item.location ? escapeHtml(item.location) : 'No location specified'}</div>
+              ${item.notes ? `<div class="card-meta">${escapeHtml(item.notes)}</div>` : ''}
+            </div>`).join('')
+        : `<div class="helper">No nested activities on this specific day.${allChildrenInTrip.length ? ` This trip has ${allChildrenInTrip.length} nested activit${allChildrenInTrip.length === 1 ? 'y' : 'ies'} across its range.` : ''}</div>`;
+
+      return `
+        <div class="subactivities">
+          <strong style="color:var(--primary); font-size:13px;">Activities inside this trip for ${formatShortDate(dateStr)}</strong>
+          ${content}
+        </div>
+      `;
+    }
+
+    function renderLinkedPurchases(items) {
+      return `
+        <div class="subactivities">
+          <strong style="color:var(--primary); font-size:13px;">Linked purchases</strong>
+          ${items.map(item => `
+            <div class="subactivity-item">
+              <strong>${escapeHtml(item.item)}</strong>
+              <div class="card-meta">${escapeHtml(item.category || 'General')} · Qty ${item.qty || 1}${item.budget ? ` · ${escapeHtml(item.budget)}` : ''}</div>
+              ${item.notes ? `<div class="card-meta">${escapeHtml(item.notes)}</div>` : ''}
+            </div>`).join('')}
+        </div>
+      `;
+    }
+
+    function renderPurchaseAssignments() {
+      const purchaseActivities = state.events.filter(evt => evt.type === 'purchaseActivity').sort((a,b) => (a.date || '').localeCompare(b.date || '') || a.title.localeCompare(b.title));
+      const tripOptions = state.events.filter(evt => evt.type === 'trip').sort((a,b) => (a.startDate || '').localeCompare(b.startDate || '') || a.title.localeCompare(b.title));
+
+      el.purchaseAssignedTo.innerHTML = `<option value="">Unassigned</option>` + purchaseActivities
+        .map(evt => `<option value="${evt.id}">${escapeHtml(evt.title)} · ${formatShortDate(evt.date)}</option>`).join('');
+
+      el.parentTripId.innerHTML = `<option value="">Not attached to a trip</option>` + tripOptions
+        .map(evt => `<option value="${evt.id}">${escapeHtml(evt.title)} · ${formatShortDate(evt.startDate)} → ${formatShortDate(evt.endDate)}</option>`).join('');
+    }
+
+    function renderPurchases() {
+      const rows = state.purchases.map(item => {
+        const assignment = item.assignedTo ? state.events.find(evt => evt.id === item.assignedTo) : null;
+        return `
+          <tr>
+            <td><strong>${escapeHtml(item.item)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td>
+            <td>${escapeHtml(item.category || '')}</td>
+            <td>${item.qty || 1}</td>
+            <td>${escapeHtml(item.budget || '')}</td>
+            <td>${assignment ? `${escapeHtml(assignment.title)}<div class="helper">${formatLongDate(assignment.date)}</div>` : '<span class="helper">Unassigned</span>'}</td>
+            <td>
+              <div class="filters">
+                <button class="small" onclick="editPurchase('${item.id}')">Edit</button>
+                <button class="small danger" onclick="deletePurchase('${item.id}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      el.purchaseTableBody.innerHTML = rows;
+      el.purchaseEmpty.classList.toggle('hidden', state.purchases.length > 0);
+    }
+
+    async function savePurchaseFromForm(event) {
+      event.preventDefault();
+      const existingId = el.purchaseId.value;
+      const payload = {
+        id: existingId || uid('purchase'),
+        tripId: TRIP_ID,
+        kind: 'purchase',
+        item: el.purchaseItem.value.trim(),
+        category: document.getElementById('purchaseCategory').value.trim(),
+        qty: Number(document.getElementById('purchaseQty').value) || 1,
+        budget: document.getElementById('purchaseBudget').value.trim(),
+        assignedTo: el.purchaseAssignedTo.value || '',
+        notes: document.getElementById('purchaseNotes').value.trim(),
+        status: 'planned'
+      };
+
+      try {
+        setBusy(true, existingId ? 'Updating purchase...' : 'Saving purchase...');
+        if (existingId) await apiPut('/api/planner', payload);
+        else await apiPost('/api/planner', payload);
+        clearPurchaseForm();
+        setActiveTab('purchasesTab');
+        await refreshFromAzure('Purchase saved to Azure.');
+      } catch (error) {
+        alert('Purchase save failed: ' + error.message);
+        setSaveStatus('Purchase save failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function clearPurchaseForm() {
+      el.purchaseForm.reset();
+      el.purchaseId.value = '';
+      el.purchaseQty.value = 1;
+      el.purchaseAssignedTo.value = '';
+    }
+
+    function editPurchase(id) {
+      const item = state.purchases.find(p => p.id === id);
+      if (!item) return;
+      setActiveTab('purchasesTab');
+      el.purchaseId.value = item.id;
+      el.purchaseItem.value = item.item || '';
+      document.getElementById('purchaseCategory').value = item.category || '';
+      document.getElementById('purchaseQty').value = item.qty || 1;
+      document.getElementById('purchaseBudget').value = item.budget || '';
+      el.purchaseAssignedTo.value = item.assignedTo || '';
+      document.getElementById('purchaseNotes').value = item.notes || '';
+      setSaveStatus('Editing purchase...');
+    }
+
+    async function deletePurchase(id) {
+      if (!confirm('Delete this purchase?')) return;
+      try {
+        setBusy(true, 'Deleting purchase...');
+        await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
+        clearPurchaseForm();
+        await refreshFromAzure('Purchase deleted from Azure.');
+      } catch (error) {
+        alert('Delete failed: ' + error.message);
+        setSaveStatus('Delete failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    window.editPurchase = editPurchase;
+    window.deletePurchase = deletePurchase;
+
+    function openEventModal(type = 'activity', date = state.settings.selectedDate) {
+      clearEventForm();
+      el.modalTitle.textContent = 'Add Event';
+      el.eventType.value = type;
+      el.eventDate.value = date;
+      el.tripStartDate.value = date;
+      el.tripEndDate.value = date;
+      el.deleteEventBtn.classList.add('hidden');
+      syncEventFormType();
+      el.eventModalWrap.classList.add('open');
+    }
+
+    function openExistingEvent(id) {
+      const evt = state.events.find(item => item.id === id);
+      if (!evt) return;
+      clearEventForm();
+      el.modalTitle.textContent = 'Edit Event';
+      el.eventId.value = evt.id;
+      el.eventType.value = evt.type;
+      el.eventTitle.value = evt.title || '';
+      el.eventDate.value = evt.date || state.settings.selectedDate;
+      el.eventTime.value = evt.time || '';
+      el.tripStartDate.value = evt.startDate || state.settings.selectedDate;
+      el.tripEndDate.value = evt.endDate || state.settings.selectedDate;
+      el.tripFrom.value = evt.from || '';
+      el.tripTo.value = evt.to || '';
+      el.eventLocation.value = evt.location || '';
+      el.parentTripId.value = evt.parentTripId || '';
+      el.eventNotes.value = evt.notes || '';
+      el.deleteEventBtn.classList.remove('hidden');
+      syncEventFormType();
+      el.eventModalWrap.classList.add('open');
+    }
+
+    function clearEventForm() {
+      el.eventForm.reset();
+      el.eventId.value = '';
+      el.parentTripId.value = '';
+    }
+
+    function closeModal() {
+      el.eventModalWrap.classList.remove('open');
+    }
+
+    function syncEventFormType() {
+      const type = el.eventType.value;
+      const singleFields = document.querySelectorAll('.js-single-date');
+      const tripFields = document.querySelectorAll('.js-trip-range');
+      const parentField = document.querySelector('.js-parent-field');
+      const locationField = document.querySelector('.js-location-field');
+      const isTrip = type === 'trip';
+      singleFields.forEach(field => field.classList.toggle('hidden', isTrip));
+      tripFields.forEach(field => field.classList.toggle('hidden', !isTrip));
+      parentField.classList.toggle('hidden', isTrip || type === 'task');
+      locationField.classList.toggle('hidden', isTrip);
+    }
+
+    async function saveEventFromForm(event) {
+      event.preventDefault();
+      const type = el.eventType.value;
+      const id = el.eventId.value || uid('event');
+      let payload;
+
+      if (type === 'trip') {
+        const startDate = el.tripStartDate.value || state.settings.selectedDate;
+        const endDate = el.tripEndDate.value || startDate;
+        payload = {
+          id,
+          tripId: TRIP_ID,
+          kind: 'event',
+          type,
+          title: el.eventTitle.value.trim(),
+          startDate,
+          endDate: endDate < startDate ? startDate : endDate,
+          from: el.tripFrom.value.trim(),
+          to: el.tripTo.value.trim(),
+          notes: el.eventNotes.value.trim()
+        };
+      } else {
+        payload = {
+          id,
+          tripId: TRIP_ID,
+          kind: 'event',
+          type,
+          title: el.eventTitle.value.trim(),
+          date: el.eventDate.value || state.settings.selectedDate,
+          time: el.eventTime.value || '',
+          location: el.eventLocation.value.trim(),
+          parentTripId: el.parentTripId.value || '',
+          notes: el.eventNotes.value.trim()
+        };
+      }
+
+      try {
+        setBusy(true, el.eventId.value ? 'Updating event...' : 'Saving event...');
+        if (el.eventId.value) await apiPut('/api/planner', payload);
+        else await apiPost('/api/planner', payload);
+        state.settings.selectedDate = type === 'trip' ? payload.startDate : payload.date;
+        el.jumpDate.value = state.settings.selectedDate;
+        closeModal();
+        await refreshFromAzure('Event saved to Azure.');
+      } catch (error) {
+        alert('Event save failed: ' + error.message);
+        setSaveStatus('Event save failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteCurrentEvent() {
+      const id = el.eventId.value;
+      if (!id) return;
+      if (!confirm('Delete this event? Child activities will also be deleted. Linked purchases will become unassigned if this is a purchase activity.')) return;
+
+      try {
+        setBusy(true, 'Deleting event...');
+        const childIds = state.events.filter(evt => evt.parentTripId === id).map(evt => evt.id);
+        for (const childId of childIds) {
+          await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(childId)}`);
+        }
+        await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
+
+        const linkedPurchases = state.purchases.filter(item => item.assignedTo === id);
+        for (const purchase of linkedPurchases) {
+          await apiPut('/api/planner', { ...purchase, tripId: TRIP_ID, kind: 'purchase', assignedTo: '' });
+        }
+
+        closeModal();
+        await refreshFromAzure('Event deleted from Azure.');
+      } catch (error) {
+        alert('Event delete failed: ' + error.message);
+        setSaveStatus('Event delete failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function saveDayNote(dateStr, notes) {
+      try {
+        setBusy(true, 'Saving day note...');
+        const id = `note_${dateStr}`;
+        await apiPut('/api/planner', { id, tripId: TRIP_ID, kind: 'note', date: dateStr, notes });
+        state.notesByDate[dateStr] = notes;
+        await refreshFromAzure('Day note saved to Azure.');
+      } catch (error) {
+        alert('Day note save failed: ' + error.message);
+        setSaveStatus('Day note save failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function resetCloudState() {
+      if (!confirm('Delete all Azure planner data for this trip? This cannot be undone.')) return;
+      try {
+        setBusy(true, 'Resetting Azure planner...');
+        const allIds = [
+          ...state.events.map(x => x.id),
+          ...state.purchases.map(x => x.id),
+          ...Object.keys(state.notesByDate).map(date => `note_${date}`)
+        ];
+        for (const id of allIds) {
+          await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
+        }
+        state = clone(DEFAULT_DATA);
+        sanitizeState();
+        renderAll();
+        setSaveStatus('Azure planner reset.');
+      } catch (error) {
+        alert('Reset failed: ' + error.message);
+        setSaveStatus('Reset failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function getEventsForDate(dateStr) {
+      return state.events.filter(evt => {
+        if (evt.type === 'trip') return isDateInRange(dateStr, evt.startDate, evt.endDate);
+        return evt.date === dateStr;
+      }).sort(eventSortForDisplay);
+    }
+
+    function eventSortForDisplay(a, b) {
+      const order = { trip: 0, activity: 1, purchaseActivity: 2, task: 3 };
+      return (order[a.type] ?? 9) - (order[b.type] ?? 9)
+        || (a.time || '').localeCompare(b.time || '')
+        || (a.title || '').localeCompare(b.title || '');
+    }
+
+    function sortByTimeThenTitle(a, b) {
+      return (a.time || '').localeCompare(b.time || '') || (a.title || '').localeCompare(b.title || '');
+    }
+
+    function compactEventLabel(evt) {
+      if (evt.type === 'trip') {
+        const dir = evt.to ? ` → ${evt.to}` : '';
+        return `✈ ${evt.title}${dir}`;
+      }
+      if (evt.type === 'task') return `✓ ${evt.title}`;
+      if (evt.type === 'purchaseActivity') return `🛍 ${evt.title}`;
+      return `${evt.parentTripId ? '↳ ' : ''}${evt.time ? evt.time + ' ' : ''}${evt.title}`;
+    }
+
+    function labelForType(type) {
+      return { activity: 'Activity', trip: 'Trip', task: 'Task', purchaseActivity: 'Purchase Activity' }[type] || type;
+    }
+
+    function jumpToDate() {
+      const value = el.jumpDate.value;
+      if (!value) return;
+      if (!isDateInRange(value, state.trip.startDate, state.trip.endDate)) {
+        alert('Please choose a date inside the trip range.');
+        return;
+      }
+      state.settings.selectedDate = value;
+      renderAll();
+      setSaveStatus('Jumped to date.');
+      const monthId = '#month-' + value.slice(0,7).replace('-', '-');
+      document.querySelector(monthId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function setActiveTab(tabId) {
+      document.querySelectorAll('.tablink').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+      document.querySelectorAll('.tabpane').forEach(pane => pane.classList.toggle('hidden', pane.id !== tabId));
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'catalog-data_azure.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      setSaveStatus('Exported current Azure data snapshot.');
+    }
+
+    async function importData(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const importedEvents = Array.isArray(parsed.events) ? parsed.events : [];
+          const importedPurchases = Array.isArray(parsed.purchases) ? parsed.purchases : [];
+          const importedNotes = parsed.notesByDate || {};
+          setBusy(true, 'Importing data to Azure...');
+          for (const evt of importedEvents) await apiPut('/api/planner', normalizeEventForApi(evt));
+          for (const purchase of importedPurchases) await apiPut('/api/planner', normalizePurchaseForApi(purchase));
+          for (const [date, notes] of Object.entries(importedNotes)) {
+            await apiPut('/api/planner', { id: `note_${date}`, tripId: TRIP_ID, kind: 'note', date, notes: String(notes || '') });
+          }
+          await refreshFromAzure('Imported data to Azure.');
+        } catch (err) {
+          alert('Invalid JSON or import failed: ' + err.message);
+        } finally {
+          setBusy(false);
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function mapEventFromApi(item) {
+      const type = item.type || 'activity';
+      if (type === 'trip') {
+        return {
+          id: item.id,
+          type,
+          title: item.title || 'Untitled Trip',
+          startDate: item.startDate || item.date || state.trip.startDate,
+          endDate: item.endDate || item.startDate || item.date || state.trip.startDate,
+          from: item.from || '',
+          to: item.to || '',
+          notes: item.notes || ''
+        };
+      }
+      return {
+        id: item.id,
+        type,
+        title: item.title || 'Untitled Event',
+        date: item.date || item.startDate || state.trip.startDate,
+        time: item.time || '',
+        location: item.location || '',
+        parentTripId: item.parentTripId || '',
+        notes: item.notes || ''
+      };
+    }
+
+    function mapPurchaseFromApi(item) {
+      return {
+        id: item.id,
+        item: item.item || item.title || '',
+        category: item.category || '',
+        qty: Number(item.qty || item.quantity || 1),
+        budget: item.budget || '',
+        assignedTo: item.assignedTo || item.assignedToPurchaseActivityId || '',
+        notes: item.notes || '',
+        status: item.status || 'planned'
+      };
+    }
+
+    function normalizeEventForApi(evt) {
+      return { ...evt, id: evt.id || uid('event'), tripId: TRIP_ID, kind: 'event' };
+    }
+
+    function normalizePurchaseForApi(purchase) {
+      return { ...purchase, id: purchase.id || uid('purchase'), tripId: TRIP_ID, kind: 'purchase' };
+    }
+
+    async function apiGet(url) {
+      const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const text = await response.text();
+      if (!response.ok) throw new Error(text || `HTTP ${response.status}`);
+      return text ? JSON.parse(text) : {};
+    }
+
+    async function apiPost(url, body) {
+      return apiWrite('POST', url, body);
+    }
+
+    async function apiPut(url, body) {
+      return apiWrite('PUT', url, body);
+    }
+
+    async function apiWrite(method, url, body) {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const text = await response.text();
+      if (!response.ok) throw new Error(text || `HTTP ${response.status}`);
+      return text ? JSON.parse(text) : {};
+    }
+
+    async function apiDelete(url) {
+      const response = await fetch(url, { method: 'DELETE' });
+      const text = await response.text();
+      if (!response.ok) throw new Error(text || `HTTP ${response.status}`);
+      return text ? JSON.parse(text) : {};
+    }
+
+    function setSaveStatus(text) { el.saveStatus.textContent = text; }
+    function daysBetweenInclusive(start, end) { return Math.round((new Date(end + 'T00:00:00') - new Date(start + 'T00:00:00')) / 86400000) + 1; }
+    function isDateInRange(dateStr, start, end) { return dateStr >= start && dateStr <= end; }
+    function toISODate(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
+    function monthName(index) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][index]; }
+    function formatShortDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); }
+    function formatLongDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+    function uid(prefix) { return `${prefix}_${Math.random().toString(36).slice(2, 10)}`; }
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
