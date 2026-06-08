@@ -677,11 +677,240 @@
     }
 
     @media (max-width: 800px) {
-      .page { width: min(100%, calc(100% - 12px)); }
-      .day-cell { min-height: 115px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .toolbar { flex-direction: column; align-items: stretch; }
-      .summary-grid { grid-template-columns: 1fr 1fr; }
+      html, body { overflow-x: hidden; }
+      body { background-size: 28px 28px; }
+      .page {
+        width: min(100%, calc(100% - 14px));
+        padding: 8px 0 20px;
+      }
+      .header, .tabs, .calendar-area, .side-panel, .form-card, .list-card {
+        border-radius: 18px;
+      }
+      .header-inner {
+        padding: 16px;
+        gap: 14px;
+      }
+      .brandline {
+        font-size: 10px;
+        letter-spacing: .12em;
+        line-height: 1.35;
+      }
+      h1 {
+        margin-top: 10px;
+        font-size: clamp(28px, 9vw, 38px);
+        line-height: 1.03;
+        letter-spacing: -0.055em;
+      }
+      .hero-note {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .hero-actions button {
+        width: 100%;
+        justify-content: center;
+        padding: 11px 10px;
+        font-size: 14px;
+        border-radius: 14px;
+      }
+      #addPurchaseActivityBtn { grid-column: 1 / -1; }
+      .summary-card {
+        padding: 12px;
+        border-radius: 18px;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stat {
+        min-height: 92px;
+        padding: 12px;
+        border-radius: 16px;
+      }
+      .stat label {
+        font-size: 10px;
+        letter-spacing: .14em;
+      }
+      .stat strong {
+        font-size: 23px;
+        line-height: 1.08;
+      }
+      .tabbar {
+        padding: 10px;
+        gap: 8px;
+      }
+      .tablink {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 12px;
+      }
+      .tabpane { padding: 10px; }
+      .toolbar, .split-actions, .filters {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+      .filters button, .filters .button, .filters input, .toolbar input {
+        width: 100%;
+        max-width: none !important;
+        justify-content: center;
+      }
+      .pill-key {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+      .key-item {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 10px;
+        justify-content: center;
+      }
+      .calendar-layout, .purchase-layout, .header-inner {
+        grid-template-columns: 1fr;
+      }
+      .section-head {
+        padding: 13px 14px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .section-head h2, .section-head h3 {
+        font-size: 18px;
+      }
+      .calendar-area .section-head .helper {
+        font-size: 12px;
+      }
+      .section-body { padding: 10px; }
+      .month-card {
+        border-radius: 18px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .month-card::after {
+        content: 'Swipe calendar horizontally';
+        display: block;
+        padding: 8px 12px 12px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+      .month-head, .weekday-row, .month-grid {
+        min-width: 640px;
+      }
+      .month-head {
+        padding: 12px 14px;
+      }
+      .month-head h3 {
+        font-size: 20px;
+      }
+      .weekday-row div {
+        padding: 9px 4px;
+        font-size: 11px;
+        letter-spacing: .14em;
+      }
+      .day-cell {
+        min-height: 96px;
+        padding: 6px;
+        gap: 5px;
+      }
+      .date-number {
+        width: 25px;
+        height: 25px;
+        font-size: 13px;
+      }
+      .mini-tag {
+        font-size: 9px;
+        padding: 2px 5px;
+        max-width: 48px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .event-pill {
+        padding: 5px 6px;
+        border-radius: 9px;
+        font-size: 10px;
+        line-height: 1.15;
+      }
+      .more-indicator { font-size: 10px; }
+      .side-panel { position: static; }
+      .day-title {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .count-badge {
+        width: fit-content;
+      }
+      .agenda-card {
+        padding: 12px;
+        border-radius: 16px;
+      }
+      .card-top {
+        flex-direction: column;
+      }
+      .card-top button {
+        width: 100%;
+        justify-content: center;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-grid .full { grid-column: auto; }
+      .modal-wrap {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal {
+        width: 100%;
+        max-height: 92vh;
+        overflow: auto;
+        border-radius: 22px 22px 0 0;
+      }
+      .modal-body { padding: 14px; }
+      .modal-actions {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+      }
+      table, thead, tbody, tr, th, td {
+        display: block;
+      }
+      thead { display: none; }
+      tr {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        margin-bottom: 10px;
+        background: #fff;
+        padding: 10px;
+      }
+      td {
+        border: 0;
+        padding: 7px 0;
+      }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hero-actions { grid-template-columns: 1fr; }
+      #addPurchaseActivityBtn { grid-column: auto; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .stat { min-height: auto; }
+      .month-head, .weekday-row, .month-grid { min-width: 560px; }
+      .day-cell { min-height: 88px; }
     }
   </style>
 </head>
@@ -1288,12 +1517,12 @@
         const assignment = item.assignedTo ? state.events.find(evt => evt.id === item.assignedTo) : null;
         return `
           <tr>
-            <td><strong>${escapeHtml(item.item)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td>
-            <td>${escapeHtml(item.category || '')}</td>
-            <td>${item.qty || 1}</td>
-            <td>${escapeHtml(item.budget || '')}</td>
-            <td>${assignment ? `${escapeHtml(assignment.title)}<div class="helper">${formatLongDate(assignment.date)}</div>` : '<span class="helper">Unassigned</span>'}</td>
-            <td>
+            <td data-label="Item"><strong>${escapeHtml(item.item)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td>
+            <td data-label="Category">${escapeHtml(item.category || '')}</td>
+            <td data-label="Qty">${item.qty || 1}</td>
+            <td data-label="Budget">${escapeHtml(item.budget || '')}</td>
+            <td data-label="Assigned Activity">${assignment ? `${escapeHtml(assignment.title)}<div class="helper">${formatLongDate(assignment.date)}</div>` : '<span class="helper">Unassigned</span>'}</td>
+            <td data-label="Actions">
               <div class="filters">
                 <button class="small" onclick="editPurchase('${item.id}')">Edit</button>
                 <button class="small danger" onclick="deletePurchase('${item.id}')">Delete</button>
