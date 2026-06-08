@@ -1,192 +1,148 @@
-:root {
-  --bg: #f6f3f4;
-  --card: #ffffff;
-  --text: #2f3137;
-  --muted: #747782;
-  --line: #e6dde1;
-  --primary: #8f1f43;
-  --primary2: #b2385d;
-  --soft: #f5e6eb;
-  --shadow: 0 18px 45px rgba(143, 31, 67, 0.10);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-}
+const tripId = "egypt-2026";
 
-* {
-  box-sizing: border-box;
-}
+const eventForm = document.getElementById("eventForm");
+const purchaseForm = document.getElementById("purchaseForm");
+const itemsEl = document.getElementById("items");
+const purchasesEl = document.getElementById("purchases");
+const reloadBtn = document.getElementById("reloadBtn");
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-}
+reloadBtn.addEventListener("click", loadAll);
 
-.app-header {
-  width: min(1280px, calc(100% - 24px));
-  margin: 18px auto;
-  padding: 24px;
-  border-radius: 28px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-}
+eventForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-.eyebrow {
-  margin: 0;
-  color: var(--primary);
-  font-weight: 800;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  font-size: 12px;
-}
+  try {
+    const payload = {
+      tripId,
+      kind: "event",
+      type: document.getElementById("type").value,
+      title: document.getElementById("title").value.trim(),
+      startDate: document.getElementById("startDate").value,
+      endDate: document.getElementById("endDate").value,
+      assignedTo: document.getElementById("assignedTo").value.trim(),
+      location: document.getElementById("location").value.trim(),
+      notes: document.getElementById("notes").value.trim()
+    };
 
-h1 {
-  margin: 8px 0;
-  font-size: clamp(32px, 5vw, 56px);
-  letter-spacing: -0.05em;
-}
+    await apiPost("/api/planner", payload);
 
-.layout {
-  width: min(1280px, calc(100% - 24px));
-  margin: 0 auto 40px;
-  display: grid;
-  grid-template-columns: 0.9fr 1.2fr;
-  gap: 18px;
-}
+    eventForm.reset();
+    document.getElementById("startDate").value = "2026-07-16";
+    document.getElementById("endDate").value = "2026-07-16";
 
-.panel {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.panel:nth-child(3) {
-  grid-column: 1 / -1;
-}
-
-.panel-head {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(90deg, var(--soft), white);
-}
-
-.panel-head h2 {
-  margin: 0;
-  color: var(--primary);
-}
-
-.form-grid {
-  padding: 18px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-label {
-  display: grid;
-  gap: 6px;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.full {
-  grid-column: 1 / -1;
-}
-
-input,
-select,
-textarea,
-button {
-  font: inherit;
-}
-
-input,
-select,
-textarea {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px;
-  color: var(--text);
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-button {
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 14px;
-  padding: 12px 16px;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-button.primary {
-  color: white;
-  background: linear-gradient(135deg, var(--primary), var(--primary2));
-  border: 0;
-}
-
-.items {
-  padding: 18px;
-  display: grid;
-  gap: 12px;
-}
-
-.item-card {
-  border: 1px solid var(--line);
-  border-left: 6px solid var(--primary);
-  border-radius: 18px;
-  padding: 14px;
-  background: #fff;
-}
-
-.item-card h3 {
-  margin: 0 0 6px;
-}
-
-.item-card p {
-  margin: 4px 0;
-  color: var(--muted);
-}
-
-.badge {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: var(--soft);
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-@media (max-width: 900px) {
-  .app-header {
-    align-items: flex-start;
-    flex-direction: column;
+    await loadAll();
+    alert("Plan saved successfully.");
+  } catch (error) {
+    console.error(error);
+    alert("Save failed: " + error.message);
   }
+});
 
-  .layout {
-    grid-template-columns: 1fr;
+purchaseForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  try {
+    const payload = {
+      tripId,
+      kind: "purchase",
+      item: document.getElementById("purchaseItem").value.trim(),
+      category: document.getElementById("purchaseCategory").value.trim(),
+      budget: document.getElementById("purchaseBudget").value.trim(),
+      responsiblePerson: document.getElementById("purchaseResponsible").value.trim(),
+      status: "planned"
+    };
+
+    await apiPost("/api/planner", payload);
+    purchaseForm.reset();
+    await loadAll();
+    alert("Purchase saved successfully.");
+  } catch (error) {
+    console.error(error);
+    alert("Purchase save failed: " + error.message);
   }
+});
 
-  .panel:nth-child(3) {
-    grid-column: auto;
-  }
+async function loadAll() {
+  try {
+    const data = await apiGet(`/api/planner?tripId=${encodeURIComponent(tripId)}`);
 
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+    const events = data.items.filter(x => x.kind === "event");
+    const purchases = data.items.filter(x => x.kind === "purchase");
 
-  .full {
-    grid-column: auto;
+    itemsEl.innerHTML = events.length
+      ? events.map(renderEvent).join("")
+      : `<div class="item-card"><p>No calendar items yet.</p></div>`;
+
+    purchasesEl.innerHTML = purchases.length
+      ? purchases.map(renderPurchase).join("")
+      : `<div class="item-card"><p>No purchases yet.</p></div>`;
+  } catch (error) {
+    console.error(error);
+    itemsEl.innerHTML = `<div class="item-card"><p>Load failed: ${escapeHtml(error.message)}</p></div>`;
   }
 }
+
+function renderEvent(item) {
+  return `
+    <article class="item-card">
+      <span class="badge">${escapeHtml(item.type)}</span>
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.startDate)} → ${escapeHtml(item.endDate)}</p>
+      <p>${escapeHtml(item.location || "No location")}</p>
+      <p>Assigned to: ${escapeHtml(item.assignedTo || "Unassigned")}</p>
+      <p>${escapeHtml(item.notes || "")}</p>
+    </article>
+  `;
+}
+
+function renderPurchase(item) {
+  return `
+    <article class="item-card">
+      <span class="badge">${escapeHtml(item.status || "planned")}</span>
+      <h3>${escapeHtml(item.item)}</h3>
+      <p>${escapeHtml(item.category || "General")}</p>
+      <p>Budget: ${escapeHtml(item.budget || "-")}</p>
+      <p>Responsible: ${escapeHtml(item.responsiblePerson || "Unassigned")}</p>
+    </article>
+  `;
+}
+
+async function apiGet(url) {
+  const response = await fetch(url);
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || `HTTP ${response.status}`);
+  }
+
+  return text ? JSON.parse(text) : {};
+}
+
+async function apiPost(url, body) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || `HTTP ${response.status}`);
+  }
+
+  return text ? JSON.parse(text) : {};
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+loadAll();
