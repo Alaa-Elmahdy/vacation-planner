@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Vacation Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Qatar → Egypt</p>
+      <h1>Family Vacation Planner</h1>
+      <p>16 July 2026 – 23 August 2026</p>
+    </div>
+    <button id="reloadBtn">Refresh</button>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Add Plan</h2>
+      </div>
+
+      <form id="eventForm" class="form-grid">
+        <label>
+          Type
+          <select id="type">
+            <option value="activity">Activity</option>
+            <option value="trip">Trip</option>
+            <option value="task">Task</option>
+            <option value="purchaseActivity">Purchase Activity</option>
+          </select>
+        </label>
+
+        <label>
+          Title
+          <input id="title" required placeholder="e.g. Traveling to Alexandria" />
+        </label>
+
+        <label>
+          Start Date
+          <input id="startDate" type="date" value="2026-07-16" />
+        </label>
+
+        <label>
+          End Date
+          <input id="endDate" type="date" value="2026-07-16" />
+        </label>
+
+        <label>
+          Assigned To
+          <input id="assignedTo" placeholder="e.g. Alaa" />
+        </label>
+
+        <label>
+          Location
+          <input id="location" placeholder="e.g. Alexandria" />
+        </label>
+
+        <label class="full">
+          Notes
+          <textarea id="notes" placeholder="Details, shop name, restaurant, reminders..."></textarea>
+        </label>
+
+        <button class="primary full" type="submit">Save Plan</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Calendar Items</h2>
+      </div>
+      <div id="items" class="items"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Purchases</h2>
+      </div>
+
+      <form id="purchaseForm" class="form-grid">
+        <label>
+          Item
+          <input id="purchaseItem" required placeholder="e.g. Clothes" />
+        </label>
+
+        <label>
+          Category
+          <input id="purchaseCategory" placeholder="e.g. Clothing" />
+        </label>
+
+        <label>
+          Budget
+          <input id="purchaseBudget" placeholder="e.g. 1500 EGP" />
+        </label>
+
+        <label>
+          Responsible Person
+          <input id="purchaseResponsible" placeholder="e.g. Alaa" />
+        </label>
+
+        <button class="primary full" type="submit">Save Purchase</button>
+      </form>
+
+      <div id="purchases" class="items"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
