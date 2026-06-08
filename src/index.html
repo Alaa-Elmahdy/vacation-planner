@@ -280,8 +280,22 @@
 
     .toolbar {
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
       gap: 14px;
+    }
+
+    .toolbar > .filters:first-child {
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+      align-items: center;
+      min-width: max-content;
+    }
+
+    .toolbar > .split-actions {
+      flex: 1 1 auto;
+      justify-content: flex-end;
+      min-width: 260px;
     }
 
     .calendar-layout {
@@ -753,6 +767,15 @@
         flex-direction: column;
         align-items: stretch;
         width: 100%;
+      }
+      .toolbar > .filters:first-child {
+        flex-wrap: wrap;
+        min-width: 0;
+        width: 100%;
+      }
+      .toolbar > .split-actions {
+        min-width: 0;
+        justify-content: stretch;
       }
       .filters button, .filters .button, .filters input, .toolbar input {
         width: 100%;
