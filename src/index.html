@@ -280,22 +280,8 @@
 
     .toolbar {
       justify-content: space-between;
-      align-items: center;
       margin-bottom: 16px;
       gap: 14px;
-    }
-
-    .toolbar > .filters:first-child {
-      flex: 0 0 auto;
-      flex-wrap: nowrap;
-      align-items: center;
-      min-width: max-content;
-    }
-
-    .toolbar > .split-actions {
-      flex: 1 1 auto;
-      justify-content: flex-end;
-      min-width: 260px;
     }
 
     .calendar-layout {
@@ -683,6 +669,110 @@
       align-items: center;
     }
 
+
+    /* v3.3 compact database header and toolbar */
+    .header-inner {
+      display: flex;
+      grid-template-columns: none;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 18px;
+    }
+
+    .header-main {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .header-main .brandline {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .header-main .hero-actions {
+      margin-top: 0;
+      flex-wrap: nowrap;
+      gap: 8px;
+    }
+
+    .header-main .hero-actions button {
+      min-height: 42px;
+      padding: 9px 13px;
+      white-space: nowrap;
+    }
+
+    .summary-card {
+      padding: 8px;
+      border-radius: 18px;
+      flex: 0 0 auto;
+      max-width: 760px;
+      width: auto;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, max-content);
+      gap: 8px;
+    }
+
+    .stat {
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .stat label {
+      margin-bottom: 0;
+      font-size: 10px;
+      letter-spacing: .08em;
+    }
+
+    .stat strong {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .statusbar {
+      display: none;
+    }
+
+    .toolbar {
+      justify-content: flex-end;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar > .filters {
+      margin-left: auto;
+      flex-wrap: nowrap;
+      width: auto;
+    }
+
+    #jumpDate {
+      width: 150px !important;
+      max-width: 150px !important;
+    }
+
+    #jumpBtn, #todayBtn {
+      width: 118px;
+      justify-content: center;
+      min-height: 44px;
+      text-align: center;
+    }
+
+    .toolbar .split-actions {
+      flex: 0 0 auto;
+      width: auto;
+    }
+
     @media (max-width: 1200px) {
       .calendar-layout, .purchase-layout, .header-inner {
         grid-template-columns: 1fr;
@@ -767,15 +857,6 @@
         flex-direction: column;
         align-items: stretch;
         width: 100%;
-      }
-      .toolbar > .filters:first-child {
-        flex-wrap: wrap;
-        min-width: 0;
-        width: 100%;
-      }
-      .toolbar > .split-actions {
-        min-width: 0;
-        justify-content: stretch;
       }
       .filters button, .filters .button, .filters input, .toolbar input {
         width: 100%;
@@ -942,13 +1023,8 @@
   <div class="page">
     <header class="header">
       <div class="header-inner">
-        <div>
+        <div class="header-main">
           <div class="brandline"><span class="branddot"></span> Vacation Planner · Qatar → Egypt</div>
-          <h1>Outlook-style vacation calendar for your summer trip</h1>
-          <p class="hero-note">
-            Plan activities, multi-day trips, day-specific tasks, and purchase activities in one light, modern workspace.
-            Purchases are managed on a dedicated page and can be assigned to any <strong>Purchase Activity</strong> created on the calendar.
-          </p>
           <div class="hero-actions">
             <button class="primary" id="addActivityBtn">＋ Add Activity</button>
             <button class="soft" id="addTripBtn">✈ Add Trip</button>
