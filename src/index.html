@@ -969,7 +969,6 @@
             <input type="date" id="jumpDate" style="max-width: 180px;" />
             <button id="jumpBtn">Jump to Date</button>
             <button class="ghost" id="todayBtn">Trip Start</button>
-            <span class="helper">Corrected calendar alignment: <strong>Thursday, 16 July 2026</strong>.</span>
           </div>
           <div class="split-actions">
             <div class="pill-key">
@@ -977,12 +976,6 @@
               <span class="key-item"><span class="key-dot activity"></span>Activity</span>
               <span class="key-item"><span class="key-dot task"></span>Task</span>
               <span class="key-item"><span class="key-dot purchaseActivity"></span>Purchase Activity</span>
-            </div>
-            <div class="filters">
-              <button id="exportBtn">Export JSON</button>
-              <label class="button ghost" for="importInput">Import JSON</label>
-              <input type="file" id="importInput" accept="application/json" class="hidden" />
-              <button class="danger" id="resetBtn">Reset</button>
             </div>
           </div>
         </div>
@@ -1248,9 +1241,6 @@
         setSaveStatus('Trip start selected.');
       });
 
-      document.getElementById('exportBtn').addEventListener('click', exportData);
-      document.getElementById('resetBtn').addEventListener('click', resetCloudState);
-      document.getElementById('importInput').addEventListener('change', importData);
 
       el.eventType.addEventListener('change', syncEventFormType);
       document.getElementById('closeModalBtn').addEventListener('click', closeModal);
@@ -1758,30 +1748,6 @@
       }
     }
 
-    async function resetCloudState() {
-      if (!confirm('Delete all Azure planner data for this trip? This cannot be undone.')) return;
-      try {
-        setBusy(true, 'Resetting Azure planner...');
-        const allIds = [
-          ...state.events.map(x => x.id),
-          ...state.purchases.map(x => x.id),
-          ...Object.keys(state.notesByDate).map(date => `note_${date}`)
-        ];
-        for (const id of allIds) {
-          await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
-        }
-        state = clone(DEFAULT_DATA);
-        sanitizeState();
-        renderAll();
-        setSaveStatus('Azure planner reset.');
-      } catch (error) {
-        alert('Reset failed: ' + error.message);
-        setSaveStatus('Reset failed: ' + error.message);
-      } finally {
-        setBusy(false);
-      }
-    }
-
     function getEventsForDate(dateStr) {
       return state.events.filter(evt => {
         if (evt.type === 'trip') return isDateInRange(dateStr, evt.startDate, evt.endDate);
@@ -1831,44 +1797,6 @@
     function setActiveTab(tabId) {
       document.querySelectorAll('.tablink').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
       document.querySelectorAll('.tabpane').forEach(pane => pane.classList.toggle('hidden', pane.id !== tabId));
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'catalog-data_azure.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      setSaveStatus('Exported current Azure data snapshot.');
-    }
-
-    async function importData(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          const importedEvents = Array.isArray(parsed.events) ? parsed.events : [];
-          const importedPurchases = Array.isArray(parsed.purchases) ? parsed.purchases : [];
-          const importedNotes = parsed.notesByDate || {};
-          setBusy(true, 'Importing data to Azure...');
-          for (const evt of importedEvents) await apiPut('/api/planner', normalizeEventForApi(evt));
-          for (const purchase of importedPurchases) await apiPut('/api/planner', normalizePurchaseForApi(purchase));
-          for (const [date, notes] of Object.entries(importedNotes)) {
-            await apiPut('/api/planner', { id: `note_${date}`, tripId: TRIP_ID, kind: 'note', date, notes: String(notes || '') });
-          }
-          await refreshFromAzure('Imported data to Azure.');
-        } catch (err) {
-          alert('Invalid JSON or import failed: ' + err.message);
-        } finally {
-          setBusy(false);
-          event.target.value = '';
-        }
-      };
-      reader.readAsText(file);
     }
 
     function mapEventFromApi(item) {
