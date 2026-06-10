@@ -21,6 +21,7 @@
       --activity: #a64a67;
       --trip: #8f1f43;
       --purchase: #c76b87;
+      --restaurant: #d08058;
       --shadow: 0 16px 40px rgba(143, 31, 67, 0.10);
       --radius: 22px;
       --radius-sm: 14px;
@@ -425,6 +426,7 @@
     .event-pill.activity { background: #f6e7ed; border-color: #ebcfd9; color: #8b2e4a; }
     .event-pill.task { background: #eef1f5; border-color: #d7dfe7; color: #5f6d7d; }
     .event-pill.purchaseActivity { background: #f9edf2; border-color: #ecd4dd; color: #a24462; }
+    .event-pill.restaurantMeal { background: #fff1e8; border-color: #efcdb7; color: #a24d25; }
     .event-pill.child { padding-left: 12px; }
 
     .more-indicator {
@@ -472,6 +474,7 @@
     .agenda-card.activity { border-left: 5px solid var(--activity); }
     .agenda-card.task { border-left: 5px solid var(--task); }
     .agenda-card.purchaseActivity { border-left: 5px solid var(--purchase); }
+    .agenda-card.restaurantMeal { border-left: 5px solid var(--restaurant); }
 
     .card-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .card-top strong { color: #30282b; font-size: 15px; }
@@ -524,6 +527,7 @@
       line-height: 1.7;
     }
 
+    .restaurant-layout,
     .purchase-layout {
       display: grid;
       grid-template-columns: minmax(300px,.9fr) 1.4fr;
@@ -653,6 +657,7 @@
     .key-dot.activity { background: #dfb2c0; }
     .key-dot.task { background: #cdd5df; }
     .key-dot.purchaseActivity { background: #efc3d1; }
+    .key-dot.restaurantMeal { background: #f0b28e; }
 
     .helper {
       color: var(--muted);
@@ -774,7 +779,7 @@
     }
 
     @media (max-width: 1200px) {
-      .calendar-layout, .purchase-layout, .header-inner {
+      .calendar-layout, .restaurant-layout, .purchase-layout, .header-inner {
         grid-template-columns: 1fr;
       }
       .side-panel { position: static; }
@@ -876,7 +881,7 @@
         padding: 8px 10px;
         justify-content: center;
       }
-      .calendar-layout, .purchase-layout, .header-inner {
+      .calendar-layout, .restaurant-layout, .purchase-layout, .header-inner {
         grid-template-columns: 1fr;
       }
       .section-head {
@@ -1351,6 +1356,7 @@
       <div class="tabbar">
         <button class="tablink active" data-tab="calendarTab">Calendar</button>
         <button class="tablink" data-tab="purchasesTab">Purchases</button>
+        <button class="tablink" data-tab="restaurantsTab">Restaurants</button>
       </div>
 
       <div class="tabpane" id="calendarTab">
@@ -1366,6 +1372,7 @@
               <span class="key-item"><span class="key-dot activity"></span>Activity</span>
               <span class="key-item"><span class="key-dot task"></span>Task</span>
               <span class="key-item"><span class="key-dot purchaseActivity"></span>Purchase Activity</span>
+              <span class="key-item"><span class="key-dot restaurantMeal"></span>Restaurant Meal</span>
             </div>
           </div>
         </div>
@@ -1458,6 +1465,110 @@
             </div>
           </div>
         </div>
+
+
+      <div class="tabpane hidden" id="restaurantsTab">
+        <div class="restaurant-layout">
+          <div class="form-card">
+            <div class="section-head">
+              <h2>Add / Edit Restaurant</h2>
+              <button class="small soft" id="clearRestaurantFormBtn">Clear</button>
+            </div>
+            <div class="section-body">
+              <form id="restaurantForm">
+                <input type="hidden" id="restaurantId" />
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="restaurantName">Restaurant / Food Place</label>
+                    <input id="restaurantName" required placeholder="e.g., Sobhy Kaber" />
+                  </div>
+                  <div class="field">
+                    <label for="restaurantCuisine">Cuisine / Type</label>
+                    <input id="restaurantCuisine" placeholder="e.g., Seafood, Egyptian, Dessert" />
+                  </div>
+                  <div class="field">
+                    <label for="restaurantArea">Area / Location</label>
+                    <input id="restaurantArea" placeholder="e.g., Cairo, Alexandria" />
+                  </div>
+                  <div class="field">
+                    <label for="restaurantMustTry">Must Try</label>
+                    <input id="restaurantMustTry" placeholder="e.g., grilled shrimp, koshary" />
+                  </div>
+                  <div class="field full">
+                    <label for="restaurantNotes">Notes</label>
+                    <textarea id="restaurantNotes" placeholder="Opening hours, branch, reservation notes, family preference..."></textarea>
+                  </div>
+                </div>
+                <div class="hero-actions">
+                  <button type="submit" class="primary">Save Restaurant</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="section-head">
+              <h2>Add Restaurant to Calendar</h2>
+              <span class="helper">The same restaurant can be added many times as breakfast, lunch, or dinner.</span>
+            </div>
+            <div class="section-body">
+              <form id="mealScheduleForm">
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="mealRestaurantSelect">Restaurant</label>
+                    <select id="mealRestaurantSelect" required></select>
+                  </div>
+                  <div class="field">
+                    <label for="mealDate">Date</label>
+                    <input id="mealDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="mealSlot">Meal Slot</label>
+                    <select id="mealSlot" required>
+                      <option value="breakfast">Breakfast</option>
+                      <option value="lunch">Lunch</option>
+                      <option value="dinner">Dinner</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="mealTime">Time</label>
+                    <input id="mealTime" type="time" />
+                  </div>
+                  <div class="field full">
+                    <label for="mealNotes">Meal Notes</label>
+                    <textarea id="mealNotes" placeholder="What to order, reservation, who is joining..."></textarea>
+                  </div>
+                </div>
+                <div class="hero-actions">
+                  <button type="submit" class="primary">Add Meal to Calendar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="list-card">
+            <div class="section-head">
+              <h2>Restaurant List</h2>
+              <span class="helper">Food places to visit during the trip.</span>
+            </div>
+            <div class="section-body table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Restaurant</th>
+                    <th>Cuisine</th>
+                    <th>Area</th>
+                    <th>Must Try</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="restaurantTableBody"></tbody>
+              </table>
+              <div id="restaurantEmpty" class="empty-state hidden">No restaurants yet. Add food places you want to visit in Egypt.</div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </section>
   </div>
@@ -1479,6 +1590,7 @@
                 <option value="trip">Trip</option>
                 <option value="task">Task</option>
                 <option value="purchaseActivity">Purchase Activity</option>
+                <option value="restaurantMeal">Restaurant Meal</option>
               </select>
             </div>
             <div class="field">
@@ -1560,6 +1672,7 @@
       },
       events: [],
       purchases: [],
+      restaurants: [],
       notesByDate: {}
     };
 
@@ -1585,6 +1698,21 @@
       purchaseQty: document.getElementById('purchaseQty'),
       purchaseBudget: document.getElementById('purchaseBudget'),
       purchaseNotes: document.getElementById('purchaseNotes'),
+      restaurantForm: document.getElementById('restaurantForm'),
+      restaurantId: document.getElementById('restaurantId'),
+      restaurantName: document.getElementById('restaurantName'),
+      restaurantCuisine: document.getElementById('restaurantCuisine'),
+      restaurantArea: document.getElementById('restaurantArea'),
+      restaurantMustTry: document.getElementById('restaurantMustTry'),
+      restaurantNotes: document.getElementById('restaurantNotes'),
+      restaurantTableBody: document.getElementById('restaurantTableBody'),
+      restaurantEmpty: document.getElementById('restaurantEmpty'),
+      mealScheduleForm: document.getElementById('mealScheduleForm'),
+      mealRestaurantSelect: document.getElementById('mealRestaurantSelect'),
+      mealDate: document.getElementById('mealDate'),
+      mealSlot: document.getElementById('mealSlot'),
+      mealTime: document.getElementById('mealTime'),
+      mealNotes: document.getElementById('mealNotes'),
       eventModalWrap: document.getElementById('eventModalWrap'),
       eventForm: document.getElementById('eventForm'),
       eventId: document.getElementById('eventId'),
@@ -1640,6 +1768,9 @@
 
       el.purchaseForm.addEventListener('submit', savePurchaseFromForm);
       document.getElementById('clearPurchaseFormBtn').addEventListener('click', clearPurchaseForm);
+      el.restaurantForm.addEventListener('submit', saveRestaurantFromForm);
+      el.mealScheduleForm.addEventListener('submit', saveMealScheduleFromForm);
+      document.getElementById('clearRestaurantFormBtn').addEventListener('click', clearRestaurantForm);
 
       window.addEventListener('click', (event) => {
         if (event.target === el.eventModalWrap) closeModal();
@@ -1649,6 +1780,7 @@
     function sanitizeState() {
       state.events = Array.isArray(state.events) ? state.events : [];
       state.purchases = Array.isArray(state.purchases) ? state.purchases : [];
+      state.restaurants = Array.isArray(state.restaurants) ? state.restaurants : [];
       state.notesByDate = state.notesByDate || {};
       state.settings = state.settings || clone(DEFAULT_DATA.settings);
       if (!state.settings.selectedDate) state.settings.selectedDate = state.trip.startDate;
@@ -1668,6 +1800,7 @@
         state.settings.selectedDate = previousSelectedDate || state.trip.startDate;
         state.events = items.filter(item => item.kind === 'event').map(mapEventFromApi);
         state.purchases = items.filter(item => item.kind === 'purchase').map(mapPurchaseFromApi);
+        state.restaurants = items.filter(item => item.kind === 'restaurant').map(mapRestaurantFromApi);
         state.notesByDate = {};
         items.filter(item => item.kind === 'note').forEach(item => {
           if (item.date) state.notesByDate[item.date] = item.notes || '';
@@ -1697,7 +1830,9 @@
       renderCalendar();
       renderSelectedDay();
       renderPurchaseAssignments();
+      renderRestaurantOptions();
       renderPurchases();
+      renderRestaurants();
     }
 
     function renderStats() {
@@ -1823,6 +1958,7 @@
     function renderAgendaCard(evt, dateStr) {
       const childActivities = state.events.filter(item => item.parentTripId === evt.id && item.date === dateStr).sort(sortByTimeThenTitle);
       const linkedPurchases = evt.type === 'purchaseActivity' ? state.purchases.filter(p => p.assignedTo === evt.id) : [];
+      const linkedRestaurant = evt.restaurantId ? state.restaurants.find(r => r.id === evt.restaurantId) : null;
       const tripMeta = evt.type === 'trip'
         ? `${formatShortDate(evt.startDate)} → ${formatShortDate(evt.endDate)}${evt.from || evt.to ? ` · ${escapeHtml(evt.from || '—')} → ${escapeHtml(evt.to || '—')}` : ''}`
         : `${evt.date ? formatLongDate(evt.date) : ''}${evt.time ? ` · ${evt.time}` : ''}${evt.location ? ` · ${escapeHtml(evt.location)}` : ''}`;
@@ -1841,6 +1977,8 @@
             <span class="tag">${labelForType(evt.type)}</span>
             ${evt.parentTripId ? `<span class="tag">Inside trip</span>` : ''}
             ${linkedPurchases.length ? `<span class="tag">${linkedPurchases.length} linked purchase${linkedPurchases.length === 1 ? '' : 's'}</span>` : ''}
+            ${evt.mealSlot ? `<span class="tag">${mealSlotLabel(evt.mealSlot)}</span>` : ''}
+            ${linkedRestaurant ? `<span class="tag">${escapeHtml(linkedRestaurant.name)}</span>` : ''}
           </div>
           ${evt.type === 'trip' ? renderTripChildrenSection(evt, dateStr, childActivities) : ''}
           ${evt.type === 'purchaseActivity' && linkedPurchases.length ? renderLinkedPurchases(linkedPurchases) : ''}
@@ -1880,6 +2018,165 @@
         </div>
       `;
     }
+
+
+    function renderRestaurantOptions() {
+      const options = state.restaurants
+        .slice()
+        .sort((a,b) => a.name.localeCompare(b.name))
+        .map(item => `<option value="${item.id}">${escapeHtml(item.name)}${item.area ? ` · ${escapeHtml(item.area)}` : ''}</option>`)
+        .join('');
+
+      el.mealRestaurantSelect.innerHTML = options || '<option value="">Add a restaurant first</option>';
+      el.mealRestaurantSelect.disabled = state.restaurants.length === 0;
+      if (!el.mealDate.value) el.mealDate.value = state.settings.selectedDate || state.trip.startDate;
+    }
+
+    function renderRestaurants() {
+      const rows = state.restaurants
+        .slice()
+        .sort((a,b) => a.name.localeCompare(b.name))
+        .map(item => `
+          <tr>
+            <td data-label="Restaurant"><strong>${escapeHtml(item.name)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td>
+            <td data-label="Cuisine">${escapeHtml(item.cuisine || '')}</td>
+            <td data-label="Area">${escapeHtml(item.area || '')}</td>
+            <td data-label="Must Try">${escapeHtml(item.mustTry || '')}</td>
+            <td data-label="Actions">
+              <div class="filters">
+                <button class="small" onclick="scheduleRestaurant('${item.id}')">Add Meal</button>
+                <button class="small" onclick="editRestaurant('${item.id}')">Edit</button>
+                <button class="small danger" onclick="deleteRestaurant('${item.id}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+      el.restaurantTableBody.innerHTML = rows;
+      el.restaurantEmpty.classList.toggle('hidden', state.restaurants.length > 0);
+    }
+
+    async function saveRestaurantFromForm(event) {
+      event.preventDefault();
+      const existingId = el.restaurantId.value;
+      const payload = {
+        id: existingId || uid('restaurant'),
+        tripId: TRIP_ID,
+        kind: 'restaurant',
+        title: el.restaurantName.value.trim(),
+        item: el.restaurantName.value.trim(),
+        category: el.restaurantCuisine.value.trim(),
+        cuisine: el.restaurantCuisine.value.trim(),
+        area: el.restaurantArea.value.trim(),
+        location: el.restaurantArea.value.trim(),
+        mustTry: el.restaurantMustTry.value.trim(),
+        notes: el.restaurantNotes.value.trim(),
+        status: 'planned'
+      };
+
+      try {
+        setBusy(true, existingId ? 'Updating restaurant...' : 'Saving restaurant...');
+        if (existingId) await apiPut('/api/planner', payload);
+        else await apiPost('/api/planner', payload);
+        clearRestaurantForm();
+        setActiveTab('restaurantsTab');
+        await refreshFromAzure('Restaurant saved to Azure.');
+      } catch (error) {
+        alert('Restaurant save failed: ' + error.message);
+        setSaveStatus('Restaurant save failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function saveMealScheduleFromForm(event) {
+      event.preventDefault();
+      const restaurant = state.restaurants.find(item => item.id === el.mealRestaurantSelect.value);
+      if (!restaurant) {
+        alert('Please add or select a restaurant first.');
+        return;
+      }
+
+      const slot = el.mealSlot.value || 'lunch';
+      const date = el.mealDate.value || state.settings.selectedDate;
+      const slotLabel = mealSlotLabel(slot);
+      const payload = {
+        id: uid('meal'),
+        tripId: TRIP_ID,
+        kind: 'event',
+        type: 'restaurantMeal',
+        title: `${slotLabel} · ${restaurant.name}`,
+        date,
+        time: el.mealTime.value || '',
+        location: restaurant.area || '',
+        restaurantId: restaurant.id,
+        mealSlot: slot,
+        notes: el.mealNotes.value.trim() || restaurant.mustTry || ''
+      };
+
+      try {
+        setBusy(true, 'Adding meal to calendar...');
+        await apiPost('/api/planner', payload);
+        state.settings.selectedDate = date;
+        el.jumpDate.value = date;
+        el.mealScheduleForm.reset();
+        el.mealDate.value = date;
+        setActiveTab('calendarTab');
+        await refreshFromAzure('Restaurant meal added to calendar.');
+      } catch (error) {
+        alert('Meal schedule failed: ' + error.message);
+        setSaveStatus('Meal schedule failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function clearRestaurantForm() {
+      el.restaurantForm.reset();
+      el.restaurantId.value = '';
+    }
+
+    function editRestaurant(id) {
+      const item = state.restaurants.find(r => r.id === id);
+      if (!item) return;
+      setActiveTab('restaurantsTab');
+      el.restaurantId.value = item.id;
+      el.restaurantName.value = item.name || '';
+      el.restaurantCuisine.value = item.cuisine || '';
+      el.restaurantArea.value = item.area || '';
+      el.restaurantMustTry.value = item.mustTry || '';
+      el.restaurantNotes.value = item.notes || '';
+      setSaveStatus('Editing restaurant...');
+    }
+
+    function scheduleRestaurant(id) {
+      const item = state.restaurants.find(r => r.id === id);
+      if (!item) return;
+      setActiveTab('restaurantsTab');
+      el.mealRestaurantSelect.value = item.id;
+      el.mealDate.value = state.settings.selectedDate || state.trip.startDate;
+      el.mealSlot.value = 'lunch';
+      setSaveStatus('Choose a date and meal slot for ' + item.name + '.');
+    }
+
+    async function deleteRestaurant(id) {
+      if (!confirm('Delete this restaurant from the Restaurants tab? Existing scheduled meals will remain on the calendar.')) return;
+      try {
+        setBusy(true, 'Deleting restaurant...');
+        await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
+        clearRestaurantForm();
+        await refreshFromAzure('Restaurant deleted from Azure.');
+      } catch (error) {
+        alert('Restaurant delete failed: ' + error.message);
+        setSaveStatus('Restaurant delete failed: ' + error.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    window.editRestaurant = editRestaurant;
+    window.scheduleRestaurant = scheduleRestaurant;
+    window.deleteRestaurant = deleteRestaurant;
 
     function renderPurchaseAssignments() {
       const purchaseActivities = state.events.filter(evt => evt.type === 'purchaseActivity').sort((a,b) => (a.date || '').localeCompare(b.date || '') || a.title.localeCompare(b.title));
@@ -2075,6 +2372,8 @@
           time: el.eventTime.value || '',
           location: el.eventLocation.value.trim(),
           parentTripId: el.parentTripId.value || '',
+          restaurantId: (state.events.find(item => item.id === id) || {}).restaurantId || '',
+          mealSlot: (state.events.find(item => item.id === id) || {}).mealSlot || '',
           notes: el.eventNotes.value.trim()
         };
       }
@@ -2146,7 +2445,7 @@
     }
 
     function eventSortForDisplay(a, b) {
-      const order = { trip: 0, activity: 1, purchaseActivity: 2, task: 3 };
+      const order = { trip: 0, restaurantMeal: 1, activity: 2, purchaseActivity: 3, task: 4 };
       return (order[a.type] ?? 9) - (order[b.type] ?? 9)
         || (a.time || '').localeCompare(b.time || '')
         || (a.title || '').localeCompare(b.title || '');
@@ -2163,11 +2462,12 @@
       }
       if (evt.type === 'task') return `✓ ${evt.title}`;
       if (evt.type === 'purchaseActivity') return `🛍 ${evt.title}`;
+      if (evt.type === 'restaurantMeal') return `🍽 ${evt.mealSlot ? mealSlotLabel(evt.mealSlot) + ' · ' : ''}${evt.title.replace(/^(Breakfast|Lunch|Dinner) · /, '')}`;
       return `${evt.parentTripId ? '↳ ' : ''}${evt.time ? evt.time + ' ' : ''}${evt.title}`;
     }
 
     function labelForType(type) {
-      return { activity: 'Activity', trip: 'Trip', task: 'Task', purchaseActivity: 'Purchase Activity' }[type] || type;
+      return { activity: 'Activity', trip: 'Trip', task: 'Task', purchaseActivity: 'Purchase Activity', restaurantMeal: 'Restaurant Meal' }[type] || type;
     }
 
     function jumpToDate() {
@@ -2187,6 +2487,7 @@
     function setActiveTab(tabId) {
       document.querySelectorAll('.tablink').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
       document.querySelectorAll('.tabpane').forEach(pane => pane.classList.toggle('hidden', pane.id !== tabId));
+      if (tabId === 'restaurantsTab') renderRestaurantOptions();
     }
 
     function mapEventFromApi(item) {
@@ -2211,6 +2512,8 @@
         time: item.time || '',
         location: item.location || '',
         parentTripId: item.parentTripId || '',
+        restaurantId: item.restaurantId || '',
+        mealSlot: item.mealSlot || '',
         notes: item.notes || ''
       };
     }
@@ -2226,6 +2529,23 @@
         notes: item.notes || '',
         status: item.status || 'planned'
       };
+    }
+
+
+    function mapRestaurantFromApi(item) {
+      return {
+        id: item.id,
+        name: item.title || item.item || '',
+        cuisine: item.cuisine || item.category || '',
+        area: item.area || item.location || '',
+        mustTry: item.mustTry || '',
+        notes: item.notes || '',
+        status: item.status || 'planned'
+      };
+    }
+
+    function mealSlotLabel(slot) {
+      return { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' }[slot] || 'Meal';
     }
 
     function normalizeEventForApi(evt) {
