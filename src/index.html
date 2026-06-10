@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qatar to Egypt Vacation Planner | v1.1</title>
+  <title>مخطط إجازة العائلة | قطر إلى مصر</title>
   <style>
     :root {
       --bg: #f4f2f3;
@@ -1312,6 +1312,36 @@
       .pill-key { grid-template-columns: 1fr; }
     }
 
+  
+
+    /* v3.7 Arabic RTL compact header and moved toolbar */
+    html[dir="rtl"] body { direction: rtl; text-align: right; }
+    html[dir="rtl"] input, html[dir="rtl"] select, html[dir="rtl"] textarea { text-align: right; }
+    .header-inner { display: flex !important; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px !important; }
+    .header-main { display: flex !important; align-items: center; gap: 14px; flex: 1 1 430px; min-width: 320px; }
+    .brandline { white-space: nowrap; min-width: max-content; }
+    .hero-actions { margin: 0 !important; display: flex; flex-wrap: nowrap; gap: 8px; }
+    .hero-actions button { white-space: nowrap; min-width: max-content; }
+    .summary-card { flex: 1 1 520px; min-width: 440px; padding: 8px !important; border-radius: 18px !important; }
+    .summary-grid { grid-template-columns: repeat(4, minmax(110px, 1fr)) !important; gap: 8px !important; }
+    .stat { min-height: 44px !important; padding: 8px 10px !important; display: flex !important; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+    .stat label { margin: 0 !important; font-size: 10px !important; letter-spacing: .08em; }
+    .stat strong { font-size: 16px !important; margin: 0 !important; }
+    .statusbar { display: none !important; }
+    .tabbar { display: flex !important; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px !important; }
+    .tab-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .tab-controls { margin-inline-start: auto; display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .tab-controls input[type="date"] { width: 155px !important; max-width: 155px !important; }
+    .tab-controls #jumpBtn, .tab-controls #todayBtn { min-width: 128px !important; width: auto !important; white-space: nowrap !important; text-align: center; justify-content: center; }
+    .tab-controls .pill-key { display: flex !important; align-items: center; gap: 8px; flex-wrap: nowrap; }
+    .tab-controls .key-item { white-space: nowrap; }
+    .toolbar { display: none !important; }
+    .card-top { flex-direction: row-reverse; }
+    table th, table td { text-align: right; }
+    @media (max-width: 1050px) { .header-main, .summary-card { flex: 1 1 100%; min-width: 0; } .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .tab-controls { margin-inline-start: 0; width: 100%; justify-content: flex-start; } .tab-controls .pill-key { flex-wrap: wrap; } }
+    @media (max-width: 760px) { .page { width: min(100%, calc(100% - 16px)); } .header-inner { padding: 10px !important; } .header-main { flex-direction: column; align-items: stretch; gap: 10px; min-width: 0; } .brandline { justify-content: center; font-size: 11px; white-space: normal; text-align: center; } .hero-actions button { width: 100%; justify-content: center; } .summary-card { min-width: 0; width: 100%; } .summary-grid { grid-template-columns: 1fr 1fr !important; } .stat { min-height: 38px !important; padding: 7px 8px !important; justify-content: space-between; } .stat label { font-size: 9px !important; } .stat strong { font-size: 14px !important; } .tabbar { padding: 12px !important; } .tab-links { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tablink { justify-content: center; text-align: center; } .tab-controls { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tab-controls input[type="date"] { grid-column: 1 / -1; width: 100% !important; max-width: none !important; } .tab-controls #jumpBtn, .tab-controls #todayBtn { min-width: 0 !important; width: 100% !important; } .tab-controls .pill-key { grid-column: 1 / -1; display: grid !important; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tab-controls .key-item { justify-content: center; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; } }
+    @media (max-width: 430px) { .summary-grid { grid-template-columns: 1fr !important; } .tab-links { grid-template-columns: 1fr; } .tab-controls { grid-template-columns: 1fr; } .tab-controls .pill-key { grid-template-columns: 1fr; } }
+
   </style>
 </head>
 <body>
@@ -1320,77 +1350,73 @@
     <header class="header">
       <div class="header-inner">
         <div class="header-main">
-          <div class="brandline"><span class="branddot"></span> Vacation Planner · Qatar → Egypt</div>
+          <div class="brandline"><span class="branddot"></span> مخطط الإجازة · قطر ← مصر</div>
           <div class="hero-actions">
-            <button class="primary" id="addActivityBtn">＋ Add Activity</button>
-            <button class="soft" id="addTripBtn">✈ Add Trip</button>
-            <button class="soft" id="addTaskBtn">✓ Add Task</button>
-            <button class="soft" id="addPurchaseActivityBtn">🛍 Add Purchase Activity</button>
+            <button class="primary" id="addEventBtn">＋ إضافة حدث</button>
           </div>
         </div>
         <div class="summary-card">
           <div class="summary-grid">
             <div class="stat">
-              <label>Trip Window</label>
+              <label>مدة الرحلة</label>
               <strong id="statRange">16 Jul – 23 Aug 2026</strong>
             </div>
             <div class="stat">
-              <label>Total Days</label>
+              <label>عدد الأيام</label>
               <strong id="statDays">39</strong>
             </div>
             <div class="stat">
-              <label>Total Events</label>
+              <label>عدد الأحداث</label>
               <strong id="statEvents">0</strong>
             </div>
             <div class="stat">
-              <label>Planned Purchases</label>
+              <label>المشتريات</label>
               <strong id="statPurchases">0</strong>
             </div>
           </div>
-          <div class="statusbar" id="saveStatus">Connecting to Azure...</div>
+          <div class="statusbar" id="saveStatus">جارٍ الاتصال بآزور...</div>
         </div>
       </div>
     </header>
 
     <section class="tabs">
       <div class="tabbar">
-        <button class="tablink active" data-tab="calendarTab">Calendar</button>
-        <button class="tablink" data-tab="purchasesTab">Purchases</button>
-        <button class="tablink" data-tab="restaurantsTab">Restaurants</button>
+        <div class="tab-links">
+          <button class="tablink active" data-tab="calendarTab">التقويم</button>
+          <button class="tablink" data-tab="purchasesTab">المشتريات</button>
+          <button class="tablink" data-tab="restaurantsTab">المطاعم</button>
+          <button class="tablink" data-tab="placesTab">أماكن خروج</button>
+        </div>
+        <div class="tab-controls">
+          <input type="date" id="jumpDate" />
+          <button id="jumpBtn">الذهاب للتاريخ</button>
+          <button class="ghost" id="todayBtn">بداية الرحلة</button>
+          <div class="pill-key">
+            <span class="key-item"><span class="key-dot trip"></span>رحلة</span>
+            <span class="key-item"><span class="key-dot activity"></span>نشاط</span>
+            <span class="key-item"><span class="key-dot task"></span>مهمة</span>
+            <span class="key-item"><span class="key-dot purchaseActivity"></span>نشاط شراء</span>
+            <span class="key-item"><span class="key-dot restaurantMeal"></span>وجبة مطعم</span>
+          </div>
+        </div>
       </div>
 
       <div class="tabpane" id="calendarTab">
-        <div class="toolbar">
-          <div class="filters">
-            <input type="date" id="jumpDate" style="max-width: 180px;" />
-            <button id="jumpBtn">Jump to Date</button>
-            <button class="ghost" id="todayBtn">Trip Start</button>
-          </div>
-          <div class="split-actions">
-            <div class="pill-key">
-              <span class="key-item"><span class="key-dot trip"></span>Trip</span>
-              <span class="key-item"><span class="key-dot activity"></span>Activity</span>
-              <span class="key-item"><span class="key-dot task"></span>Task</span>
-              <span class="key-item"><span class="key-dot purchaseActivity"></span>Purchase Activity</span>
-              <span class="key-item"><span class="key-dot restaurantMeal"></span>Restaurant Meal</span>
-            </div>
-          </div>
-        </div>
 
         <div class="calendar-layout">
           <div class="calendar-area">
             <div class="section-head">
-              <h2>Monthly Calendar</h2>
-              <span class="helper">Click any day to review or plan activities in parallel with trips.</span>
+              <h2>التقويم الشهري</h2>
+              <span class="helper">اختر أي يوم لمراجعة أو إضافة الأنشطة بالتوازي مع الرحلات.</span>
             </div>
             <div class="section-body" id="calendarMonths"></div>
           </div>
 
           <aside class="side-panel">
             <div class="section-head">
-              <h2>Selected Day</h2>
+              <h2>اليوم المحدد</h2>
               <div class="filters">
-                <button class="small" id="quickAddDayBtn">Add to Day</button>
+                <button class="small" id="quickAddDayBtn">إضافة لليوم</button>
               </div>
             </div>
             <div class="section-body" id="selectedDayPanel"></div>
@@ -1402,41 +1428,41 @@
         <div class="purchase-layout">
           <div class="form-card">
             <div class="section-head">
-              <h2>Add / Edit Purchase</h2>
-              <button class="small soft" id="clearPurchaseFormBtn">Clear</button>
+              <h2>إضافة / تعديل مشتريات</h2>
+              <button class="small soft" id="clearPurchaseFormBtn">مسح</button>
             </div>
             <div class="section-body">
               <form id="purchaseForm">
                 <input type="hidden" id="purchaseId" />
                 <div class="form-grid">
                   <div class="field">
-                    <label for="purchaseItem">Item</label>
-                    <input id="purchaseItem" required placeholder="e.g., Summer clothes" />
+                    <label for="purchaseItem">الصنف</label>
+                    <input id="purchaseItem" required placeholder="مثال: ملابس صيف" />
                   </div>
                   <div class="field">
-                    <label for="purchaseCategory">Category</label>
-                    <input id="purchaseCategory" placeholder="e.g., Clothes, Shoes, Gifts" />
+                    <label for="purchaseCategory">التصنيف</label>
+                    <input id="purchaseCategory" placeholder="مثال: ملابس، أحذية، هدايا" />
                   </div>
                   <div class="field">
-                    <label for="purchaseQty">Quantity</label>
+                    <label for="purchaseQty">الكمية</label>
                     <input id="purchaseQty" type="number" min="1" value="1" />
                   </div>
                   <div class="field">
-                    <label for="purchaseBudget">Budget</label>
-                    <input id="purchaseBudget" placeholder="e.g., 600 EGP" />
+                    <label for="purchaseBudget">الميزانية</label>
+                    <input id="purchaseBudget" placeholder="مثال: 600 جنيه" />
                   </div>
                   <div class="field full">
-                    <label for="purchaseAssignedTo">Assign to Purchase Activity</label>
+                    <label for="purchaseAssignedTo">ربط بنشاط شراء</label>
                     <select id="purchaseAssignedTo"></select>
-                    <div class="helper">Create purchase activities on the calendar, then assign purchases here.</div>
+                    <div class="helper">أنشئ نشاط شراء في التقويم ثم اربط المشتريات به هنا.</div>
                   </div>
                   <div class="field full">
-                    <label for="purchaseNotes">Notes</label>
-                    <textarea id="purchaseNotes" placeholder="Store, preferred brand, color, reminders..."></textarea>
+                    <label for="purchaseNotes">ملاحظات</label>
+                    <textarea id="purchaseNotes" placeholder="المحل، الماركة، اللون، تذكيرات..."></textarea>
                   </div>
                 </div>
                 <div class="hero-actions">
-                  <button type="submit" class="primary">Save Purchase</button>
+                  <button type="submit" class="primary">حفظ المشتريات</button>
                 </div>
               </form>
             </div>
@@ -1444,24 +1470,24 @@
 
           <div class="list-card">
             <div class="section-head">
-              <h2>Purchase Planner</h2>
-              <span class="helper">All purchases can live independently and be attached to a purchase activity later.</span>
+              <h2>قائمة المشتريات</h2>
+              <span class="helper">يمكن تسجيل المشتريات وربطها بنشاط شراء لاحقاً.</span>
             </div>
             <div class="section-body table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Item</th>
-                    <th>Category</th>
-                    <th>Qty</th>
-                    <th>Budget</th>
-                    <th>Assigned Activity</th>
-                    <th>Actions</th>
+                    <th>الصنف</th>
+                    <th>التصنيف</th>
+                    <th>الكمية</th>
+                    <th>الميزانية</th>
+                    <th>النشاط المرتبط</th>
+                    <th>إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="purchaseTableBody"></tbody>
               </table>
-              <div id="purchaseEmpty" class="empty-state hidden">No purchases yet. Add clothes, gifts, accessories, or any Egypt shopping plan here.</div>
+              <div id="purchaseEmpty" class="empty-state hidden">لا توجد مشتريات حتى الآن.</div>
             </div>
           </div>
         </div>
@@ -1471,36 +1497,36 @@
         <div class="restaurant-layout">
           <div class="form-card">
             <div class="section-head">
-              <h2>Add / Edit Restaurant</h2>
-              <button class="small soft" id="clearRestaurantFormBtn">Clear</button>
+              <h2>إضافة / تعديل مطعم</h2>
+              <button class="small soft" id="clearRestaurantFormBtn">مسح</button>
             </div>
             <div class="section-body">
               <form id="restaurantForm">
                 <input type="hidden" id="restaurantId" />
                 <div class="form-grid">
                   <div class="field">
-                    <label for="restaurantName">Restaurant / Food Place</label>
-                    <input id="restaurantName" required placeholder="e.g., Sobhy Kaber" />
+                    <label for="restaurantName">اسم المطعم / مكان الأكل</label>
+                    <input id="restaurantName" required placeholder="مثال: صبحي كابر" />
                   </div>
                   <div class="field">
-                    <label for="restaurantCuisine">Cuisine / Type</label>
-                    <input id="restaurantCuisine" placeholder="e.g., Seafood, Egyptian, Dessert" />
+                    <label for="restaurantCuisine">نوع الأكل</label>
+                    <input id="restaurantCuisine" placeholder="مثال: مأكولات بحرية، مصري، حلويات" />
                   </div>
                   <div class="field">
-                    <label for="restaurantArea">Area / Location</label>
-                    <input id="restaurantArea" placeholder="e.g., Cairo, Alexandria" />
+                    <label for="restaurantArea">المنطقة / الموقع</label>
+                    <input id="restaurantArea" placeholder="مثال: القاهرة، الإسكندرية" />
                   </div>
                   <div class="field">
-                    <label for="restaurantMustTry">Must Try</label>
-                    <input id="restaurantMustTry" placeholder="e.g., grilled shrimp, koshary" />
+                    <label for="restaurantMustTry">الأطباق المقترحة</label>
+                    <input id="restaurantMustTry" placeholder="مثال: جمبري مشوي، كشري" />
                   </div>
                   <div class="field full">
-                    <label for="restaurantNotes">Notes</label>
-                    <textarea id="restaurantNotes" placeholder="Opening hours, branch, reservation notes, family preference..."></textarea>
+                    <label for="restaurantNotes">ملاحظات</label>
+                    <textarea id="restaurantNotes" placeholder="مواعيد العمل، الفرع، الحجز، تفضيلات العائلة..."></textarea>
                   </div>
                 </div>
                 <div class="hero-actions">
-                  <button type="submit" class="primary">Save Restaurant</button>
+                  <button type="submit" class="primary">حفظ المطعم</button>
                 </div>
               </form>
             </div>
@@ -1508,39 +1534,39 @@
 
           <div class="form-card">
             <div class="section-head">
-              <h2>Add Restaurant to Calendar</h2>
-              <span class="helper">The same restaurant can be added many times as breakfast, lunch, or dinner.</span>
+              <h2>إضافة مطعم إلى التقويم</h2>
+              <span class="helper">يمكن إضافة نفس المطعم أكثر من مرة كفطور أو غداء أو عشاء.</span>
             </div>
             <div class="section-body">
               <form id="mealScheduleForm">
                 <div class="form-grid">
                   <div class="field full">
-                    <label for="mealRestaurantSelect">Restaurant</label>
+                    <label for="mealRestaurantSelect">المطعم</label>
                     <select id="mealRestaurantSelect" required></select>
                   </div>
                   <div class="field">
-                    <label for="mealDate">Date</label>
+                    <label for="mealDate">التاريخ</label>
                     <input id="mealDate" type="date" required />
                   </div>
                   <div class="field">
-                    <label for="mealSlot">Meal Slot</label>
+                    <label for="mealSlot">وقت الوجبة</label>
                     <select id="mealSlot" required>
-                      <option value="breakfast">Breakfast</option>
-                      <option value="lunch">Lunch</option>
-                      <option value="dinner">Dinner</option>
+                      <option value="breakfast">فطور</option>
+                      <option value="lunch">غداء</option>
+                      <option value="dinner">عشاء</option>
                     </select>
                   </div>
                   <div class="field">
-                    <label for="mealTime">Time</label>
+                    <label for="mealTime">الوقت</label>
                     <input id="mealTime" type="time" />
                   </div>
                   <div class="field full">
-                    <label for="mealNotes">Meal Notes</label>
-                    <textarea id="mealNotes" placeholder="What to order, reservation, who is joining..."></textarea>
+                    <label for="mealNotes">ملاحظات الوجبة</label>
+                    <textarea id="mealNotes" placeholder="ماذا نطلب، الحجز، المشاركون..."></textarea>
                   </div>
                 </div>
                 <div class="hero-actions">
-                  <button type="submit" class="primary">Add Meal to Calendar</button>
+                  <button type="submit" class="primary">إضافة الوجبة للتقويم</button>
                 </div>
               </form>
             </div>
@@ -1548,25 +1574,34 @@
 
           <div class="list-card">
             <div class="section-head">
-              <h2>Restaurant List</h2>
-              <span class="helper">Food places to visit during the trip.</span>
+              <h2>قائمة المطاعم</h2>
+              <span class="helper">أماكن الأكل التي نريد زيارتها أثناء الرحلة.</span>
             </div>
             <div class="section-body table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Restaurant</th>
-                    <th>Cuisine</th>
-                    <th>Area</th>
-                    <th>Must Try</th>
-                    <th>Actions</th>
+                    <th>المطعم</th>
+                    <th>نوع الأكل</th>
+                    <th>المنطقة</th>
+                    <th>المقترح</th>
+                    <th>إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="restaurantTableBody"></tbody>
               </table>
-              <div id="restaurantEmpty" class="empty-state hidden">No restaurants yet. Add food places you want to visit in Egypt.</div>
+              <div id="restaurantEmpty" class="empty-state hidden">لا توجد مطاعم حتى الآن.</div>
             </div>
           </div>
+        </div>
+      </div>
+
+
+      <div class="tabpane hidden" id="placesTab">
+        <div class="restaurant-layout">
+          <div class="form-card"><div class="section-head"><h2>إضافة / تعديل مكان خروج</h2><button class="small soft" id="clearPlaceFormBtn">مسح</button></div><div class="section-body"><form id="placeForm"><input type="hidden" id="placeId" /><div class="form-grid"><div class="field"><label for="placeName">اسم المكان</label><input id="placeName" required placeholder="مثال: مكتبة الإسكندرية" /></div><div class="field"><label for="placeType">نوع المكان</label><input id="placeType" placeholder="مثال: مول، شاطئ، ملاهي، متحف" /></div><div class="field"><label for="placeArea">المنطقة / الموقع</label><input id="placeArea" placeholder="مثال: القاهرة، الإسكندرية" /></div><div class="field"><label for="placeBestTime">أفضل وقت للزيارة</label><input id="placeBestTime" placeholder="مثال: بعد المغرب، صباحاً" /></div><div class="field full"><label for="placeNotes">ملاحظات</label><textarea id="placeNotes" placeholder="أسعار، مواعيد، تذاكر، ملاحظات للعائلة..."></textarea></div></div><div class="hero-actions"><button type="submit" class="primary">حفظ المكان</button></div></form></div></div>
+          <div class="form-card"><div class="section-head"><h2>إضافة مكان خروج إلى التقويم</h2><span class="helper">يمكن إضافة نفس المكان أكثر من مرة في أي يوم.</span></div><div class="section-body"><form id="placeScheduleForm"><div class="form-grid"><div class="field full"><label for="placeScheduleSelect">مكان الخروج</label><select id="placeScheduleSelect" required></select></div><div class="field"><label for="placeScheduleDate">التاريخ</label><input id="placeScheduleDate" type="date" required /></div><div class="field"><label for="placeScheduleTime">الوقت</label><input id="placeScheduleTime" type="time" /></div><div class="field full"><label for="placeScheduleNotes">ملاحظات النشاط</label><textarea id="placeScheduleNotes" placeholder="مَن سيذهب، تذاكر، موعد التحرك، أي تفاصيل..."></textarea></div></div><div class="hero-actions"><button type="submit" class="primary">إضافة كنشاط في التقويم</button></div></form></div></div>
+          <div class="list-card"><div class="section-head"><h2>قائمة أماكن الخروج</h2><span class="helper">الأماكن التي نريد زيارتها أثناء الرحلة.</span></div><div class="section-body table-wrap"><table><thead><tr><th>المكان</th><th>النوع</th><th>المنطقة</th><th>أفضل وقت</th><th>إجراءات</th></tr></thead><tbody id="placeTableBody"></tbody></table><div id="placeEmpty" class="empty-state hidden">لا توجد أماكن خروج حتى الآن.</div></div></div>
         </div>
       </div>
       </div>
@@ -1576,7 +1611,7 @@
   <div class="modal-wrap" id="eventModalWrap">
     <div class="modal">
       <div class="modal-head">
-        <h3 id="modalTitle">Add Event</h3>
+        <h3 id="modalTitle">إضافة حدث</h3>
         <button class="small" id="closeModalBtn">✕</button>
       </div>
       <form id="eventForm">
@@ -1584,68 +1619,68 @@
           <input type="hidden" id="eventId" />
           <div class="form-grid">
             <div class="field">
-              <label for="eventType">Event Type</label>
+              <label for="eventType">نوع الحدث</label>
               <select id="eventType">
-                <option value="activity">Activity</option>
-                <option value="trip">Trip</option>
-                <option value="task">Task</option>
-                <option value="purchaseActivity">Purchase Activity</option>
-                <option value="restaurantMeal">Restaurant Meal</option>
+                <option value="activity">نشاط</option>
+                <option value="trip">رحلة</option>
+                <option value="task">مهمة</option>
+                <option value="purchaseActivity">نشاط شراء</option>
+                <option value="restaurantMeal">وجبة مطعم</option>
               </select>
             </div>
             <div class="field">
-              <label for="eventTitle">Title</label>
-              <input id="eventTitle" required placeholder="Event title" />
+              <label for="eventTitle">العنوان</label>
+              <input id="eventTitle" required placeholder="اكتب عنوان الحدث" />
             </div>
 
             <div class="field js-single-date">
-              <label for="eventDate">Date</label>
+              <label for="eventDate">التاريخ</label>
               <input id="eventDate" type="date" />
             </div>
             <div class="field js-single-date">
-              <label for="eventTime">Time</label>
+              <label for="eventTime">الوقت</label>
               <input id="eventTime" type="time" />
             </div>
 
             <div class="field js-trip-range hidden">
-              <label for="tripStartDate">Start Date</label>
+              <label for="tripStartDate">تاريخ البداية</label>
               <input id="tripStartDate" type="date" />
             </div>
             <div class="field js-trip-range hidden">
-              <label for="tripEndDate">End Date</label>
+              <label for="tripEndDate">تاريخ النهاية</label>
               <input id="tripEndDate" type="date" />
             </div>
             <div class="field js-trip-range hidden">
-              <label for="tripFrom">From</label>
-              <input id="tripFrom" placeholder="e.g., Cairo" />
+              <label for="tripFrom">من</label>
+              <input id="tripFrom" placeholder="مثال: القاهرة" />
             </div>
             <div class="field js-trip-range hidden">
-              <label for="tripTo">To</label>
-              <input id="tripTo" placeholder="e.g., Alexandria" />
+              <label for="tripTo">إلى</label>
+              <input id="tripTo" placeholder="مثال: الإسكندرية" />
             </div>
 
             <div class="field js-location-field">
-              <label for="eventLocation">Location / Place</label>
-              <input id="eventLocation" placeholder="e.g., specific shop or restaurant" />
+              <label for="eventLocation">الموقع / المكان</label>
+              <input id="eventLocation" placeholder="مثال: محل أو مطعم محدد" />
             </div>
             <div class="field js-parent-field">
-              <label for="parentTripId">Attach to Trip (optional)</label>
+              <label for="parentTripId">ربط برحلة (اختياري)</label>
               <select id="parentTripId"></select>
-              <div class="helper">Use this for activities that happen inside a multi-day trip.</div>
+              <div class="helper">استخدم هذا للأنشطة داخل رحلة متعددة الأيام.</div>
             </div>
             <div class="field full">
-              <label for="eventNotes">Notes</label>
-              <textarea id="eventNotes" placeholder="Extra details, meeting point, what to bring, reminders..."></textarea>
+              <label for="eventNotes">ملاحظات</label>
+              <textarea id="eventNotes" placeholder="تفاصيل إضافية، نقطة التجمع، المطلوب إحضاره، تذكيرات..."></textarea>
             </div>
           </div>
         </div>
         <div class="modal-actions">
           <div>
-            <button type="button" class="danger hidden" id="deleteEventBtn">Delete Event</button>
+            <button type="button" class="danger hidden" id="deleteEventBtn">حذف الحدث</button>
           </div>
           <div class="filters">
-            <button type="button" id="cancelModalBtn">Cancel</button>
-            <button type="submit" class="primary">Save Event</button>
+            <button type="button" id="cancelModalBtn">إلغاء</button>
+            <button type="submit" class="primary">حفظ الحدث</button>
           </div>
         </div>
       </form>
@@ -1673,6 +1708,7 @@
       events: [],
       purchases: [],
       restaurants: [],
+      places: [],
       notesByDate: {}
     };
 
@@ -1713,6 +1749,20 @@
       mealSlot: document.getElementById('mealSlot'),
       mealTime: document.getElementById('mealTime'),
       mealNotes: document.getElementById('mealNotes'),
+      placeForm: document.getElementById('placeForm'),
+      placeId: document.getElementById('placeId'),
+      placeName: document.getElementById('placeName'),
+      placeType: document.getElementById('placeType'),
+      placeArea: document.getElementById('placeArea'),
+      placeBestTime: document.getElementById('placeBestTime'),
+      placeNotes: document.getElementById('placeNotes'),
+      placeTableBody: document.getElementById('placeTableBody'),
+      placeEmpty: document.getElementById('placeEmpty'),
+      placeScheduleForm: document.getElementById('placeScheduleForm'),
+      placeScheduleSelect: document.getElementById('placeScheduleSelect'),
+      placeScheduleDate: document.getElementById('placeScheduleDate'),
+      placeScheduleTime: document.getElementById('placeScheduleTime'),
+      placeScheduleNotes: document.getElementById('placeScheduleNotes'),
       eventModalWrap: document.getElementById('eventModalWrap'),
       eventForm: document.getElementById('eventForm'),
       eventId: document.getElementById('eventId'),
@@ -1745,10 +1795,7 @@
         btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
       });
 
-      document.getElementById('addActivityBtn').addEventListener('click', () => openEventModal('activity', state.settings.selectedDate));
-      document.getElementById('addTripBtn').addEventListener('click', () => openEventModal('trip', state.settings.selectedDate));
-      document.getElementById('addTaskBtn').addEventListener('click', () => openEventModal('task', state.settings.selectedDate));
-      document.getElementById('addPurchaseActivityBtn').addEventListener('click', () => openEventModal('purchaseActivity', state.settings.selectedDate));
+      document.getElementById('addEventBtn').addEventListener('click', () => openEventModal('activity', state.settings.selectedDate));
       document.getElementById('quickAddDayBtn').addEventListener('click', () => openEventModal('activity', state.settings.selectedDate));
 
       document.getElementById('jumpBtn').addEventListener('click', jumpToDate);
@@ -1756,7 +1803,7 @@
         state.settings.selectedDate = state.trip.startDate;
         el.jumpDate.value = state.trip.startDate;
         renderAll();
-        setSaveStatus('Trip start selected.');
+        setSaveStatus('تم اختيار بداية الرحلة.');
       });
 
 
@@ -1771,6 +1818,9 @@
       el.restaurantForm.addEventListener('submit', saveRestaurantFromForm);
       el.mealScheduleForm.addEventListener('submit', saveMealScheduleFromForm);
       document.getElementById('clearRestaurantFormBtn').addEventListener('click', clearRestaurantForm);
+      el.placeForm.addEventListener('submit', savePlaceFromForm);
+      el.placeScheduleForm.addEventListener('submit', savePlaceScheduleFromForm);
+      document.getElementById('clearPlaceFormBtn').addEventListener('click', clearPlaceForm);
 
       window.addEventListener('click', (event) => {
         if (event.target === el.eventModalWrap) closeModal();
@@ -1781,6 +1831,7 @@
       state.events = Array.isArray(state.events) ? state.events : [];
       state.purchases = Array.isArray(state.purchases) ? state.purchases : [];
       state.restaurants = Array.isArray(state.restaurants) ? state.restaurants : [];
+      state.places = Array.isArray(state.places) ? state.places : [];
       state.notesByDate = state.notesByDate || {};
       state.settings = state.settings || clone(DEFAULT_DATA.settings);
       if (!state.settings.selectedDate) state.settings.selectedDate = state.trip.startDate;
@@ -1801,6 +1852,7 @@
         state.events = items.filter(item => item.kind === 'event').map(mapEventFromApi);
         state.purchases = items.filter(item => item.kind === 'purchase').map(mapPurchaseFromApi);
         state.restaurants = items.filter(item => item.kind === 'restaurant').map(mapRestaurantFromApi);
+        state.places = items.filter(item => item.kind === 'outingPlace').map(mapPlaceFromApi);
         state.notesByDate = {};
         items.filter(item => item.kind === 'note').forEach(item => {
           if (item.date) state.notesByDate[item.date] = item.notes || '';
@@ -1831,8 +1883,10 @@
       renderSelectedDay();
       renderPurchaseAssignments();
       renderRestaurantOptions();
+      renderPlaceOptions();
       renderPurchases();
       renderRestaurants();
+      renderPlaces();
     }
 
     function renderStats() {
@@ -1859,7 +1913,7 @@
           state.settings.selectedDate = cell.dataset.date;
           el.jumpDate.value = cell.dataset.date;
           renderAll();
-          setSaveStatus('Day selected.');
+          setSaveStatus('تم اختيار اليوم.');
         });
       });
       el.calendarMonths.querySelectorAll('.event-pill[data-event-id]').forEach(pill => {
@@ -2178,6 +2232,38 @@
     window.scheduleRestaurant = scheduleRestaurant;
     window.deleteRestaurant = deleteRestaurant;
 
+
+    function renderPlaceOptions() {
+      const options = state.places.slice().sort((a,b) => a.name.localeCompare(b.name, 'ar')).map(item => `<option value="${item.id}">${escapeHtml(item.name)}${item.area ? ` · ${escapeHtml(item.area)}` : ''}</option>`).join('');
+      el.placeScheduleSelect.innerHTML = options || '<option value="">أضف مكان خروج أولاً</option>';
+      el.placeScheduleSelect.disabled = state.places.length === 0;
+      if (!el.placeScheduleDate.value) el.placeScheduleDate.value = state.settings.selectedDate || state.trip.startDate;
+    }
+    function renderPlaces() {
+      const rows = state.places.slice().sort((a,b) => a.name.localeCompare(b.name, 'ar')).map(item => `<tr><td data-label="المكان"><strong>${escapeHtml(item.name)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td><td data-label="النوع">${escapeHtml(item.type || '')}</td><td data-label="المنطقة">${escapeHtml(item.area || '')}</td><td data-label="أفضل وقت">${escapeHtml(item.bestTime || '')}</td><td data-label="إجراءات"><div class="filters"><button class="small" onclick="schedulePlace('${item.id}')">إضافة للتقويم</button><button class="small" onclick="editPlace('${item.id}')">تعديل</button><button class="small danger" onclick="deletePlace('${item.id}')">حذف</button></div></td></tr>`).join('');
+      el.placeTableBody.innerHTML = rows;
+      el.placeEmpty.classList.toggle('hidden', state.places.length > 0);
+    }
+    async function savePlaceFromForm(event) {
+      event.preventDefault();
+      const existingId = el.placeId.value;
+      const payload = { id: existingId || uid('place'), tripId: TRIP_ID, kind: 'outingPlace', title: el.placeName.value.trim(), item: el.placeName.value.trim(), category: el.placeType.value.trim(), area: el.placeArea.value.trim(), location: el.placeArea.value.trim(), bestTime: el.placeBestTime.value.trim(), notes: el.placeNotes.value.trim(), status: 'planned' };
+      try { setBusy(true, existingId ? 'جارٍ تحديث مكان الخروج...' : 'جارٍ حفظ مكان الخروج...'); if (existingId) await apiPut('/api/planner', payload); else await apiPost('/api/planner', payload); clearPlaceForm(); setActiveTab('placesTab'); await refreshFromAzure('تم حفظ مكان الخروج في آزور.'); } catch (error) { alert('فشل حفظ مكان الخروج: ' + error.message); setSaveStatus('فشل حفظ مكان الخروج: ' + error.message); } finally { setBusy(false); }
+    }
+    async function savePlaceScheduleFromForm(event) {
+      event.preventDefault();
+      const place = state.places.find(item => item.id === el.placeScheduleSelect.value);
+      if (!place) { alert('أضف أو اختر مكان خروج أولاً.'); return; }
+      const date = el.placeScheduleDate.value || state.settings.selectedDate;
+      const payload = { id: uid('outing'), tripId: TRIP_ID, kind: 'event', type: 'activity', title: `خروجة · ${place.name}`, date, time: el.placeScheduleTime.value || '', location: place.area || '', outingPlaceId: place.id, notes: el.placeScheduleNotes.value.trim() || place.bestTime || '' };
+      try { setBusy(true, 'جارٍ إضافة مكان الخروج للتقويم...'); await apiPost('/api/planner', payload); state.settings.selectedDate = date; el.jumpDate.value = date; el.placeScheduleForm.reset(); el.placeScheduleDate.value = date; setActiveTab('calendarTab'); await refreshFromAzure('تمت إضافة مكان الخروج كنشاط في التقويم.'); } catch (error) { alert('فشل إضافة مكان الخروج للتقويم: ' + error.message); setSaveStatus('فشل إضافة مكان الخروج للتقويم: ' + error.message); } finally { setBusy(false); }
+    }
+    function clearPlaceForm() { el.placeForm.reset(); el.placeId.value = ''; }
+    function editPlace(id) { const item = state.places.find(p => p.id === id); if (!item) return; setActiveTab('placesTab'); el.placeId.value = item.id; el.placeName.value = item.name || ''; el.placeType.value = item.type || ''; el.placeArea.value = item.area || ''; el.placeBestTime.value = item.bestTime || ''; el.placeNotes.value = item.notes || ''; setSaveStatus('جارٍ تعديل مكان خروج...'); }
+    function schedulePlace(id) { const item = state.places.find(p => p.id === id); if (!item) return; setActiveTab('placesTab'); el.placeScheduleSelect.value = item.id; el.placeScheduleDate.value = state.settings.selectedDate || state.trip.startDate; setSaveStatus('اختر تاريخ ووقت إضافة ' + item.name + ' للتقويم.'); }
+    async function deletePlace(id) { if (!confirm('حذف مكان الخروج من القائمة؟ الأنشطة التي تمت إضافتها سابقاً ستبقى في التقويم.')) return; try { setBusy(true, 'جارٍ حذف مكان الخروج...'); await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`); clearPlaceForm(); await refreshFromAzure('تم حذف مكان الخروج من آزور.'); } catch (error) { alert('فشل حذف مكان الخروج: ' + error.message); setSaveStatus('فشل حذف مكان الخروج: ' + error.message); } finally { setBusy(false); } }
+    window.editPlace = editPlace; window.schedulePlace = schedulePlace; window.deletePlace = deletePlace;
+
     function renderPurchaseAssignments() {
       const purchaseActivities = state.events.filter(evt => evt.type === 'purchaseActivity').sort((a,b) => (a.date || '').localeCompare(b.date || '') || a.title.localeCompare(b.title));
       const tripOptions = state.events.filter(evt => evt.type === 'trip').sort((a,b) => (a.startDate || '').localeCompare(b.startDate || '') || a.title.localeCompare(b.title));
@@ -2185,7 +2271,7 @@
       el.purchaseAssignedTo.innerHTML = `<option value="">Unassigned</option>` + purchaseActivities
         .map(evt => `<option value="${evt.id}">${escapeHtml(evt.title)} · ${formatShortDate(evt.date)}</option>`).join('');
 
-      el.parentTripId.innerHTML = `<option value="">Not attached to a trip</option>` + tripOptions
+      el.parentTripId.innerHTML = `<option value="">غير مرتبط برحلة</option>` + tripOptions
         .map(evt => `<option value="${evt.id}">${escapeHtml(evt.title)} · ${formatShortDate(evt.startDate)} → ${formatShortDate(evt.endDate)}</option>`).join('');
     }
 
@@ -2285,7 +2371,7 @@
 
     function openEventModal(type = 'activity', date = state.settings.selectedDate) {
       clearEventForm();
-      el.modalTitle.textContent = 'Add Event';
+      el.modalTitle.textContent = 'إضافة حدث';
       el.eventType.value = type;
       el.eventDate.value = date;
       el.tripStartDate.value = date;
@@ -2299,7 +2385,7 @@
       const evt = state.events.find(item => item.id === id);
       if (!evt) return;
       clearEventForm();
-      el.modalTitle.textContent = 'Edit Event';
+      el.modalTitle.textContent = 'تعديل حدث';
       el.eventId.value = evt.id;
       el.eventType.value = evt.type;
       el.eventTitle.value = evt.title || '';
@@ -2467,19 +2553,19 @@
     }
 
     function labelForType(type) {
-      return { activity: 'Activity', trip: 'Trip', task: 'Task', purchaseActivity: 'Purchase Activity', restaurantMeal: 'Restaurant Meal' }[type] || type;
+      return { activity: 'نشاط', trip: 'رحلة', task: 'مهمة', purchaseActivity: 'نشاط شراء', restaurantMeal: 'وجبة مطعم' }[type] || type;
     }
 
     function jumpToDate() {
       const value = el.jumpDate.value;
       if (!value) return;
       if (!isDateInRange(value, state.trip.startDate, state.trip.endDate)) {
-        alert('Please choose a date inside the trip range.');
+        alert('اختر تاريخاً داخل مدة الرحلة.');
         return;
       }
       state.settings.selectedDate = value;
       renderAll();
-      setSaveStatus('Jumped to date.');
+      setSaveStatus('تم الانتقال للتاريخ.');
       const monthId = '#month-' + value.slice(0,7).replace('-', '-');
       document.querySelector(monthId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -2488,6 +2574,7 @@
       document.querySelectorAll('.tablink').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
       document.querySelectorAll('.tabpane').forEach(pane => pane.classList.toggle('hidden', pane.id !== tabId));
       if (tabId === 'restaurantsTab') renderRestaurantOptions();
+      if (tabId === 'placesTab') renderPlaceOptions();
     }
 
     function mapEventFromApi(item) {
@@ -2514,6 +2601,7 @@
         parentTripId: item.parentTripId || '',
         restaurantId: item.restaurantId || '',
         mealSlot: item.mealSlot || '',
+        outingPlaceId: item.outingPlaceId || '',
         notes: item.notes || ''
       };
     }
@@ -2544,8 +2632,11 @@
       };
     }
 
+
+    function mapPlaceFromApi(item) { return { id: item.id, name: item.title || item.item || '', type: item.category || '', area: item.area || item.location || '', bestTime: item.bestTime || item.mustTry || '', notes: item.notes || '', status: item.status || 'planned' }; }
+
     function mealSlotLabel(slot) {
-      return { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' }[slot] || 'Meal';
+      return { breakfast: 'فطور', lunch: 'غداء', dinner: 'عشاء' }[slot] || 'وجبة';
     }
 
     function normalizeEventForApi(evt) {
@@ -2594,8 +2685,8 @@
     function isDateInRange(dateStr, start, end) { return dateStr >= start && dateStr <= end; }
     function toISODate(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
     function monthName(index) { return ['January','February','March','April','May','June','July','August','September','October','November','December'][index]; }
-    function formatShortDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); }
-    function formatLongDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+    function formatShortDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('ar-EG', { day: '2-digit', month: 'short' }); }
+    function formatLongDate(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
     function uid(prefix) { return `${prefix}_${Math.random().toString(36).slice(2, 10)}`; }
     function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
     function escapeHtml(value) {
