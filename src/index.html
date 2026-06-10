@@ -1342,6 +1342,231 @@
     @media (max-width: 760px) { .page { width: min(100%, calc(100% - 16px)); } .header-inner { padding: 10px !important; } .header-main { flex-direction: column; align-items: stretch; gap: 10px; min-width: 0; } .brandline { justify-content: center; font-size: 11px; white-space: normal; text-align: center; } .hero-actions button { width: 100%; justify-content: center; } .summary-card { min-width: 0; width: 100%; } .summary-grid { grid-template-columns: 1fr 1fr !important; } .stat { min-height: 38px !important; padding: 7px 8px !important; justify-content: space-between; } .stat label { font-size: 9px !important; } .stat strong { font-size: 14px !important; } .tabbar { padding: 12px !important; } .tab-links { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tablink { justify-content: center; text-align: center; } .tab-controls { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tab-controls input[type="date"] { grid-column: 1 / -1; width: 100% !important; max-width: none !important; } .tab-controls #jumpBtn, .tab-controls #todayBtn { min-width: 0 !important; width: 100% !important; } .tab-controls .pill-key { grid-column: 1 / -1; display: grid !important; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; } .tab-controls .key-item { justify-content: center; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; } }
     @media (max-width: 430px) { .summary-grid { grid-template-columns: 1fr !important; } .tab-links { grid-template-columns: 1fr; } .tab-controls { grid-template-columns: 1fr; } .tab-controls .pill-key { grid-template-columns: 1fr; } }
 
+
+    /* v3.8 fixes: compact RTL header, full-width cards for restaurants and outing places */
+    .header { overflow: visible !important; }
+    .header-inner {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      flex-wrap: nowrap !important;
+      padding: 12px 16px !important;
+    }
+    .header-main {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+    }
+    .brandline {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      letter-spacing: .14em !important;
+    }
+    .header-main .hero-actions {
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      flex-wrap: nowrap !important;
+    }
+    #addEventBtn {
+      min-width: 132px !important;
+      white-space: nowrap !important;
+      justify-content: center !important;
+    }
+    .summary-card {
+      flex: 0 0 auto !important;
+      min-width: 0 !important;
+      width: auto !important;
+      max-width: none !important;
+      padding: 6px !important;
+      border-radius: 16px !important;
+      overflow: visible !important;
+    }
+    .summary-grid {
+      display: flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      grid-template-columns: none !important;
+      flex-wrap: nowrap !important;
+    }
+    .stat {
+      min-height: 38px !important;
+      height: 38px !important;
+      padding: 7px 10px !important;
+      border-radius: 12px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      white-space: nowrap !important;
+      min-width: 105px !important;
+      max-width: none !important;
+    }
+    .stat:first-child { min-width: 230px !important; }
+    .stat label {
+      margin: 0 !important;
+      font-size: 9px !important;
+      line-height: 1 !important;
+      letter-spacing: .08em !important;
+    }
+    .stat strong {
+      margin: 0 !important;
+      font-size: 15px !important;
+      line-height: 1 !important;
+    }
+    .statusbar { display: none !important; }
+
+    .tabbar {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr) !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 12px 18px !important;
+    }
+    .tab-links { display: flex !important; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .tab-controls {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+      margin: 0 !important;
+      min-width: 0 !important;
+    }
+    .tab-controls input[type="date"] { width: 150px !important; max-width: 150px !important; min-height: 40px; }
+    .tab-controls #jumpBtn, .tab-controls #todayBtn {
+      min-width: 118px !important;
+      width: auto !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      padding: 8px 14px !important;
+      white-space: nowrap !important;
+      text-align: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+    }
+    .tab-controls .pill-key { display: flex !important; align-items: center !important; gap: 7px !important; flex-wrap: wrap !important; }
+    .tab-controls .key-item { white-space: nowrap !important; font-size: 12px !important; }
+    .toolbar { display: none !important; }
+
+    #restaurantsTab .restaurant-layout,
+    #placesTab .restaurant-layout {
+      grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+      align-items: start !important;
+    }
+    #restaurantsTab .list-card,
+    #placesTab .list-card {
+      grid-column: 1 / -1 !important;
+    }
+    .resource-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .resource-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(143,31,67,.05);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .resource-card .resource-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .resource-title {
+      margin: 0;
+      font-size: 17px;
+      color: #2f262a;
+      overflow-wrap: anywhere;
+    }
+    .resource-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .resource-note {
+      background: #fcfafb;
+      border: 1px solid #efe6ea;
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: #5f5f67;
+      line-height: 1.8;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      max-height: 140px;
+      overflow: auto;
+    }
+    .resource-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      border-top: 1px dashed #eadfe4;
+      padding-top: 10px;
+    }
+    .resource-actions button { min-width: 92px; justify-content: center; }
+
+    @media (max-width: 1250px) {
+      .header-inner { flex-wrap: wrap !important; }
+      .header-main { flex: 1 1 100% !important; justify-content: space-between !important; }
+      .summary-card { flex: 1 1 100% !important; }
+      .summary-grid { width: 100% !important; }
+      .stat { flex: 1 1 0 !important; }
+      .stat:first-child { flex: 2 1 220px !important; }
+      .tabbar { grid-template-columns: 1fr !important; }
+      .tab-controls { justify-content: flex-start !important; }
+    }
+    @media (max-width: 760px) {
+      .page { width: min(100%, calc(100% - 14px)) !important; }
+      .header-inner { padding: 10px !important; gap: 10px !important; }
+      .header-main { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+      .brandline { justify-content: center !important; text-align: center !important; white-space: normal !important; overflow: visible !important; font-size: 11px !important; }
+      #addEventBtn { width: 100% !important; }
+      .summary-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+      .stat, .stat:first-child {
+        min-width: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 38px !important;
+        justify-content: space-between !important;
+      }
+      .stat strong { font-size: 14px !important; }
+      .stat:first-child { grid-column: 1 / -1 !important; }
+      .tabbar { padding: 10px !important; gap: 10px !important; }
+      .tab-links { display: grid !important; grid-template-columns: 1fr 1fr !important; width: 100% !important; gap: 8px !important; }
+      .tablink { width: 100% !important; justify-content: center !important; }
+      .tab-controls { display: grid !important; grid-template-columns: 1fr 1fr !important; width: 100% !important; gap: 8px !important; }
+      .tab-controls input[type="date"] { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; }
+      .tab-controls #jumpBtn, .tab-controls #todayBtn { width: 100% !important; min-width: 0 !important; }
+      .tab-controls .pill-key { grid-column: 1 / -1 !important; display: grid !important; grid-template-columns: 1fr 1fr !important; width: 100% !important; gap: 8px !important; }
+      .tab-controls .key-item { justify-content: center !important; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; }
+      #restaurantsTab .restaurant-layout,
+      #placesTab .restaurant-layout,
+      .resource-list { grid-template-columns: 1fr !important; }
+      .resource-card { padding: 12px; }
+      .resource-card .resource-top { flex-direction: column; }
+      .resource-actions button { flex: 1 1 120px; }
+    }
+    @media (max-width: 430px) {
+      .summary-grid { grid-template-columns: 1fr !important; }
+      .stat:first-child { grid-column: auto !important; }
+      .tab-links, .tab-controls, .tab-controls .pill-key { grid-template-columns: 1fr !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -1359,7 +1584,7 @@
           <div class="summary-grid">
             <div class="stat">
               <label>مدة الرحلة</label>
-              <strong id="statRange">16 Jul – 23 Aug 2026</strong>
+              <strong id="statRange">١٦ يوليو – ٢٣ أغسطس ٢٠٢٦</strong>
             </div>
             <div class="stat">
               <label>عدد الأيام</label>
@@ -1577,19 +1802,8 @@
               <h2>قائمة المطاعم</h2>
               <span class="helper">أماكن الأكل التي نريد زيارتها أثناء الرحلة.</span>
             </div>
-            <div class="section-body table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>المطعم</th>
-                    <th>نوع الأكل</th>
-                    <th>المنطقة</th>
-                    <th>المقترح</th>
-                    <th>إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="restaurantTableBody"></tbody>
-              </table>
+            <div class="section-body">
+              <div id="restaurantTableBody" class="resource-list"></div>
               <div id="restaurantEmpty" class="empty-state hidden">لا توجد مطاعم حتى الآن.</div>
             </div>
           </div>
@@ -1601,7 +1815,7 @@
         <div class="restaurant-layout">
           <div class="form-card"><div class="section-head"><h2>إضافة / تعديل مكان خروج</h2><button class="small soft" id="clearPlaceFormBtn">مسح</button></div><div class="section-body"><form id="placeForm"><input type="hidden" id="placeId" /><div class="form-grid"><div class="field"><label for="placeName">اسم المكان</label><input id="placeName" required placeholder="مثال: مكتبة الإسكندرية" /></div><div class="field"><label for="placeType">نوع المكان</label><input id="placeType" placeholder="مثال: مول، شاطئ، ملاهي، متحف" /></div><div class="field"><label for="placeArea">المنطقة / الموقع</label><input id="placeArea" placeholder="مثال: القاهرة، الإسكندرية" /></div><div class="field"><label for="placeBestTime">أفضل وقت للزيارة</label><input id="placeBestTime" placeholder="مثال: بعد المغرب، صباحاً" /></div><div class="field full"><label for="placeNotes">ملاحظات</label><textarea id="placeNotes" placeholder="أسعار، مواعيد، تذاكر، ملاحظات للعائلة..."></textarea></div></div><div class="hero-actions"><button type="submit" class="primary">حفظ المكان</button></div></form></div></div>
           <div class="form-card"><div class="section-head"><h2>إضافة مكان خروج إلى التقويم</h2><span class="helper">يمكن إضافة نفس المكان أكثر من مرة في أي يوم.</span></div><div class="section-body"><form id="placeScheduleForm"><div class="form-grid"><div class="field full"><label for="placeScheduleSelect">مكان الخروج</label><select id="placeScheduleSelect" required></select></div><div class="field"><label for="placeScheduleDate">التاريخ</label><input id="placeScheduleDate" type="date" required /></div><div class="field"><label for="placeScheduleTime">الوقت</label><input id="placeScheduleTime" type="time" /></div><div class="field full"><label for="placeScheduleNotes">ملاحظات النشاط</label><textarea id="placeScheduleNotes" placeholder="مَن سيذهب، تذاكر، موعد التحرك، أي تفاصيل..."></textarea></div></div><div class="hero-actions"><button type="submit" class="primary">إضافة كنشاط في التقويم</button></div></form></div></div>
-          <div class="list-card"><div class="section-head"><h2>قائمة أماكن الخروج</h2><span class="helper">الأماكن التي نريد زيارتها أثناء الرحلة.</span></div><div class="section-body table-wrap"><table><thead><tr><th>المكان</th><th>النوع</th><th>المنطقة</th><th>أفضل وقت</th><th>إجراءات</th></tr></thead><tbody id="placeTableBody"></tbody></table><div id="placeEmpty" class="empty-state hidden">لا توجد أماكن خروج حتى الآن.</div></div></div>
+          <div class="list-card"><div class="section-head"><h2>قائمة أماكن الخروج</h2><span class="helper">الأماكن التي نريد زيارتها أثناء الرحلة.</span></div><div class="section-body"><div id="placeTableBody" class="resource-list"></div><div id="placeEmpty" class="empty-state hidden">لا توجد أماكن خروج حتى الآن.</div></div></div>
         </div>
       </div>
       </div>
@@ -2081,32 +2295,37 @@
         .map(item => `<option value="${item.id}">${escapeHtml(item.name)}${item.area ? ` · ${escapeHtml(item.area)}` : ''}</option>`)
         .join('');
 
-      el.mealRestaurantSelect.innerHTML = options || '<option value="">Add a restaurant first</option>';
+      el.mealRestaurantSelect.innerHTML = options || '<option value="">أضف مطعم أولاً</option>';
       el.mealRestaurantSelect.disabled = state.restaurants.length === 0;
       if (!el.mealDate.value) el.mealDate.value = state.settings.selectedDate || state.trip.startDate;
     }
 
     function renderRestaurants() {
-      const rows = state.restaurants
+      const cards = state.restaurants
         .slice()
-        .sort((a,b) => a.name.localeCompare(b.name))
+        .sort((a,b) => a.name.localeCompare(b.name, 'ar'))
         .map(item => `
-          <tr>
-            <td data-label="Restaurant"><strong>${escapeHtml(item.name)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td>
-            <td data-label="Cuisine">${escapeHtml(item.cuisine || '')}</td>
-            <td data-label="Area">${escapeHtml(item.area || '')}</td>
-            <td data-label="Must Try">${escapeHtml(item.mustTry || '')}</td>
-            <td data-label="Actions">
-              <div class="filters">
-                <button class="small" onclick="scheduleRestaurant('${item.id}')">Add Meal</button>
-                <button class="small" onclick="editRestaurant('${item.id}')">Edit</button>
-                <button class="small danger" onclick="deleteRestaurant('${item.id}')">Delete</button>
+          <article class="resource-card">
+            <div class="resource-top">
+              <div>
+                <h3 class="resource-title">${escapeHtml(item.name)}</h3>
+                <div class="resource-meta">
+                  ${item.cuisine ? `<span class="tag">${escapeHtml(item.cuisine)}</span>` : ''}
+                  ${item.area ? `<span class="tag">${escapeHtml(item.area)}</span>` : ''}
+                  ${item.mustTry ? `<span class="tag">المقترح: ${escapeHtml(item.mustTry)}</span>` : ''}
+                </div>
               </div>
-            </td>
-          </tr>
+            </div>
+            ${item.notes ? `<div class="resource-note">${escapeHtml(item.notes)}</div>` : ''}
+            <div class="resource-actions">
+              <button class="small" onclick="scheduleRestaurant('${item.id}')">إضافة وجبة</button>
+              <button class="small" onclick="editRestaurant('${item.id}')">تعديل</button>
+              <button class="small danger" onclick="deleteRestaurant('${item.id}')">حذف</button>
+            </div>
+          </article>
         `).join('');
 
-      el.restaurantTableBody.innerHTML = rows;
+      el.restaurantTableBody.innerHTML = cards;
       el.restaurantEmpty.classList.toggle('hidden', state.restaurants.length > 0);
     }
 
@@ -2129,15 +2348,15 @@
       };
 
       try {
-        setBusy(true, existingId ? 'Updating restaurant...' : 'Saving restaurant...');
+        setBusy(true, existingId ? 'جارٍ تحديث المطعم...' : 'جارٍ حفظ المطعم...');
         if (existingId) await apiPut('/api/planner', payload);
         else await apiPost('/api/planner', payload);
         clearRestaurantForm();
         setActiveTab('restaurantsTab');
-        await refreshFromAzure('Restaurant saved to Azure.');
+        await refreshFromAzure('تم حفظ المطعم في آزور.');
       } catch (error) {
-        alert('Restaurant save failed: ' + error.message);
-        setSaveStatus('Restaurant save failed: ' + error.message);
+        alert('فشل حفظ المطعم: ' + error.message);
+        setSaveStatus('فشل حفظ المطعم: ' + error.message);
       } finally {
         setBusy(false);
       }
@@ -2147,7 +2366,7 @@
       event.preventDefault();
       const restaurant = state.restaurants.find(item => item.id === el.mealRestaurantSelect.value);
       if (!restaurant) {
-        alert('Please add or select a restaurant first.');
+        alert('أضف أو اختر مطعم أولاً.');
         return;
       }
 
@@ -2169,17 +2388,17 @@
       };
 
       try {
-        setBusy(true, 'Adding meal to calendar...');
+        setBusy(true, 'جارٍ إضافة الوجبة للتقويم...');
         await apiPost('/api/planner', payload);
         state.settings.selectedDate = date;
         el.jumpDate.value = date;
         el.mealScheduleForm.reset();
         el.mealDate.value = date;
         setActiveTab('calendarTab');
-        await refreshFromAzure('Restaurant meal added to calendar.');
+        await refreshFromAzure('تمت إضافة وجبة المطعم للتقويم.');
       } catch (error) {
-        alert('Meal schedule failed: ' + error.message);
-        setSaveStatus('Meal schedule failed: ' + error.message);
+        alert('فشل إضافة الوجبة للتقويم: ' + error.message);
+        setSaveStatus('فشل إضافة الوجبة للتقويم: ' + error.message);
       } finally {
         setBusy(false);
       }
@@ -2200,7 +2419,7 @@
       el.restaurantArea.value = item.area || '';
       el.restaurantMustTry.value = item.mustTry || '';
       el.restaurantNotes.value = item.notes || '';
-      setSaveStatus('Editing restaurant...');
+      setSaveStatus('جارٍ تعديل مطعم...');
     }
 
     function scheduleRestaurant(id) {
@@ -2210,19 +2429,19 @@
       el.mealRestaurantSelect.value = item.id;
       el.mealDate.value = state.settings.selectedDate || state.trip.startDate;
       el.mealSlot.value = 'lunch';
-      setSaveStatus('Choose a date and meal slot for ' + item.name + '.');
+      setSaveStatus('اختر التاريخ ووقت الوجبة لـ ' + item.name + '.');
     }
 
     async function deleteRestaurant(id) {
-      if (!confirm('Delete this restaurant from the Restaurants tab? Existing scheduled meals will remain on the calendar.')) return;
+      if (!confirm('حذف المطعم من القائمة؟ الوجبات التي تمت إضافتها سابقاً ستبقى في التقويم.')) return;
       try {
-        setBusy(true, 'Deleting restaurant...');
+        setBusy(true, 'جارٍ حذف المطعم...');
         await apiDelete(`/api/planner?tripId=${encodeURIComponent(TRIP_ID)}&id=${encodeURIComponent(id)}`);
         clearRestaurantForm();
-        await refreshFromAzure('Restaurant deleted from Azure.');
+        await refreshFromAzure('تم حذف المطعم من آزور.');
       } catch (error) {
-        alert('Restaurant delete failed: ' + error.message);
-        setSaveStatus('Restaurant delete failed: ' + error.message);
+        alert('فشل حذف المطعم: ' + error.message);
+        setSaveStatus('فشل حذف المطعم: ' + error.message);
       } finally {
         setBusy(false);
       }
@@ -2240,8 +2459,30 @@
       if (!el.placeScheduleDate.value) el.placeScheduleDate.value = state.settings.selectedDate || state.trip.startDate;
     }
     function renderPlaces() {
-      const rows = state.places.slice().sort((a,b) => a.name.localeCompare(b.name, 'ar')).map(item => `<tr><td data-label="المكان"><strong>${escapeHtml(item.name)}</strong>${item.notes ? `<div class="helper">${escapeHtml(item.notes)}</div>` : ''}</td><td data-label="النوع">${escapeHtml(item.type || '')}</td><td data-label="المنطقة">${escapeHtml(item.area || '')}</td><td data-label="أفضل وقت">${escapeHtml(item.bestTime || '')}</td><td data-label="إجراءات"><div class="filters"><button class="small" onclick="schedulePlace('${item.id}')">إضافة للتقويم</button><button class="small" onclick="editPlace('${item.id}')">تعديل</button><button class="small danger" onclick="deletePlace('${item.id}')">حذف</button></div></td></tr>`).join('');
-      el.placeTableBody.innerHTML = rows;
+      const cards = state.places
+        .slice()
+        .sort((a,b) => a.name.localeCompare(b.name, 'ar'))
+        .map(item => `
+          <article class="resource-card">
+            <div class="resource-top">
+              <div>
+                <h3 class="resource-title">${escapeHtml(item.name)}</h3>
+                <div class="resource-meta">
+                  ${item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : ''}
+                  ${item.area ? `<span class="tag">${escapeHtml(item.area)}</span>` : ''}
+                  ${item.bestTime ? `<span class="tag">أفضل وقت: ${escapeHtml(item.bestTime)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            ${item.notes ? `<div class="resource-note">${escapeHtml(item.notes)}</div>` : ''}
+            <div class="resource-actions">
+              <button class="small" onclick="schedulePlace('${item.id}')">إضافة للتقويم</button>
+              <button class="small" onclick="editPlace('${item.id}')">تعديل</button>
+              <button class="small danger" onclick="deletePlace('${item.id}')">حذف</button>
+            </div>
+          </article>
+        `).join('');
+      el.placeTableBody.innerHTML = cards;
       el.placeEmpty.classList.toggle('hidden', state.places.length > 0);
     }
     async function savePlaceFromForm(event) {
