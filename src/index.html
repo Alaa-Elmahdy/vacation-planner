@@ -1567,6 +1567,79 @@
       .tab-links, .tab-controls, .tab-controls .pill-key { grid-template-columns: 1fr !important; }
     }
 
+  
+
+    /* v3.9 fix: keep restaurant/place action buttons normal size even when notes are empty */
+    .resource-list {
+      align-items: stretch !important;
+    }
+    .resource-card {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      min-height: 0 !important;
+    }
+    .resource-card .resource-top {
+      flex: 0 0 auto !important;
+    }
+    .resource-note {
+      flex: 0 0 auto !important;
+      min-height: 86px !important;
+      max-height: 140px !important;
+    }
+    .resource-actions {
+      flex: 0 0 auto !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      align-content: center !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+      min-height: 46px !important;
+      height: auto !important;
+      margin-top: auto !important;
+      padding-top: 10px !important;
+    }
+    .resource-actions button,
+    .resource-actions .small,
+    .resource-actions .danger {
+      flex: 0 0 auto !important;
+      align-self: center !important;
+      width: auto !important;
+      min-width: 92px !important;
+      height: 36px !important;
+      min-height: 36px !important;
+      max-height: 36px !important;
+      padding: 7px 12px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    #restaurantsTab .resource-actions button:first-child,
+    #placesTab .resource-actions button:first-child {
+      min-width: 110px !important;
+    }
+
+    @media (max-width: 760px) {
+      .resource-actions {
+        justify-content: stretch !important;
+        gap: 8px !important;
+      }
+      .resource-actions button,
+      .resource-actions .small,
+      .resource-actions .danger {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
