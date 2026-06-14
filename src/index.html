@@ -127,7 +127,18 @@ async function init(){
   auth = getAuth(firebaseApp);
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); await bootstrapUser(); }
+    if(user){
+      $('authView').classList.add('hidden');
+      $('appView').classList.remove('hidden');
+      profile = { uid: user.uid, email: user.email || '', name: user.displayName || 'مستخدم', role: 'member', photoURL: user.photoURL || '' };
+      renderAll();
+      try {
+        await bootstrapUser();
+      } catch (error) {
+        console.error(error);
+        showLoadError(error);
+      }
+    }
     else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); }
   });
 }
@@ -153,9 +164,29 @@ function bindStaticUI(){
   $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
 }
 async function bootstrapUser(){
-  const me = await api('/api/me'); profile = me.user; renderProfile(); await loadItems(); if(profile.role==='admin') loadUsers();
+  const me = await api('/api/me');
+  profile = me.user;
+  renderProfile();
+  renderHeader();
+  await loadItems();
+  if(profile.role==='admin') loadUsers();
 }
-async function loadItems(){ const data=await api(`/api/planner?tripId=${trip.id}&scope=all`); state.items=data.items||[]; renderAll(); }
+async function loadItems(){
+  try {
+    const data=await api(`/api/planner?tripId=${trip.id}&scope=all`);
+    state.items=data.items||[];
+    renderAll();
+  } catch (error) {
+    console.error(error);
+    showLoadError(error);
+  }
+}
+function showLoadError(error){
+  renderCalendar();
+  renderSelectedDay();
+  const message = esc(error?.message || 'تعذر تحميل البيانات من الخادم.');
+  if($('calendarMonths')) $('calendarMonths').insertAdjacentHTML('afterbegin', `<div class="notice" style="margin-bottom:12px">التقويم ظاهر الآن، لكن تحميل البيانات فشل: ${message}</div>`);
+}
 function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); }
 function renderHeader(){
   $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
