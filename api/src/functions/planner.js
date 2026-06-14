@@ -55,7 +55,15 @@ async function requireUser(request) {
     throw error;
   }
   initFirebaseAdmin();
-  const decoded = await admin.auth().verifyIdToken(match[1]);
+  let decoded;
+  try {
+    decoded = await admin.auth().verifyIdToken(match[1]);
+  } catch (error) {
+    if ((error.message || '').includes('kid')) {
+      error.message = 'توكن Firebase غير صحيح. تم تحديث الواجهة لاستخدام ID Token الحقيقي؛ اعمل تسجيل خروج ثم دخول مرة أخرى وبعدها Refresh. التفاصيل: ' + error.message;
+    }
+    throw error;
+  }
   const profile = await getOrCreateProfile(decoded);
   return { decoded, profile };
 }
@@ -70,15 +78,22 @@ function escapeOData(value) { return String(value).replace(/'/g, "''"); }
 async function getOrCreateProfile(decoded) {
   const table = await ensureTable();
   const uid = decoded.uid;
+  const email = (decoded.email || '').toLowerCase();
+  const shouldBeAdmin = email && email === adminEmail;
   try {
     const entity = await table.getEntity('users', uid);
+    let changed = false;
+    if (shouldBeAdmin && entity.role !== 'admin') { entity.role = 'admin'; changed = true; }
+    if (!entity.email && email) { entity.email = email; changed = true; }
+    if (!entity.name && (decoded.name || email)) { entity.name = decoded.name || email.split('@')[0]; entity.displayName = entity.name; changed = true; }
+    if (!entity.photoURL && decoded.picture) { entity.photoURL = decoded.picture; changed = true; }
+    if (changed) { entity.updatedAt = nowIso(); await table.updateEntity(entity, 'Merge'); }
     return userToClient(entity);
   } catch (error) {
     if (error.statusCode !== 404) throw error;
   }
-  const email = (decoded.email || '').toLowerCase();
   const name = decoded.name || (email ? email.split('@')[0] : 'مستخدم');
-  const role = email === adminEmail ? 'admin' : 'member';
+  const role = shouldBeAdmin ? 'admin' : 'member';
   const entity = {
     partitionKey: 'users',
     rowKey: uid,

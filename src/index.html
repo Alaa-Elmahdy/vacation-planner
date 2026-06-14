@@ -105,7 +105,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut, getIdToken } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
 const trip = { startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
 let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab' };
@@ -127,18 +127,7 @@ async function init(){
   auth = getAuth(firebaseApp);
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    if(user){
-      $('authView').classList.add('hidden');
-      $('appView').classList.remove('hidden');
-      profile = { uid: user.uid, email: user.email || '', name: user.displayName || 'مستخدم', role: 'member', photoURL: user.photoURL || '' };
-      renderAll();
-      try {
-        await bootstrapUser();
-      } catch (error) {
-        console.error(error);
-        showLoadError(error);
-      }
-    }
+    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); await bootstrapUser(); }
     else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); }
   });
 }
@@ -164,29 +153,9 @@ function bindStaticUI(){
   $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
 }
 async function bootstrapUser(){
-  const me = await api('/api/me');
-  profile = me.user;
-  renderProfile();
-  renderHeader();
-  await loadItems();
-  if(profile.role==='admin') loadUsers();
+  const me = await api('/api/me'); profile = me.user; renderProfile(); await loadItems(); if(profile.role==='admin') loadUsers();
 }
-async function loadItems(){
-  try {
-    const data=await api(`/api/planner?tripId=${trip.id}&scope=all`);
-    state.items=data.items||[];
-    renderAll();
-  } catch (error) {
-    console.error(error);
-    showLoadError(error);
-  }
-}
-function showLoadError(error){
-  renderCalendar();
-  renderSelectedDay();
-  const message = esc(error?.message || 'تعذر تحميل البيانات من الخادم.');
-  if($('calendarMonths')) $('calendarMonths').insertAdjacentHTML('afterbegin', `<div class="notice" style="margin-bottom:12px">التقويم ظاهر الآن، لكن تحميل البيانات فشل: ${message}</div>`);
-}
+async function loadItems(){ const data=await api(`/api/planner?tripId=${trip.id}&scope=all`); state.items=data.items||[]; renderAll(); }
 function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); }
 function renderHeader(){
   $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
@@ -246,7 +215,14 @@ async function loadUsers(){try{const data=await api('/api/users');$('familyUsers
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
 function authError(e){$('authMsg').textContent=e.message||'حدث خطأ'}
 async function apiPublic(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
-async function api(url,opts={}){const token=await currentUser.getIdToken();const r=await fetch(url,{method:opts.method||'GET',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:opts.body?JSON.stringify(opts.body):undefined});const text=await r.text();if(!r.ok)throw new Error(text||r.status);return text?JSON.parse(text):{};}
+async function api(url,opts={}){
+  if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
+  const token=await getIdToken(currentUser,true);
+  const r=await fetch(url,{method:opts.method||'GET',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:opts.body?JSON.stringify(opts.body):undefined});
+  const text=await r.text();
+  if(!r.ok)throw new Error(text||r.status);
+  return text?JSON.parse(text):{};
+}
 function itemById(id){return state.items.find(i=>i.id===id)}function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function shortDate(d){return d||''}function longDate(d){return new Date(d+'T00:00:00').toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
 </script>
