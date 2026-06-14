@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مخطط الإجازة العائلي | V4</title>
+  <title>مخطط الإجازة العائلي | V4.4</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fbf7f9,#f4edf1);color:var(--text)} body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(168,31,80,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(168,31,80,.035) 1px,transparent 1px);background-size:34px 34px}.top{height:5px;background:linear-gradient(90deg,var(--p),#d29aaE,var(--p))}.page{width:min(1640px,calc(100% - 28px));margin:14px auto 40px}.hidden{display:none!important}.app-shell,.auth-card,.panel,.modal,.mini-card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
@@ -105,10 +105,10 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut, getIdToken } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
 const trip = { startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
-let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab', loadError: '' };
+let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab' };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
@@ -121,13 +121,13 @@ const labels = {
 init();
 async function init(){
   bindStaticUI();
-  const config = await apiPublic('/api/config'); window.__adminEmail = config.adminEmail || '';
+  const config = await apiPublic('/api/config');
   if(!config.firebase.apiKey){ $('authMsg').textContent = 'إعدادات Firebase غير موجودة في Azure Environment Variables.'; return; }
   firebaseApp = initializeApp(config.firebase);
   auth = getAuth(firebaseApp);
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); try { await bootstrapUser(); } catch(err) { profile = provisionalProfile(); state.loadError = err.message || String(err); renderAll(); } }
+    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); await bootstrapUser(); }
     else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); }
   });
 }
@@ -152,43 +152,21 @@ function bindStaticUI(){
   $('placeForm').onsubmit=savePlace;$('clearPlaceBtn').onclick=clearPlace;$('outingForm').onsubmit=saveOuting;
   $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
 }
-function provisionalProfile(){
-  const email = (currentUser?.email || '').toLowerCase();
-  const cfgAdmin = (window.__adminEmail || '').toLowerCase();
-  return { uid: currentUser?.uid || '', email, name: currentUser?.displayName || (email ? email.split('@')[0] : 'مستخدم'), photoURL: currentUser?.photoURL || '', role: cfgAdmin && email === cfgAdmin ? 'admin' : 'member' };
-}
 async function bootstrapUser(){
-  profile = provisionalProfile();
-  renderAll();
-  const me = await api('/api/me');
-  profile = { ...profile, ...me.user };
-  renderProfile();
-  await loadItems();
-  if(profile.role==='admin') loadUsers();
+  const me = await api('/api/me'); profile = me.user; renderProfile(); await loadItems(); if(profile.role==='admin') loadUsers();
 }
-async function loadItems(){
-  try {
-    state.loadError = '';
-    const data=await api(`/api/planner?tripId=${trip.id}&scope=all`);
-    state.items=data.items||[];
-  } catch(err) {
-    state.loadError = err.message || String(err);
-  }
-  renderAll();
-}
-function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); renderProfile(); }
+async function loadItems(){ const data=await api(`/api/planner?tripId=${trip.id}&scope=all`); state.items=data.items||[]; renderAll(); }
+function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); }
 function renderHeader(){
-  const p = profile || provisionalProfile();
-  $('profileName').textContent=p.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=p.role==='admin'?'أدمن':'عضو';
-  if(p.photoURL){$('profilePhoto').src=p.photoURL;$('profilePhoto').classList.remove('hidden')} else {$('profilePhoto').classList.add('hidden')}
+  $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
+  if(profile?.photoURL){$('profilePhoto').src=profile.photoURL;$('profilePhoto').classList.remove('hidden')}
   const visible=visibleItems(); $('statEvents').textContent=visible.filter(i=>i.kind==='event').length; $('statPurchases').textContent=visible.filter(i=>i.kind==='purchase').length;
   $('scopeLabel1').textContent=labels[state.scope]; $('purchaseScopeLabel').textContent=labels[state.scope];
 }
-function normalizedScope(i){ return i.scope || 'family'; }
-function visibleItems(){ const uid = profile?.uid || currentUser?.uid || ''; return (state.items||[]).filter(i=> normalizedScope(i)==='family' || i.ownerUid===uid).filter(i=>state.scope==='family'?normalizedScope(i)==='family':normalizedScope(i)==='personal'); }
-function setTab(tab){state.tab=tab;qsa('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));renderAll();}
+function visibleItems(){ return state.items.filter(i=> i.scope==='family' || i.ownerUid===profile?.uid).filter(i=>state.scope==='family'?i.scope==='family':i.scope==='personal'); }
+function setTab(tab){state.tab=tab;qsa('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));renderLists();}
 function renderCalendar(){
-  const months=[{y:2026,m:6},{y:2026,m:7}]; const notice = state.loadError ? `<div class="notice" style="margin-bottom:12px">تعذر تحميل البيانات من Azure: ${esc(state.loadError)}</div>` : ''; $('calendarMonths').innerHTML=notice+months.map(x=>monthHtml(x.y,x.m)).join('');
+  const months=[{y:2026,m:6},{y:2026,m:7}]; $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
   qsa('.day-cell.in-range').forEach(c=>c.onclick=()=>{state.selectedDate=c.dataset.date;$('jumpDate').value=state.selectedDate;renderAll()});
   qsa('[data-event-id]').forEach(p=>p.onclick=e=>{e.stopPropagation();openExistingEvent(p.dataset.eventId)});
 }
@@ -231,16 +209,34 @@ async function upsert(payload){payload.tripId=trip.id; if(payload.id) await api(
 async function deleteItem(id){if(!confirm('تأكيد الحذف؟'))return; await api(`/api/planner?tripId=${trip.id}&id=${encodeURIComponent(id)}`,{method:'DELETE'}); await loadItems();}
 async function transferItem(id){await api('/api/transfer',{method:'POST',body:{tripId:trip.id,id,mode:'copy'}}); await loadItems(); alert('تم النسخ إلى مساحة العائلة');}
 async function updateStatus(id,status){const i=itemById(id);await upsert({...i,status});}
-function renderProfile(){ const p = profile || provisionalProfile(); if(!$('profileEditName')) return; $('profileEditName').value=p.name||'';$('profileEmail').value=p.email||currentUser?.email||'';$('profileRoleInput').value=p.role==='admin'?'أدمن':'عضو';}
+function renderProfile(){ $('profileEditName').value=profile.name||'';$('profileEmail').value=profile.email||'';$('profileRoleInput').value=profile.role==='admin'?'أدمن':'عضو';}
 async function saveProfile(e){e.preventDefault();const data=await api('/api/me',{method:'PUT',body:{name:$('profileEditName').value}});profile=data.user;renderHeader();alert('تم حفظ الاسم')}
 async function loadUsers(){try{const data=await api('/api/users');$('familyUsers').innerHTML=(data.users||[]).map(u=>`<div class="mini-card" style="padding:12px;margin-bottom:8px"><b>${esc(u.name)}</b><div class="helper">${esc(u.email)} · ${u.role==='admin'?'أدمن':'عضو'}</div></div>`).join('')||'<div class="empty">لا يوجد أعضاء</div>'}catch(e){$('familyUsers').innerHTML='<div class="empty">تعذر تحميل الأعضاء</div>'}}
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
 function authError(e){$('authMsg').textContent=e.message||'حدث خطأ'}
 async function apiPublic(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
+async function getFreshFirebaseIdToken(){
+  if(!auth || !auth.currentUser) throw new Error('جلسة الدخول غير موجودة. اعمل تسجيل خروج ثم دخول مرة أخرى.');
+  currentUser = auth.currentUser;
+  await currentUser.reload().catch(()=>{});
+  const token = await currentUser.getIdToken(true);
+  if(!token || token.split('.').length !== 3){
+    throw new Error('تعذر استخراج Firebase ID Token صحيح من المتصفح. اعمل خروج ثم ادخل مرة أخرى.');
+  }
+  try{
+    const header = JSON.parse(atob(token.split('.')[0].replace(/-/g,'+').replace(/_/g,'/')));
+    if(!header.kid){
+      throw new Error('Firebase ID Token المستخرج لا يحتوي على kid. اعمل خروج ثم دخول مرة أخرى.');
+    }
+  }catch(e){
+    throw new Error('توكن تسجيل الدخول غير صالح في المتصفح. اعمل خروج ثم دخول مرة أخرى. التفاصيل: '+e.message);
+  }
+  return token;
+}
 async function api(url,opts={}){
   if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
-  const token=await getIdToken(currentUser,true);
-  const r=await fetch(url,{method:opts.method||'GET',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:opts.body?JSON.stringify(opts.body):undefined});
+  const token = await getFreshFirebaseIdToken();
+  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'X-Client-Version':'v4.4'},body:opts.body?JSON.stringify(opts.body):undefined});
   const text=await r.text();
   if(!r.ok)throw new Error(text||r.status);
   return text?JSON.parse(text):{};

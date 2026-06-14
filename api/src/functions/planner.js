@@ -54,13 +54,19 @@ async function requireUser(request) {
     error.status = 401;
     throw error;
   }
+  const token = match[1];
+  if (!token || token.split('.').length !== 3) {
+    const error = new Error('التوكن المرسل للـ API ليس Firebase ID Token. افتح الموقع بعد النشر بعمل Ctrl+F5، ثم اعمل خروج ودخول مرة أخرى.');
+    error.status = 401;
+    throw error;
+  }
   initFirebaseAdmin();
   let decoded;
   try {
-    decoded = await admin.auth().verifyIdToken(match[1]);
+    decoded = await admin.auth().verifyIdToken(token);
   } catch (error) {
     if ((error.message || '').includes('kid')) {
-      error.message = 'توكن Firebase غير صحيح. تم تحديث الواجهة لاستخدام ID Token الحقيقي؛ اعمل تسجيل خروج ثم دخول مرة أخرى وبعدها Refresh. التفاصيل: ' + error.message;
+      error.message = 'توكن Firebase غير صحيح أو قديم. استخدم نسخة V4.4، ثم اعمل تسجيل خروج، Refresh، ودخول مرة أخرى. التفاصيل: ' + error.message;
     }
     throw error;
   }
