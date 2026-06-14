@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مخطط الإجازة العائلي | V4.4</title>
+  <title>مخطط الإجازة العائلي | V4.7</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fbf7f9,#f4edf1);color:var(--text)} body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(168,31,80,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(168,31,80,.035) 1px,transparent 1px);background-size:34px 34px}.top{height:5px;background:linear-gradient(90deg,var(--p),#d29aaE,var(--p))}.page{width:min(1640px,calc(100% - 28px));margin:14px auto 40px}.hidden{display:none!important}.app-shell,.auth-card,.panel,.modal,.mini-card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
@@ -288,9 +288,10 @@ async function getFreshFirebaseIdToken(){
   return token;
 }
 async function api(url,opts={}){
+  // V4.7: do not use Authorization header because Azure Functions/EasyAuth may replace it.
   if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
   const token = await getFreshFirebaseIdToken();
-  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'X-Client-Version':'v4.6'},body:opts.body?JSON.stringify(opts.body):undefined});
+  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','X-Client-Version':'v4.7','X-Firebase-ID-Token':token},body:opts.body?JSON.stringify(opts.body):undefined});
   const text=await r.text();
   if(!r.ok)throw new Error(text||r.status);
   return text?JSON.parse(text):{};

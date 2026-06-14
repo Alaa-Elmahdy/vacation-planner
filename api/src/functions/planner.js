@@ -49,14 +49,14 @@ function initFirebaseAdmin() {
 }
 
 async function requireUser(request) {
-  const auth = request.headers.get('authorization') || '';
-  const match = auth.match(/^Bearer\s+(.+)$/i);
-  if (!match) {
-    const error = new Error('Missing Authorization Bearer token.');
+  // V4.7: Azure Static Web Apps / Functions can use or replace the Authorization header.
+  // Therefore the browser sends the Firebase ID token in this custom header only.
+  const token = request.headers.get('x-firebase-id-token') || '';
+  if (!token) {
+    const error = new Error('Missing X-Firebase-ID-Token header. This API expects Firebase ID Token in X-Firebase-ID-Token, not Authorization. Deploy V4.7 and hard refresh.');
     error.status = 401;
     throw error;
   }
-  const token = match[1];
   if (!token || token.split('.').length !== 3) {
     const error = new Error('التوكن المرسل للـ API ليس Firebase ID Token. افتح الموقع بعد النشر بعمل Ctrl+F5، ثم اعمل خروج ودخول مرة أخرى.');
     error.status = 401;
@@ -330,7 +330,7 @@ app.http('config', {
       },
       tripId: tripIdDefault,
       adminEmail,
-      version: 'v4.6'
+      version: 'v4.7'
     }
   })
 });
