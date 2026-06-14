@@ -6,7 +6,7 @@ const accountName = process.env.STORAGE_ACCOUNT_NAME;
 const accountKey = process.env.STORAGE_ACCOUNT_KEY;
 const tableName = process.env.STORAGE_TABLE_NAME || 'planneritems';
 const tripIdDefault = process.env.TRIP_ID || 'egypt-2026';
-const adminEmail = (process.env.ADMIN_EMAIL || 'alaa@elmahdy.net').toLowerCase();
+const adminEmail = (process.env.ADMIN_EMAIL || 'alaa@elmahdy.net').trim().toLowerCase();
 
 let tableClient;
 let firebaseApp;
@@ -117,7 +117,7 @@ function userToClient(entity) {
     name: entity.name || entity.displayName || '',
     displayName: entity.displayName || entity.name || '',
     photoURL: entity.photoURL || '',
-    role: entity.role || 'member',
+    role: ((entity.email || '').toLowerCase() === adminEmail ? 'admin' : (entity.role || 'member')),
     createdAt: entity.createdAt || '',
     updatedAt: entity.updatedAt || ''
   };

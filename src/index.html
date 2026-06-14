@@ -108,7 +108,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut, getIdToken } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
 const trip = { startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
-let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab' };
+let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab', loadError: '' };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
@@ -121,13 +121,13 @@ const labels = {
 init();
 async function init(){
   bindStaticUI();
-  const config = await apiPublic('/api/config');
+  const config = await apiPublic('/api/config'); window.__adminEmail = config.adminEmail || '';
   if(!config.firebase.apiKey){ $('authMsg').textContent = 'إعدادات Firebase غير موجودة في Azure Environment Variables.'; return; }
   firebaseApp = initializeApp(config.firebase);
   auth = getAuth(firebaseApp);
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); await bootstrapUser(); }
+    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); try { await bootstrapUser(); } catch(err) { profile = provisionalProfile(); state.loadError = err.message || String(err); renderAll(); } }
     else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); }
   });
 }
@@ -152,21 +152,43 @@ function bindStaticUI(){
   $('placeForm').onsubmit=savePlace;$('clearPlaceBtn').onclick=clearPlace;$('outingForm').onsubmit=saveOuting;
   $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
 }
-async function bootstrapUser(){
-  const me = await api('/api/me'); profile = me.user; renderProfile(); await loadItems(); if(profile.role==='admin') loadUsers();
+function provisionalProfile(){
+  const email = (currentUser?.email || '').toLowerCase();
+  const cfgAdmin = (window.__adminEmail || '').toLowerCase();
+  return { uid: currentUser?.uid || '', email, name: currentUser?.displayName || (email ? email.split('@')[0] : 'مستخدم'), photoURL: currentUser?.photoURL || '', role: cfgAdmin && email === cfgAdmin ? 'admin' : 'member' };
 }
-async function loadItems(){ const data=await api(`/api/planner?tripId=${trip.id}&scope=all`); state.items=data.items||[]; renderAll(); }
-function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); }
+async function bootstrapUser(){
+  profile = provisionalProfile();
+  renderAll();
+  const me = await api('/api/me');
+  profile = { ...profile, ...me.user };
+  renderProfile();
+  await loadItems();
+  if(profile.role==='admin') loadUsers();
+}
+async function loadItems(){
+  try {
+    state.loadError = '';
+    const data=await api(`/api/planner?tripId=${trip.id}&scope=all`);
+    state.items=data.items||[];
+  } catch(err) {
+    state.loadError = err.message || String(err);
+  }
+  renderAll();
+}
+function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); renderProfile(); }
 function renderHeader(){
-  $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
-  if(profile?.photoURL){$('profilePhoto').src=profile.photoURL;$('profilePhoto').classList.remove('hidden')}
+  const p = profile || provisionalProfile();
+  $('profileName').textContent=p.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=p.role==='admin'?'أدمن':'عضو';
+  if(p.photoURL){$('profilePhoto').src=p.photoURL;$('profilePhoto').classList.remove('hidden')} else {$('profilePhoto').classList.add('hidden')}
   const visible=visibleItems(); $('statEvents').textContent=visible.filter(i=>i.kind==='event').length; $('statPurchases').textContent=visible.filter(i=>i.kind==='purchase').length;
   $('scopeLabel1').textContent=labels[state.scope]; $('purchaseScopeLabel').textContent=labels[state.scope];
 }
-function visibleItems(){ return state.items.filter(i=> i.scope==='family' || i.ownerUid===profile?.uid).filter(i=>state.scope==='family'?i.scope==='family':i.scope==='personal'); }
-function setTab(tab){state.tab=tab;qsa('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));renderLists();}
+function normalizedScope(i){ return i.scope || 'family'; }
+function visibleItems(){ const uid = profile?.uid || currentUser?.uid || ''; return (state.items||[]).filter(i=> normalizedScope(i)==='family' || i.ownerUid===uid).filter(i=>state.scope==='family'?normalizedScope(i)==='family':normalizedScope(i)==='personal'); }
+function setTab(tab){state.tab=tab;qsa('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));renderAll();}
 function renderCalendar(){
-  const months=[{y:2026,m:6},{y:2026,m:7}]; $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
+  const months=[{y:2026,m:6},{y:2026,m:7}]; const notice = state.loadError ? `<div class="notice" style="margin-bottom:12px">تعذر تحميل البيانات من Azure: ${esc(state.loadError)}</div>` : ''; $('calendarMonths').innerHTML=notice+months.map(x=>monthHtml(x.y,x.m)).join('');
   qsa('.day-cell.in-range').forEach(c=>c.onclick=()=>{state.selectedDate=c.dataset.date;$('jumpDate').value=state.selectedDate;renderAll()});
   qsa('[data-event-id]').forEach(p=>p.onclick=e=>{e.stopPropagation();openExistingEvent(p.dataset.eventId)});
 }
@@ -209,7 +231,7 @@ async function upsert(payload){payload.tripId=trip.id; if(payload.id) await api(
 async function deleteItem(id){if(!confirm('تأكيد الحذف؟'))return; await api(`/api/planner?tripId=${trip.id}&id=${encodeURIComponent(id)}`,{method:'DELETE'}); await loadItems();}
 async function transferItem(id){await api('/api/transfer',{method:'POST',body:{tripId:trip.id,id,mode:'copy'}}); await loadItems(); alert('تم النسخ إلى مساحة العائلة');}
 async function updateStatus(id,status){const i=itemById(id);await upsert({...i,status});}
-function renderProfile(){ $('profileEditName').value=profile.name||'';$('profileEmail').value=profile.email||'';$('profileRoleInput').value=profile.role==='admin'?'أدمن':'عضو';}
+function renderProfile(){ const p = profile || provisionalProfile(); if(!$('profileEditName')) return; $('profileEditName').value=p.name||'';$('profileEmail').value=p.email||currentUser?.email||'';$('profileRoleInput').value=p.role==='admin'?'أدمن':'عضو';}
 async function saveProfile(e){e.preventDefault();const data=await api('/api/me',{method:'PUT',body:{name:$('profileEditName').value}});profile=data.user;renderHeader();alert('تم حفظ الاسم')}
 async function loadUsers(){try{const data=await api('/api/users');$('familyUsers').innerHTML=(data.users||[]).map(u=>`<div class="mini-card" style="padding:12px;margin-bottom:8px"><b>${esc(u.name)}</b><div class="helper">${esc(u.email)} · ${u.role==='admin'?'أدمن':'عضو'}</div></div>`).join('')||'<div class="empty">لا يوجد أعضاء</div>'}catch(e){$('familyUsers').innerHTML='<div class="empty">تعذر تحميل الأعضاء</div>'}}
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
