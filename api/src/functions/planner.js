@@ -330,7 +330,7 @@ app.http('config', {
       },
       tripId: tripIdDefault,
       adminEmail,
-      version: 'v4.5'
+      version: 'v4.6'
     }
   })
 });

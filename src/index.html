@@ -122,6 +122,7 @@ init();
 async function init(){
   bindStaticUI();
   const config = await apiPublic('/api/config');
+  window.__ADMIN_EMAIL__ = (config.adminEmail || '').toLowerCase();
   if(!config.firebase.apiKey){ $('authMsg').textContent = 'إعدادات Firebase غير موجودة في Azure Environment Variables.'; return; }
   firebaseApp = initializeApp(config.firebase);
   auth = getAuth(firebaseApp);
@@ -153,10 +154,62 @@ function bindStaticUI(){
   $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
 }
 async function bootstrapUser(){
-  const me = await api('/api/me'); profile = me.user; renderProfile(); await loadItems(); if(profile.role==='admin') loadUsers();
+  profile = localProfileFromFirebase();
+  state.items = [];
+  safeRenderAll();
+  renderProfile();
+
+  try {
+    const me = await api('/api/me');
+    profile = me.user || profile;
+    renderProfile();
+    renderHeader();
+    if(profile.role === 'admin') loadUsers();
+  } catch (error) {
+    showCalendarNotice('تعذر تحميل البروفايل من Azure: ' + readableError(error));
+    renderHeader();
+  }
+
+  await loadItems();
 }
-async function loadItems(){ const data=await api(`/api/planner?tripId=${trip.id}&scope=all`); state.items=data.items||[]; renderAll(); }
+
+function localProfileFromFirebase(){
+  const email = (currentUser?.email || '').toLowerCase();
+  return {
+    uid: currentUser?.uid || '',
+    name: currentUser?.displayName || (email ? email.split('@')[0] : 'مستخدم'),
+    email,
+    photoURL: currentUser?.photoURL || '',
+    role: email === (window.__ADMIN_EMAIL__ || '').toLowerCase() ? 'admin' : 'member'
+  };
+}
+
+async function loadItems(){
+  try {
+    const data=await api(`/api/planner?tripId=${trip.id}&scope=all`);
+    state.items=data.items||[];
+    safeRenderAll();
+  } catch(error) {
+    state.items = [];
+    safeRenderAll();
+    showCalendarNotice('تعذر تحميل البيانات من Azure: ' + readableError(error));
+  }
+}
 function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderLists(); }
+function safeRenderAll(){ try{ renderAll(); }catch(error){ showCalendarNotice('خطأ في رسم الواجهة: ' + readableError(error)); } }
+function showCalendarNotice(message){
+  const box = $('calendarMonths');
+  if(box){
+    const existing = box.querySelector('.notice');
+    const html = `<div class="notice">${esc(message)}</div>`;
+    if(existing) existing.outerHTML = html;
+    else box.insertAdjacentHTML('afterbegin', html);
+  }
+}
+function readableError(error){
+  const raw = error?.message || String(error || 'خطأ غير معروف');
+  try { const parsed = JSON.parse(raw); return parsed.error || raw; } catch(e) { return raw; }
+}
 function renderHeader(){
   $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
   if(profile?.photoURL){$('profilePhoto').src=profile.photoURL;$('profilePhoto').classList.remove('hidden')}
@@ -214,7 +267,7 @@ async function saveProfile(e){e.preventDefault();const data=await api('/api/me',
 async function loadUsers(){try{const data=await api('/api/users');$('familyUsers').innerHTML=(data.users||[]).map(u=>`<div class="mini-card" style="padding:12px;margin-bottom:8px"><b>${esc(u.name)}</b><div class="helper">${esc(u.email)} · ${u.role==='admin'?'أدمن':'عضو'}</div></div>`).join('')||'<div class="empty">لا يوجد أعضاء</div>'}catch(e){$('familyUsers').innerHTML='<div class="empty">تعذر تحميل الأعضاء</div>'}}
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
 function authError(e){$('authMsg').textContent=e.message||'حدث خطأ'}
-async function apiPublic(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
+async function apiPublic(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(await r.text());return r.json()}
 async function getFreshFirebaseIdToken(){
   if(!auth || !auth.currentUser) throw new Error('جلسة الدخول غير موجودة. اعمل تسجيل خروج ثم دخول مرة أخرى.');
   currentUser = auth.currentUser;
@@ -225,8 +278,9 @@ async function getFreshFirebaseIdToken(){
   }
   try{
     const header = JSON.parse(atob(token.split('.')[0].replace(/-/g,'+').replace(/_/g,'/')));
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
     if(!header.kid){
-      throw new Error('Firebase ID Token المستخرج لا يحتوي على kid. اعمل خروج ثم دخول مرة أخرى.');
+      throw new Error('Firebase ID Token المستخرج لا يحتوي على kid. issuer=' + (payload.iss || '-') + ' audience=' + (payload.aud || '-') + ' alg=' + (header.alg || '-') + '. امسح بيانات الموقع ثم ادخل من جديد.');
     }
   }catch(e){
     throw new Error('توكن تسجيل الدخول غير صالح في المتصفح. اعمل خروج ثم دخول مرة أخرى. التفاصيل: '+e.message);
@@ -236,7 +290,7 @@ async function getFreshFirebaseIdToken(){
 async function api(url,opts={}){
   if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
   const token = await getFreshFirebaseIdToken();
-  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'X-Client-Version':'v4.5'},body:opts.body?JSON.stringify(opts.body):undefined});
+  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'X-Client-Version':'v4.6'},body:opts.body?JSON.stringify(opts.body):undefined});
   const text=await r.text();
   if(!r.ok)throw new Error(text||r.status);
   return text?JSON.parse(text):{};
