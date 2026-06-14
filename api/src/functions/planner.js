@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions');
 const { TableClient, AzureNamedKeyCredential } = require('@azure/data-tables');
 const admin = require('firebase-admin');
+const jwt = require('jsonwebtoken');
 
 const accountName = process.env.STORAGE_ACCOUNT_NAME;
 const accountKey = process.env.STORAGE_ACCOUNT_KEY;
@@ -10,6 +11,7 @@ const adminEmail = (process.env.ADMIN_EMAIL || 'alaa@elmahdy.net').trim().toLowe
 
 let tableClient;
 let firebaseApp;
+let firebaseCertCache = { expiresAt: 0, certs: null };
 
 function getTableClient() {
   if (!accountName || !accountKey) throw new Error('Missing STORAGE_ACCOUNT_NAME or STORAGE_ACCOUNT_KEY.');
@@ -54,18 +56,89 @@ async function requireUser(request) {
     error.status = 401;
     throw error;
   }
+  const token = match[1];
+  if (!token || token.split('.').length !== 3) {
+    const error = new Error('التوكن المرسل للـ API ليس Firebase ID Token. افتح الموقع بعد النشر بعمل Ctrl+F5، ثم اعمل خروج ودخول مرة أخرى.');
+    error.status = 401;
+    throw error;
+  }
   initFirebaseAdmin();
   let decoded;
   try {
-    decoded = await admin.auth().verifyIdToken(match[1]);
+    decoded = await admin.auth().verifyIdToken(token);
   } catch (error) {
-    if ((error.message || '').includes('kid')) {
-      error.message = 'توكن Firebase غير صحيح. تم تحديث الواجهة لاستخدام ID Token الحقيقي؛ اعمل تسجيل خروج ثم دخول مرة أخرى وبعدها Refresh. التفاصيل: ' + error.message;
+    const msg = error.message || '';
+    if (msg.includes('kid')) {
+      decoded = await verifyFirebaseTokenWithoutKid(token).catch((fallbackError) => {
+        const details = inspectJwt(token);
+        const wrapped = new Error(
+          'توكن Firebase غير صحيح أو ليس ID Token. ' +
+          'اعمل تسجيل خروج ثم Ctrl+F5 ثم دخول مرة أخرى. ' +
+          'تفاصيل التوكن: issuer=' + (details.payload.iss || '-') +
+          ', audience=' + (details.payload.aud || '-') +
+          ', headerKid=' + (details.header.kid || '-') +
+          '. الخطأ الأصلي: ' + msg +
+          '. خطأ التحقق البديل: ' + (fallbackError.message || fallbackError)
+        );
+        wrapped.status = 401;
+        throw wrapped;
+      });
+    } else {
+      throw error;
     }
-    throw error;
   }
   const profile = await getOrCreateProfile(decoded);
   return { decoded, profile };
+}
+
+function inspectJwt(token) {
+  try {
+    const [h, p] = token.split('.');
+    return {
+      header: JSON.parse(Buffer.from(h, 'base64url').toString('utf8')),
+      payload: JSON.parse(Buffer.from(p, 'base64url').toString('utf8'))
+    };
+  } catch (e) {
+    return { header: {}, payload: {} };
+  }
+}
+
+async function getFirebaseCerts() {
+  const now = Date.now();
+  if (firebaseCertCache.certs && firebaseCertCache.expiresAt > now) return firebaseCertCache.certs;
+  const response = await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');
+  if (!response.ok) throw new Error('تعذر تحميل شهادات Firebase للتحقق من التوكن.');
+  const cacheControl = response.headers.get('cache-control') || '';
+  const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
+  const maxAgeSeconds = maxAgeMatch ? Number(maxAgeMatch[1]) : 3600;
+  const certs = await response.json();
+  firebaseCertCache = { certs, expiresAt: now + maxAgeSeconds * 1000 };
+  return certs;
+}
+
+async function verifyFirebaseTokenWithoutKid(token) {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const details = inspectJwt(token);
+  const expectedIssuer = 'https://securetoken.google.com/' + projectId;
+  if (details.payload.iss !== expectedIssuer || details.payload.aud !== projectId) {
+    throw new Error('التوكن ليس Firebase SecureToken لهذا المشروع.');
+  }
+  const certs = await getFirebaseCerts();
+  let lastError;
+  for (const cert of Object.values(certs)) {
+    try {
+      const decoded = jwt.verify(token, cert, {
+        algorithms: ['RS256'],
+        audience: projectId,
+        issuer: expectedIssuer
+      });
+      decoded.uid = decoded.user_id || decoded.sub;
+      return decoded;
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw lastError || new Error('فشل التحقق اليدوي من Firebase token.');
 }
 
 function nowIso() { return new Date().toISOString(); }
@@ -256,7 +329,8 @@ app.http('config', {
         appId: process.env.FIREBASE_APP_ID || ''
       },
       tripId: tripIdDefault,
-      adminEmail
+      adminEmail,
+      version: 'v4.5'
     }
   })
 });
