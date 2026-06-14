@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مخطط الإجازة العائلي | V4.7</title>
+  <title>مخطط الإجازة العائلي | V4.8</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fbf7f9,#f4edf1);color:var(--text)} body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(168,31,80,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(168,31,80,.035) 1px,transparent 1px);background-size:34px 34px}.top{height:5px;background:linear-gradient(90deg,var(--p),#d29aaE,var(--p))}.page{width:min(1640px,calc(100% - 28px));margin:14px auto 40px}.hidden{display:none!important}.app-shell,.auth-card,.panel,.modal,.mini-card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
@@ -95,7 +95,20 @@
     <div class="tabpane hidden" id="profileTab">
       <div class="profile-grid">
         <div class="panel"><div class="section-head"><h2>البروفايل</h2></div><div class="section-body"><form id="profileForm" class="form-grid"><div class="field full"><label>الاسم</label><input id="profileEditName"></div><div class="field full"><label>البريد</label><input id="profileEmail" disabled></div><div class="field"><label>الدور</label><input id="profileRoleInput" disabled></div><button class="primary full">حفظ الاسم</button></form><button class="soft" id="profileResetPassword" style="margin-top:10px;width:100%">إرسال رابط تغيير كلمة السر</button></div></div>
-        <div class="panel"><div class="section-head"><h2>أفراد العائلة</h2><span class="helper">يظهر للأدمن فقط</span></div><div class="section-body" id="familyUsers"><div class="empty">قائمة الأعضاء ستظهر للأدمن.</div></div></div>
+        <div class="panel"><div class="section-head"><h2>إدارة العائلة</h2><span class="helper">للأدمن فقط</span></div><div class="section-body">
+          <div id="adminTools" class="hidden">
+            <form id="inviteForm" class="form-grid" style="margin-bottom:14px">
+              <div class="field"><label>بريد العضو</label><input id="inviteEmail" type="email" placeholder="member@email.com" required></div>
+              <div class="field"><label>الاسم اختياري</label><input id="inviteName" placeholder="اسم العضو"></div>
+              <button class="primary full">إضافة دعوة / السماح بالدخول</button>
+            </form>
+            <div class="grid-2">
+              <div><h3 style="margin:0 0 10px">الدعوات المسموحة</h3><div id="inviteList"><div class="empty">لا توجد دعوات بعد</div></div></div>
+              <div><h3 style="margin:0 0 10px">أفراد سجلوا دخول</h3><div id="familyUsers"><div class="empty">لا يوجد أعضاء</div></div></div>
+            </div>
+          </div>
+          <div id="memberFamilyHint" class="empty">إدارة العائلة تظهر للأدمن فقط.</div>
+        </div></div>
       </div>
     </div>
   </section>
@@ -151,7 +164,7 @@ function bindStaticUI(){
   $('purchaseForm').onsubmit=savePurchase;$('clearPurchaseBtn').onclick=clearPurchase;
   $('restaurantForm').onsubmit=saveRestaurant;$('clearRestaurantBtn').onclick=clearRestaurant;$('mealForm').onsubmit=saveMeal;
   $('placeForm').onsubmit=savePlace;$('clearPlaceBtn').onclick=clearPlace;$('outingForm').onsubmit=saveOuting;
-  $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);
+  $('profileForm').onsubmit=saveProfile;$('profileResetPassword').onclick=()=>resetPassword(profile.email);$('inviteForm').onsubmit=saveInvite;
 }
 async function bootstrapUser(){
   profile = localProfileFromFirebase();
@@ -164,7 +177,7 @@ async function bootstrapUser(){
     profile = me.user || profile;
     renderProfile();
     renderHeader();
-    if(profile.role === 'admin') loadUsers();
+    if(profile.role === 'admin'){ $('adminTools').classList.remove('hidden'); $('memberFamilyHint').classList.add('hidden'); loadUsers(); loadInvites(); } else { $('adminTools').classList.add('hidden'); $('memberFamilyHint').classList.remove('hidden'); }
   } catch (error) {
     showCalendarNotice('تعذر تحميل البروفايل من Azure: ' + readableError(error));
     renderHeader();
@@ -264,7 +277,11 @@ async function transferItem(id){await api('/api/transfer',{method:'POST',body:{t
 async function updateStatus(id,status){const i=itemById(id);await upsert({...i,status});}
 function renderProfile(){ $('profileEditName').value=profile.name||'';$('profileEmail').value=profile.email||'';$('profileRoleInput').value=profile.role==='admin'?'أدمن':'عضو';}
 async function saveProfile(e){e.preventDefault();const data=await api('/api/me',{method:'PUT',body:{name:$('profileEditName').value}});profile=data.user;renderHeader();alert('تم حفظ الاسم')}
-async function loadUsers(){try{const data=await api('/api/users');$('familyUsers').innerHTML=(data.users||[]).map(u=>`<div class="mini-card" style="padding:12px;margin-bottom:8px"><b>${esc(u.name)}</b><div class="helper">${esc(u.email)} · ${u.role==='admin'?'أدمن':'عضو'}</div></div>`).join('')||'<div class="empty">لا يوجد أعضاء</div>'}catch(e){$('familyUsers').innerHTML='<div class="empty">تعذر تحميل الأعضاء</div>'}}
+async function loadUsers(){try{const data=await api('/api/users');$('familyUsers').innerHTML=(data.users||[]).map(u=>`<div class="mini-card" style="padding:12px;margin-bottom:8px"><b>${esc(u.name||u.email)}</b><div class="helper">${esc(u.email)} · ${u.role==='admin'?'أدمن':'عضو'} · آخر تحديث: ${esc((u.updatedAt||'').slice(0,10))}</div></div>`).join('')||'<div class="empty">لا يوجد أعضاء</div>'}catch(e){$('familyUsers').innerHTML='<div class="empty">تعذر تحميل الأعضاء: '+esc(readableError(e))+'</div>'}}
+async function loadInvites(){try{const data=await api('/api/invites');$('inviteList').innerHTML=(data.invites||[]).map(i=>`<div class="mini-card" style="padding:12px;margin-bottom:8px;display:flex;gap:10px;justify-content:space-between;align-items:center"><div><b>${esc(i.email)}</b><div class="helper">${esc(i.name||'بدون اسم')} · بواسطة ${esc(i.createdByName||'')}</div></div><button class="small danger" data-delete-invite="${esc(i.email)}">حذف</button></div>`).join('')||'<div class="empty">لا توجد دعوات بعد</div>';qsa('[data-delete-invite]').forEach(b=>b.onclick=()=>deleteInvite(b.dataset.deleteInvite));}catch(e){$('inviteList').innerHTML='<div class="empty">تعذر تحميل الدعوات: '+esc(readableError(e))+'</div>'}}
+async function saveInvite(e){e.preventDefault();await api('/api/invites',{method:'POST',body:{email:$('inviteEmail').value,name:$('inviteName').value}});$('inviteForm').reset();await loadInvites();alert('تمت إضافة الدعوة')}
+async function deleteInvite(email){if(!confirm('حذف الدعوة؟'))return;await api('/api/invites?email='+encodeURIComponent(email),{method:'DELETE'});await loadInvites();}
+
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
 function authError(e){$('authMsg').textContent=e.message||'حدث خطأ'}
 async function apiPublic(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(await r.text());return r.json()}
@@ -291,7 +308,7 @@ async function api(url,opts={}){
   // V4.7: do not use Authorization header because Azure Functions/EasyAuth may replace it.
   if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
   const token = await getFreshFirebaseIdToken();
-  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','X-Client-Version':'v4.7','X-Firebase-ID-Token':token},body:opts.body?JSON.stringify(opts.body):undefined});
+  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','X-Client-Version':'v4.8','X-Firebase-ID-Token':token},body:opts.body?JSON.stringify(opts.body):undefined});
   const text=await r.text();
   if(!r.ok)throw new Error(text||r.status);
   return text?JSON.parse(text):{};

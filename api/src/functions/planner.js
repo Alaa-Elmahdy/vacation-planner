@@ -196,6 +196,31 @@ function userToClient(entity) {
   };
 }
 
+function inviteToClient(entity) {
+  return {
+    email: entity.rowKey || entity.email || '',
+    name: entity.name || '',
+    status: entity.status || 'active',
+    createdBy: entity.createdBy || '',
+    createdByName: entity.createdByName || '',
+    createdAt: entity.createdAt || '',
+    updatedAt: entity.updatedAt || ''
+  };
+}
+
+async function isEmailInvited(email) {
+  if (!email) return false;
+  if (email.toLowerCase() === adminEmail) return true;
+  const table = await ensureTable();
+  try {
+    const invite = await table.getEntity('invites', email.toLowerCase());
+    return (invite.status || 'active') === 'active';
+  } catch (error) {
+    if (error.statusCode === 404) return false;
+    throw error;
+  }
+}
+
 function itemToClient(entity) {
   return {
     id: entity.rowKey,
@@ -330,7 +355,7 @@ app.http('config', {
       },
       tripId: tripIdDefault,
       adminEmail,
-      version: 'v4.7'
+      version: 'v4.8'
     }
   })
 });
@@ -374,6 +399,56 @@ app.http('users', {
     } catch (error) {
       context.error(error);
       return { status: error.status || 500, jsonBody: { error: error.message || 'خطأ في الخادم' } };
+    }
+  }
+});
+
+
+app.http('invites', {
+  methods: ['GET', 'POST', 'DELETE'],
+  authLevel: 'anonymous',
+  route: 'invites',
+  handler: async (request, context) => {
+    try {
+      const { profile } = await requireUser(request);
+      if (!isAdmin(profile)) return { status: 403, jsonBody: { error: 'صلاحية الأدمن مطلوبة لإدارة الدعوات.' } };
+      const table = await ensureTable();
+      if (request.method === 'GET') {
+        const invites = [];
+        const entities = table.listEntities({ queryOptions: { filter: `PartitionKey eq 'invites'` } });
+        for await (const entity of entities) invites.push(inviteToClient(entity));
+        invites.sort((a,b)=>String(a.email).localeCompare(String(b.email)));
+        return { status: 200, jsonBody: { invites } };
+      }
+      if (request.method === 'POST') {
+        const body = await request.json();
+        const email = s(body.email).trim().toLowerCase();
+        if (!email || !email.includes('@')) return { status: 400, jsonBody: { error: 'بريد صحيح مطلوب.' } };
+        const entity = {
+          partitionKey: 'invites',
+          rowKey: email,
+          email,
+          name: s(body.name),
+          status: 'active',
+          createdBy: profile.uid,
+          createdByName: profile.name,
+          createdAt: nowIso(),
+          updatedAt: nowIso()
+        };
+        await table.upsertEntity(entity, 'Merge');
+        return { status: 200, jsonBody: { invite: inviteToClient(entity) } };
+      }
+      if (request.method === 'DELETE') {
+        const email = s(request.query.get('email')).trim().toLowerCase();
+        if (!email) return { status: 400, jsonBody: { error: 'البريد مطلوب.' } };
+        if (email === adminEmail) return { status: 400, jsonBody: { error: 'لا يمكن حذف دعوة الأدمن الأساسي.' } };
+        await table.deleteEntity('invites', email).catch(error => { if (error.statusCode !== 404) throw error; });
+        return { status: 200, jsonBody: { deleted: true } };
+      }
+      return { status: 405, jsonBody: { error: 'Method not allowed' } };
+    } catch (error) {
+      context.error(error);
+      return { status: error.status || error.statusCode || 500, jsonBody: { error: error.message || 'خطأ في الخادم' } };
     }
   }
 });
