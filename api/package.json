@@ -6,6 +6,7 @@
   "dependencies": {
     "@azure/functions": "^4.5.0",
     "@azure/data-tables": "^13.3.1",
-    "firebase-admin": "^13.0.0"
+    "firebase-admin": "^13.0.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
