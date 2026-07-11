@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مخطط الإجازة العائلي | V4.8</title>
+  <title>مخطط الرحلات العائلي | V5.0</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fbf7f9,#f4edf1);color:var(--text)} body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(168,31,80,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(168,31,80,.035) 1px,transparent 1px);background-size:34px 34px}.top{height:5px;background:linear-gradient(90deg,var(--p),#d29aaE,var(--p))}.page{width:min(1640px,calc(100% - 28px));margin:14px auto 40px}.hidden{display:none!important}.app-shell,.auth-card,.panel,.modal,.mini-card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
@@ -11,6 +11,7 @@
     button,.btn,input,select,textarea{font:inherit}button,.btn{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:14px;padding:10px 14px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;min-height:44px;white-space:nowrap}button.primary{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:0}button.soft{background:var(--soft);color:var(--p)}button.danger{background:#fff5f7;color:var(--danger);border-color:#f0c7d3}button.small{min-height:36px;padding:7px 10px;font-size:13px}input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:var(--text);outline:none}textarea{resize:vertical;min-height:95px}.field label{display:block;font-size:13px;color:var(--muted);font-weight:900;margin:0 0 6px}.tabs{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:0;padding:14px 16px;border-bottom:1px solid var(--line)}.tab-list{display:flex;gap:8px;flex-wrap:wrap}.tab{border-radius:999px;padding:10px 18px}.tab.active{background:var(--p);color:white;border-color:var(--p)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar input{width:155px}.toolbar .legend{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:12px;font-weight:800}.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;background:#dc91aa;margin-left:4px}.tabpane{padding:18px}.calendar-layout{display:grid;grid-template-columns:2fr minmax(340px,.82fr);gap:16px}.section-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,#fff,var(--soft))}.section-head h2,.section-head h3{margin:0;font-size:18px}.section-body{padding:16px}.month-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:white}.month-head,.weekday-row{display:grid;grid-template-columns:repeat(7,1fr)}.month-title{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);color:var(--p);font-weight:900}.weekday-row div{text-align:center;padding:9px 4px;color:var(--muted);font-size:12px;font-weight:900;background:#fcfafb}.month-grid{display:grid;grid-template-columns:repeat(7,1fr)}.day-cell{min-height:112px;border-top:1px solid #f0e7eb;border-left:1px solid #f0e7eb;padding:8px;cursor:pointer;background:#fff;overflow:hidden}.day-cell:hover,.day-cell.selected{background:#fff7fa}.day-cell.selected{box-shadow:inset 0 0 0 2px var(--p)}.day-cell.muted{background:#faf7f9;cursor:default}.date-num{font-weight:900}.event-pill{display:block;font-size:12px;border-radius:10px;padding:5px 7px;margin-top:5px;background:#f7e6ed;color:#8f1743;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #efd1dc}.agenda{display:grid;gap:10px}.agenda-card,.resource-card{border:1px solid var(--line);background:white;border-radius:18px;padding:14px}.agenda-card{border-right:5px solid var(--p)}.meta,.helper{color:var(--muted);font-size:13px;line-height:1.6}.tags{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.tag{font-size:12px;font-weight:800;color:#76535f;background:#fbf3f6;border:1px solid var(--line);border-radius:999px;padding:5px 9px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}.resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}.resource-card{display:flex;flex-direction:column;gap:10px}.resource-card .title{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.notes-box{max-height:150px;overflow:auto;border:1px solid #f0e2e7;border-radius:14px;padding:10px;background:#fffdfd;line-height:1.7}.card-actions{display:flex;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px;margin-top:auto}.card-actions button{min-width:88px;height:38px;min-height:38px;padding:7px 10px}.empty{border:1px dashed #dec6d0;background:#fffafb;border-radius:18px;padding:20px;text-align:center;color:var(--muted);font-weight:800}.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.auth-card{width:min(520px,100%);padding:24px}.auth-card h1{margin:10px 0;color:var(--p)}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.auth-tabs button.active{background:var(--p);color:white}.modal-wrap{position:fixed;inset:0;background:rgba(57,25,39,.3);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;backdrop-filter:blur(6px)}.modal-wrap.open{display:flex}.modal{width:min(760px,100%);max-height:90vh;overflow:auto}.modal-head,.modal-actions{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.modal-actions{border-top:1px solid var(--line);border-bottom:0;background:#fcfafb}.modal-body{padding:18px}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.notice{background:#fff8e8;border:1px solid #f1d899;border-radius:14px;padding:12px;color:#7c5a00;line-height:1.7}.owner{font-size:12px;color:var(--muted);margin-top:4px}
     @media(max-width:1100px){.app-header{grid-template-columns:1fr}.calendar-layout,.grid-2,.profile-grid{grid-template-columns:1fr}.head-actions{justify-content:stretch}.stats{width:100%}.stat{flex:1;min-width:150px}.toolbar{justify-content:flex-start}.calendar-scroll{overflow-x:auto}.month-card{min-width:780px}.day-cell{min-height:96px}}
     @media(max-width:700px){.page{width:calc(100% - 12px)}.app-header{padding:12px}.brand{font-size:13px;letter-spacing:.08em}.head-actions>button,.profile-chip,.scope-switch{width:100%}.scope-switch button{flex:1}.stats{display:grid;grid-template-columns:1fr 1fr}.stat{height:42px;padding:0 10px}.tabpane{padding:10px}.tabs{align-items:stretch;flex-direction:column}.tab-list{display:grid;grid-template-columns:1fr 1fr}.toolbar input,.toolbar button{width:100%}.toolbar .legend{display:grid;grid-template-columns:1fr 1fr;width:100%}.form-grid{grid-template-columns:1fr}.resource-grid{grid-template-columns:1fr}.modal-wrap{align-items:flex-end;padding:0}.modal{border-radius:22px 22px 0 0;max-height:92vh}.calendar-scroll{margin-inline:-8px;padding-inline:8px}.auth-card{padding:18px}.grid-2{gap:10px}}
+    .money{font-size:28px;font-weight:900;color:var(--p)}.expense-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.bar{height:10px;background:#f2e6eb;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}.trip-picker{min-width:230px}.admin-only.hidden{display:none!important}@media(max-width:700px){.expense-summary{grid-template-columns:1fr}.trip-picker{width:100%}}
   </style>
 </head>
 <body>
@@ -35,11 +36,11 @@
 
 <div id="appView" class="page hidden">
   <header class="app-shell app-header">
-    <div class="brand"><span class="dot"></span><span>مخطط الإجازة · قطر ← مصر</span></div>
+    <div class="brand"><span class="dot"></span><span id="appTripTitle">مخطط الرحلات العائلي</span></div>
     <div class="head-actions">
-      <button class="primary" id="openEventBtn">+ إضافة حدث</button>
+      <select id="tripPicker" class="trip-picker" aria-label="اختر الرحلة"></select><button class="soft" id="manageTripsBtn">الرحلات</button><button class="primary" id="openEventBtn">+ إضافة حدث</button>
       <div class="scope-switch"><button class="scope-btn active" data-scope="family">مساحة العائلة</button><button class="scope-btn" data-scope="personal">مساحتي الشخصية</button></div>
-      <div class="stats"><div class="stat"><span>مدة الرحلة</span><b>16 يوليو – 23 أغسطس 2026</b></div><div class="stat"><span>الأيام</span><b>39</b></div><div class="stat"><span>الأحداث</span><b id="statEvents">0</b></div><div class="stat"><span>المشتريات</span><b id="statPurchases">0</b></div></div>
+      <div class="stats"><div class="stat"><span>مدة الرحلة</span><b id="tripDates">—</b></div><div class="stat"><span>الأيام</span><b id="tripDays">0</b></div><div class="stat"><span>الأحداث</span><b id="statEvents">0</b></div><div class="stat"><span>المشتريات</span><b id="statPurchases">0</b></div></div>
       <div class="profile-chip"><img id="profilePhoto" alt="" class="hidden"><span id="profileName">...</span><span id="profileRole" class="tag">عضو</span></div>
       <button id="logoutBtn" class="soft">خروج</button>
     </div>
@@ -52,6 +53,7 @@
         <button class="tab" data-tab="purchasesTab">المشتريات</button>
         <button class="tab" data-tab="restaurantsTab">المطاعم</button>
         <button class="tab" data-tab="placesTab">أماكن الخروج</button>
+        <button class="tab admin-only hidden" data-tab="expensesTab">المصاريف</button>
         <button class="tab" data-tab="profileTab">البروفايل</button>
       </div>
       <div class="toolbar">
@@ -61,6 +63,13 @@
         <div class="legend"><span><i></i>رحلة</span><span><i></i>نشاط</span><span><i></i>مهمة</span><span><i></i>وجبة</span></div>
       </div>
     </div>
+
+    <div class="tabpane hidden admin-only" id="expensesTab">
+      <div id="expenseSummary" class="expense-summary"></div>
+      <div class="grid-2"><div class="panel"><div class="section-head"><h2>إضافة / تعديل مصروف</h2><button class="small soft" id="clearExpenseBtn">مسح</button></div><div class="section-body"><form id="expenseForm" class="form-grid"><input type="hidden" id="expenseId"><div class="field full"><label>البيان</label><input id="expenseDescription" required placeholder="مثال: كشف دكتور أو مشتريات"></div><div class="field"><label>المبلغ بالجنيه</label><input id="expenseAmount" type="number" min="0.01" step="0.01" required></div><div class="field"><label>التاريخ</label><input id="expenseDate" type="date" required></div><div class="field full"><label>البند</label><input id="expenseCategory" list="expenseCategories" placeholder="طبيب، مطاعم، مواصلات..."><datalist id="expenseCategories"><option value="سكن"><option value="مواصلات"><option value="مطاعم"><option value="مشتريات"><option value="طبيب"><option value="رسوم"><option value="ترفيه"><option value="أخرى"></datalist></div><button class="primary full">حفظ المصروف</button></form></div></div><div class="panel"><div class="section-head"><h2>المعاملات</h2><input id="expenseSearch" placeholder="بحث..." style="max-width:220px"></div><div class="section-body"><div id="expenseList" class="resource-grid"></div></div></div></div>
+    </div>
+
+    <div class="tabpane hidden" id="tripsTab"><div class="grid-2"><div class="panel admin-only"><div class="section-head"><h2>إضافة / تعديل رحلة</h2><button class="small soft" id="clearTripBtn">مسح</button></div><div class="section-body"><form id="tripForm" class="form-grid"><input type="hidden" id="tripId"><div class="field full"><label>اسم الرحلة</label><input id="tripName" required></div><div class="field full"><label>الوجهة</label><input id="tripDestination"></div><div class="field"><label>تاريخ البداية</label><input id="tripStart" type="date" required></div><div class="field"><label>تاريخ النهاية</label><input id="tripEnd" type="date" required></div><button class="primary full">حفظ الرحلة</button></form></div></div><div class="panel"><div class="section-head"><h2>كل الرحلات</h2></div><div class="section-body"><div id="tripList" class="resource-grid"></div></div></div></div></div>
 
     <div class="tabpane" id="calendarTab">
       <div class="calendar-layout">
@@ -120,8 +129,8 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
-const trip = { startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
-let firebaseApp, auth, currentUser, profile, state = { items: [], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab' };
+let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
+let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, scope: 'family', tab: 'calendarTab' };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
@@ -158,6 +167,8 @@ function bindStaticUI(){
   $('quickAddBtn').onclick=()=>openEventModal('activity',state.selectedDate);
   $('jumpBtn').onclick=()=>{state.selectedDate=$('jumpDate').value||trip.startDate;renderAll()};
   $('tripStartBtn').onclick=()=>{state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;renderAll()};
+  $('manageTripsBtn').onclick=()=>setTab('tripsTab');$('tripPicker').onchange=selectTrip;$('tripForm').onsubmit=saveTrip;$('clearTripBtn').onclick=clearTrip;
+  $('expenseForm').onsubmit=saveExpense;$('clearExpenseBtn').onclick=clearExpense;$('expenseSearch').oninput=renderExpenses;
   qsa('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
   qsa('.scope-btn').forEach(b=>b.onclick=async()=>{state.scope=b.dataset.scope;qsa('.scope-btn').forEach(x=>x.classList.toggle('active',x.dataset.scope===state.scope));await loadItems();});
   $('eventType').onchange=syncEventFormType;$('closeEventModal').onclick=closeEventModal;$('cancelEventBtn').onclick=closeEventModal;$('eventForm').onsubmit=saveEvent;$('deleteEventBtn').onclick=deleteCurrentEvent;
@@ -177,14 +188,22 @@ async function bootstrapUser(){
     profile = me.user || profile;
     renderProfile();
     renderHeader();
+    qsa('.admin-only').forEach(x=>x.classList.toggle('hidden',profile.role!=='admin'));
     if(profile.role === 'admin'){ $('adminTools').classList.remove('hidden'); $('memberFamilyHint').classList.add('hidden'); loadUsers(); loadInvites(); } else { $('adminTools').classList.add('hidden'); $('memberFamilyHint').classList.remove('hidden'); }
   } catch (error) {
     showCalendarNotice('تعذر تحميل البروفايل من Azure: ' + readableError(error));
     renderHeader();
   }
 
-  await loadItems();
+  await loadTrips(); await loadItems(); if(profile.role==='admin') await loadExpenses();
 }
+
+async function loadTrips(){const data=await api('/api/trips');state.trips=data.trips||[];const saved=localStorage.getItem('activeTripId');trip=state.trips.find(t=>t.id===saved)||state.trips.find(t=>t.id===trip.id)||state.trips[0]||trip;state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;renderTrips();}
+function renderTrips(){$('tripPicker').innerHTML=state.trips.map(t=>`<option value="${esc(t.id)}" ${t.id===trip.id?'selected':''}>${esc(t.name)}</option>`).join('');$('tripList').innerHTML=state.trips.map(t=>`<div class="resource-card"><div class="title"><h3>${esc(t.name)}</h3><span class="tag">${esc(t.destination||'')}</span></div><div class="meta">${esc(t.startDate)} — ${esc(t.endDate)}</div><div class="card-actions">${profile?.role==='admin'?`<button data-edit-trip="${esc(t.id)}">تعديل</button>`:''}<button data-open-trip="${esc(t.id)}">فتح</button></div></div>`).join('');qsa('[data-open-trip]').forEach(b=>b.onclick=()=>{$('tripPicker').value=b.dataset.openTrip;selectTrip()});qsa('[data-edit-trip]').forEach(b=>b.onclick=()=>editTrip(b.dataset.editTrip));}
+async function selectTrip(){trip=state.trips.find(t=>t.id===$('tripPicker').value)||trip;localStorage.setItem('activeTripId',trip.id);state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;await loadItems();if(profile.role==='admin')await loadExpenses();renderTrips();setTab('calendarTab');}
+async function saveTrip(e){e.preventDefault();const body={id:$('tripId').value||undefined,name:$('tripName').value,destination:$('tripDestination').value,startDate:$('tripStart').value,endDate:$('tripEnd').value};await api('/api/trips',{method:body.id?'PUT':'POST',body});clearTrip();await loadTrips();renderAll();}
+function editTrip(id){const t=state.trips.find(x=>x.id===id);if(!t)return;$('tripId').value=t.id;$('tripName').value=t.name;$('tripDestination').value=t.destination;$('tripStart').value=t.startDate;$('tripEnd').value=t.endDate;}
+function clearTrip(){$('tripForm').reset();$('tripId').value='';}
 
 function localProfileFromFirebase(){
   const email = (currentUser?.email || '').toLowerCase();
@@ -227,12 +246,13 @@ function renderHeader(){
   $('profileName').textContent=profile?.name||currentUser?.displayName||'مستخدم'; $('profileRole').textContent=profile?.role==='admin'?'أدمن':'عضو';
   if(profile?.photoURL){$('profilePhoto').src=profile.photoURL;$('profilePhoto').classList.remove('hidden')}
   const visible=visibleItems(); $('statEvents').textContent=visible.filter(i=>i.kind==='event').length; $('statPurchases').textContent=visible.filter(i=>i.kind==='purchase').length;
+  $('appTripTitle').textContent=trip.name||'مخطط الرحلات العائلي';$('tripDates').textContent=`${trip.startDate} — ${trip.endDate}`;$('tripDays').textContent=Math.max(1,Math.round((new Date(trip.endDate)-new Date(trip.startDate))/86400000)+1);
   $('scopeLabel1').textContent=labels[state.scope]; $('purchaseScopeLabel').textContent=labels[state.scope];
 }
 function visibleItems(){ return state.items.filter(i=> i.scope==='family' || i.ownerUid===profile?.uid).filter(i=>state.scope==='family'?i.scope==='family':i.scope==='personal'); }
 function setTab(tab){state.tab=tab;qsa('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));renderLists();}
 function renderCalendar(){
-  const months=[{y:2026,m:6},{y:2026,m:7}]; $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
+  const months=[], cursor=new Date(trip.startDate+'T00:00:00'), end=new Date(trip.endDate+'T00:00:00');cursor.setDate(1);while(cursor<=end){months.push({y:cursor.getFullYear(),m:cursor.getMonth()});cursor.setMonth(cursor.getMonth()+1)} $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
   qsa('.day-cell.in-range').forEach(c=>c.onclick=()=>{state.selectedDate=c.dataset.date;$('jumpDate').value=state.selectedDate;renderAll()});
   qsa('[data-event-id]').forEach(p=>p.onclick=e=>{e.stopPropagation();openExistingEvent(p.dataset.eventId)});
 }
@@ -241,7 +261,7 @@ function monthHtml(y,m){
   for(let i=0;i<blanks;i++)cells.push('<div class="day-cell muted"></div>');
   for(let d=1;d<=days;d++){const date=iso(new Date(y,m,d)), inRange=date>=trip.startDate&&date<=trip.endDate, ev=inRange?eventsForDate(date):[];cells.push(`<div class="day-cell ${inRange?'in-range':''} ${date===state.selectedDate?'selected':''}" data-date="${date}"><div class="date-num">${d}</div>${ev.slice(0,4).map(e=>`<span class="event-pill" data-event-id="${e.id}">${esc(eventLabel(e))}</span>`).join('')}${ev.length>4?`<span class="helper">+${ev.length-4}</span>`:''}</div>`)}
   while(cells.length%7)cells.push('<div class="day-cell muted"></div>');
-  const name=m===6?'يوليو':'أغسطس'; return `<div class="month-card"><div class="month-title"><span>${name} ${y}</span><span>${days} يوم</span></div><div class="weekday-row">${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].map(w=>`<div>${w}</div>`).join('')}</div><div class="month-grid">${cells.join('')}</div></div>`;
+  const name=new Date(y,m,1).toLocaleDateString('ar-EG',{month:'long'}); return `<div class="month-card"><div class="month-title"><span>${name} ${y}</span><span>${days} يوم</span></div><div class="weekday-row">${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].map(w=>`<div>${w}</div>`).join('')}</div><div class="month-grid">${cells.join('')}</div></div>`;
 }
 function eventsForDate(date){return visibleItems().filter(i=>i.kind==='event').filter(e=>e.type==='trip' ? date>=e.startDate&&date<=e.endDate : (e.date||e.startDate)===date).sort((a,b)=>(a.time||'').localeCompare(b.time||''));}
 function renderSelectedDay(){
@@ -251,6 +271,13 @@ function renderSelectedDay(){
 function agendaCard(e){return `<div class="agenda-card"><b>${esc(eventLabel(e))}</b><div class="meta">${esc(e.location||e.area||'')} ${e.time?'· '+e.time:''}</div><div class="tags"><span class="tag">${labels[e.type]||e.type}</span><span class="tag">${labels[e.status]||e.status}</span>${e.ownerName?`<span class="tag">${esc(e.ownerName)}</span>`:''}</div>${e.notes?`<div class="notes-box">${esc(e.notes)}</div>`:''}<button class="small" data-edit-event="${e.id}">تعديل</button></div>`}
 function eventLabel(e){if(e.type==='restaurantMeal')return `${labels[e.mealSlot]||'وجبة'} · ${e.title}`; if(e.type==='outingActivity')return `خروج · ${e.title}`; return e.title||e.name||e.item||'حدث';}
 function renderLists(){renderPurchaseAssignments();renderPurchases();renderRestaurants();renderPlaces();}
+async function loadExpenses(){const data=await api('/api/expenses?tripId='+encodeURIComponent(trip.id));state.expenses=data.expenses||[];renderExpenses();}
+function renderExpenses(){if(profile?.role!=='admin')return;const term=($('expenseSearch').value||'').trim().toLowerCase();const arr=state.expenses.filter(e=>!term||`${e.description} ${e.category} ${e.date}`.toLowerCase().includes(term));const total=state.expenses.reduce((s,e)=>s+Number(e.amount||0),0);const groups={};state.expenses.forEach(e=>groups[e.category]=(groups[e.category]||0)+Number(e.amount||0));const top=Object.entries(groups).sort((a,b)=>b[1]-a[1]);$('expenseSummary').innerHTML=`<div class="panel section-body"><div class="helper">إجمالي مصاريف الرحلة</div><div class="money">${money(total)}</div></div><div class="panel section-body"><div class="helper">عدد المعاملات</div><div class="money">${state.expenses.length}</div></div><div class="panel section-body"><div class="helper">أعلى بند</div><div class="money" style="font-size:20px">${top.length?esc(top[0][0])+' · '+money(top[0][1]):'—'}</div></div>${top.length?`<div class="panel section-body full"><h3>تحليل المصاريف حسب البنود</h3>${top.map(([k,v])=>`<div style="margin:12px 0"><div style="display:flex;justify-content:space-between"><b>${esc(k)}</b><span>${money(v)}</span></div><div class="bar"><i style="width:${total?v/total*100:0}%"></i></div></div>`).join('')}</div>`:''}`;$('expenseList').innerHTML=arr.length?arr.map(e=>`<div class="resource-card"><div class="title"><h3>${esc(e.description)}</h3><span class="money" style="font-size:20px">${money(e.amount)}</span></div><div class="tags"><span class="tag">${esc(e.category)}</span><span class="tag">${esc(e.date)}</span></div><div class="card-actions"><button data-edit-expense="${e.id}">تعديل</button><button class="danger" data-delete-expense="${e.id}">حذف</button></div></div>`).join(''):'<div class="empty">لا توجد مصاريف مسجلة</div>';qsa('[data-edit-expense]').forEach(b=>b.onclick=()=>editExpense(b.dataset.editExpense));qsa('[data-delete-expense]').forEach(b=>b.onclick=()=>deleteExpense(b.dataset.deleteExpense));}
+async function saveExpense(e){e.preventDefault();const body={id:$('expenseId').value||undefined,tripId:trip.id,description:$('expenseDescription').value,amount:Number($('expenseAmount').value),date:$('expenseDate').value,category:$('expenseCategory').value||'أخرى'};await api('/api/expenses',{method:body.id?'PUT':'POST',body});clearExpense();await loadExpenses();}
+function editExpense(id){const e=state.expenses.find(x=>x.id===id);if(!e)return;$('expenseId').value=e.id;$('expenseDescription').value=e.description;$('expenseAmount').value=e.amount;$('expenseDate').value=e.date;$('expenseCategory').value=e.category;}
+async function deleteExpense(id){if(!confirm('حذف المصروف؟'))return;await api(`/api/expenses?tripId=${encodeURIComponent(trip.id)}&id=${encodeURIComponent(id)}`,{method:'DELETE'});await loadExpenses();}
+function clearExpense(){$('expenseForm').reset();$('expenseId').value='';$('expenseDate').value=state.selectedDate||trip.startDate;}
+function money(value){return new Intl.NumberFormat('ar-EG',{style:'currency',currency:'EGP',maximumFractionDigits:2}).format(Number(value||0));}
 function renderPurchaseAssignments(){const opts=visibleItems().filter(i=>i.kind==='event'&&i.type==='purchaseActivity').map(i=>`<option value="${i.id}">${esc(i.title)} · ${shortDate(i.date||i.startDate)}</option>`).join(''); $('purchaseAssignedTo').innerHTML='<option value="">بدون</option>'+opts; $('eventParentTrip').innerHTML='<option value="">بدون</option>'+visibleItems().filter(i=>i.kind==='event'&&i.type==='trip').map(i=>`<option value="${i.id}">${esc(i.title)}</option>`).join('')}
 function renderPurchases(){const arr=visibleItems().filter(i=>i.kind==='purchase');$('purchaseList').innerHTML=arr.length?arr.map(i=>resourceCard(i,'purchase')).join(''):'<div class="empty">لا توجد مشتريات</div>';bindResourceButtons();}
 function renderRestaurants(){const arr=visibleItems().filter(i=>i.kind==='restaurant');$('restaurantList').innerHTML=arr.length?arr.map(i=>resourceCard(i,'restaurant')).join(''):'<div class="empty">لا توجد مطاعم</div>';$('mealRestaurant').innerHTML=arr.map(i=>`<option value="${i.id}">${esc(i.name||i.title)}</option>`).join('');bindResourceButtons();}
