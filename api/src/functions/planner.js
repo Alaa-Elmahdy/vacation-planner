@@ -272,8 +272,20 @@ function canAccessItem(item, profile) {
 function canModifyItem(item, profile) {
   if (isAdmin(profile)) return true;
   if (item.scope === 'personal') return item.ownerUid === profile.uid;
-  return item.createdBy === profile.uid || item.ownerUid === profile.uid || true;
+  // Every authenticated family member collaborates on the shared trip space.
+  return item.scope === 'family';
 }
+
+function tripToClient(entity) {
+  return { id: entity.rowKey, name: entity.name || '', destination: entity.destination || '', startDate: entity.startDate || '', endDate: entity.endDate || '', status: entity.status || 'active', createdAt: entity.createdAt || '', updatedAt: entity.updatedAt || '' };
+}
+
+function expenseToClient(entity) {
+  return { id: entity.rowKey, tripId: (entity.partitionKey || '').replace(/^expenses:/, ''), description: entity.description || '', amount: Number(entity.amount || 0), date: entity.date || '', category: entity.category || 'أخرى', createdAt: entity.createdAt || '', updatedAt: entity.updatedAt || '' };
+}
+
+function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(s(value)); }
+function expensePartition(tripId) { return `expenses:${tripId}`; }
 
 async function listItems(request, profile) {
   const table = await ensureTable();
@@ -355,9 +367,62 @@ app.http('config', {
       },
       tripId: tripIdDefault,
       adminEmail,
-      version: 'v4.8'
+      version: 'v5.0'
     }
   })
+});
+
+app.http('trips', {
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], authLevel: 'anonymous', route: 'trips',
+  handler: async (request, context) => {
+    try {
+      const { profile } = await requireUser(request); const table = await ensureTable();
+      if (request.method === 'GET') {
+        const trips = []; const entities = table.listEntities({ queryOptions: { filter: `PartitionKey eq 'trips'` } });
+        for await (const entity of entities) trips.push(tripToClient(entity));
+        if (!trips.some(t => t.id === tripIdDefault)) trips.push({ id: tripIdDefault, name: 'رحلة مصر 2026', destination: 'مصر', startDate: '2026-07-16', endDate: '2026-08-23', status: 'active', legacy: true });
+        trips.sort((a,b) => String(b.startDate).localeCompare(String(a.startDate)));
+        return { status: 200, jsonBody: { trips } };
+      }
+      if (!isAdmin(profile)) return { status: 403, jsonBody: { error: 'إدارة الرحلات متاحة للأدمن فقط.' } };
+      if (request.method === 'POST' || request.method === 'PUT') {
+        const body = await request.json();
+        const tripId = s(body.id || id('trip')).trim();
+        if (!s(body.name).trim() || !validDate(body.startDate) || !validDate(body.endDate) || body.endDate < body.startDate) return { status: 400, jsonBody: { error: 'اسم الرحلة وتواريخ صحيحة مطلوبة.' } };
+        const entity = { partitionKey:'trips', rowKey:tripId, name:s(body.name).trim(), destination:s(body.destination).trim(), startDate:body.startDate, endDate:body.endDate, status:s(body.status || 'active'), createdAt:s(body.createdAt || nowIso()), updatedAt:nowIso() };
+        await table.upsertEntity(entity, 'Replace'); return { status: request.method === 'POST' ? 201 : 200, jsonBody: { trip: tripToClient(entity) } };
+      }
+      const tripId = request.query.get('id');
+      if (!tripId || tripId === tripIdDefault) return { status: 400, jsonBody: { error: 'لا يمكن حذف الرحلة الأساسية.' } };
+      await table.deleteEntity('trips', tripId); return { status:200, jsonBody:{ deleted:true } };
+    } catch(error) { context.error(error); return { status:error.status || error.statusCode || 500, jsonBody:{ error:error.message || 'خطأ في الخادم' } }; }
+  }
+});
+
+app.http('expenses', {
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], authLevel: 'anonymous', route: 'expenses',
+  handler: async (request, context) => {
+    try {
+      const { profile } = await requireUser(request);
+      if (!isAdmin(profile)) return { status:403, jsonBody:{ error:'المصاريف خاصة بالأدمن فقط.' } };
+      const table = await ensureTable();
+      if (request.method === 'GET') {
+        const tripId = request.query.get('tripId') || tripIdDefault; const expenses=[];
+        const entities=table.listEntities({queryOptions:{filter:`PartitionKey eq '${escapeOData(expensePartition(tripId))}'`}});
+        for await (const entity of entities) expenses.push(expenseToClient(entity));
+        expenses.sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
+        return {status:200,jsonBody:{expenses}};
+      }
+      if (request.method === 'DELETE') {
+        const tripId=request.query.get('tripId'), expenseId=request.query.get('id'); if(!tripId||!expenseId) return {status:400,jsonBody:{error:'بيانات المصروف مطلوبة.'}};
+        await table.deleteEntity(expensePartition(tripId), expenseId); return {status:200,jsonBody:{deleted:true}};
+      }
+      const body=await request.json(); const amount=Number(body.amount);
+      if(!s(body.description).trim() || !Number.isFinite(amount) || amount<=0 || !validDate(body.date)) return {status:400,jsonBody:{error:'البيان والمبلغ الموجب والتاريخ مطلوبة.'}};
+      const entity={partitionKey:expensePartition(body.tripId||tripIdDefault),rowKey:s(body.id||id('expense')),description:s(body.description).trim(),amount,date:body.date,category:s(body.category||'أخرى').trim(),createdAt:s(body.createdAt||nowIso()),updatedAt:nowIso()};
+      await table.upsertEntity(entity, request.method==='POST'?'Merge':'Replace'); return {status:request.method==='POST'?201:200,jsonBody:{expense:expenseToClient(entity)}};
+    } catch(error) { context.error(error); return {status:error.status||error.statusCode||500,jsonBody:{error:error.message||'خطأ في الخادم'}}; }
+  }
 });
 
 app.http('me', {
