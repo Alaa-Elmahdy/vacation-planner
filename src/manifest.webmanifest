@@ -1,19 +1,22 @@
 {
-  "name": "مخطط الرحلات العائلي",
-  "short_name": "رحلاتنا",
-  "id": "/elmahdy-family-trips-v2",
+  "name": "رحلات عائلة المهدي",
+  "short_name": "المهدي",
+  "id": "/elmahdy-family-trips-v3",
   "description": "تخطيط الرحلات والأنشطة والمشتريات والمصاريف العائلية",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/?source=pwa&app=elmahdy-v2",
+  "start_url": "/?source=pwa&app=elmahdy-v3",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "prefer_related_applications": false,
   "orientation": "portrait-primary",
   "background_color": "#f7f1f4",
   "theme_color": "#a81f50",
   "icons": [
-    { "src": "/icons/elmahdy-travel-v2-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/elmahdy-travel-v2-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/icons/elmahdy-family-v3-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/elmahdy-family-v3-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/elmahdy-family-v3-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/elmahdy-family-v3-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

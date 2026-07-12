@@ -1,5 +1,5 @@
-const CACHE = 'vacation-planner-v4';
-const STATIC = ['/offline.html', '/manifest.webmanifest', '/icons/elmahdy-travel-v2-192.png', '/icons/elmahdy-travel-v2-512.png', '/icons/elmahdy-travel-v2-180.png'];
+const CACHE = 'vacation-planner-v5';
+const STATIC = ['/offline.html', '/manifest.webmanifest?v=3', '/icons/elmahdy-family-v3-192.png', '/icons/elmahdy-family-v3-512.png', '/icons/elmahdy-family-v3-maskable-192.png', '/icons/elmahdy-family-v3-maskable-512.png', '/icons/elmahdy-family-v3-180.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)));
