@@ -4,6 +4,9 @@ import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tripStatus, selectActiveTrip, daysRemaining } from '../src/js/trips.js';
 import { dashboardSummary } from '../src/js/dashboard.js';
+import { createApiClient } from '../src/js/api.js';
+import { visibleItemsForScope, eventsOnDate } from '../src/js/resources.js';
+import { activateTab } from '../src/js/navigation.js';
 
 const html = readFileSync('src/index.html', 'utf8');
 
@@ -43,10 +46,43 @@ test('inline module JavaScript parses', () => {
 });
 
 test('extracted modules parse', () => {
-  for (const file of ['src/js/format.js','src/js/pwa.js','src/js/trips.js','src/js/dashboard.js','src/js/dom.js','src/sw.js']) {
+  for (const file of ['src/js/format.js','src/js/pwa.js','src/js/trips.js','src/js/dashboard.js','src/js/dom.js','src/js/api.js','src/js/navigation.js','src/js/resources.js','src/sw.js']) {
     const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
     assert.equal(result.status, 0, `${file}: ${result.stderr}`);
   }
+});
+
+test('API client sends the Firebase token and handles errors', async () => {
+  let request;
+  const api = createApiClient({
+    getCurrentUser:()=>({uid:'1'}), getToken:async()=>'token',
+    fetchImpl:async(url,options)=>{request={url,options};return {ok:true,text:async()=>'{"ok":true}'};}
+  });
+  assert.deepEqual(await api('/api/test',{method:'POST',body:{a:1}}),{ok:true});
+  assert.equal(request.options.headers['X-Firebase-ID-Token'],'token');
+  assert.equal(request.options.body,'{"a":1}');
+  const denied=createApiClient({getCurrentUser:()=>null,getToken:async()=>'',fetchImpl:async()=>{}});
+  await assert.rejects(()=>denied('/api/test'),/لم يتم تسجيل الدخول/);
+});
+
+test('resource visibility and day events respect scope', () => {
+  const items=[
+    {id:'f',scope:'family',kind:'event',date:'2026-07-20',time:'11:00'},
+    {id:'mine',scope:'personal',ownerUid:'u1',kind:'event',date:'2026-07-20',time:'09:00'},
+    {id:'other',scope:'personal',ownerUid:'u2',kind:'event',date:'2026-07-20'}
+  ];
+  assert.deepEqual(visibleItemsForScope(items,'u1','family').map(x=>x.id),['f']);
+  assert.deepEqual(visibleItemsForScope(items,'u1','personal').map(x=>x.id),['mine']);
+  assert.deepEqual(eventsOnDate(items,'2026-07-20').map(x=>x.id),['other','mine','f']);
+});
+
+test('navigation activates exactly one pane', () => {
+  const make=(id,tab)=>({id,dataset:{tab},classList:{values:new Set(),toggle(name,on){on?this.values.add(name):this.values.delete(name)}}});
+  const buttons=[make('', 'overviewTab'),make('', 'calendarTab')],panes=[make('overviewTab'),make('calendarTab')],toolbar=make('toolbar');
+  activateTab('calendarTab',{buttons,panes,calendarToolbar:toolbar});
+  assert.equal(buttons[1].classList.values.has('active'),true);
+  assert.equal(panes[0].classList.values.has('hidden'),true);
+  assert.equal(panes[1].classList.values.has('hidden'),false);
 });
 
 test('trip lifecycle and automatic selection work', () => {

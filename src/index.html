@@ -165,12 +165,16 @@ import { registerPwa } from './js/pwa.js';
 import { tripStatus, selectActiveTrip, daysRemaining } from './js/trips.js';
 import { dashboardSummary } from './js/dashboard.js';
 import { escapeHtml } from './js/dom.js';
+import { createApiClient, publicJson } from './js/api.js';
+import { activateTab, pushScreen, clearScreenHash } from './js/navigation.js';
+import { visibleItemsForScope, eventsOnDate } from './js/resources.js';
 
 let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
 let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab' };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
+const api = createApiClient({ getCurrentUser:()=>currentUser, getToken:()=>getFreshFirebaseIdToken() });
 
 const labels = {
   family:'مساحة العائلة', personal:'مساحتي الشخصية', planned:'مخطط', bought:'تم الشراء', visited:'تمت الزيارة', cancelled:'ملغي', done:'تم', movedToFamily:'تم نقله للعائلة',
@@ -219,13 +223,13 @@ function bindStaticUI(){
   $('subscreenBack').onclick=closeSubscreen;
   setupFormScreens();
 }
-function openSubscreen(title,html){$('subscreenTitle').textContent=title;$('subscreenBody').innerHTML=html;$('appSubscreen').classList.add('open');$('appSubscreen').setAttribute('aria-hidden','false');history.pushState({subscreen:true},'',location.pathname+location.search+'#screen');window.scrollTo(0,0)}
-function closeSubscreen(){$('appSubscreen').classList.remove('open');$('appSubscreen').setAttribute('aria-hidden','true');if(location.hash==='#screen')history.replaceState({},'',location.pathname+location.search)}
+function openSubscreen(title,html){$('subscreenTitle').textContent=title;$('subscreenBody').innerHTML=html;$('appSubscreen').classList.add('open');$('appSubscreen').setAttribute('aria-hidden','false');pushScreen('#screen',{subscreen:true});window.scrollTo(0,0)}
+function closeSubscreen(){$('appSubscreen').classList.remove('open');$('appSubscreen').setAttribute('aria-hidden','true');clearScreenHash('#screen')}
 function openDayScreen(date){state.selectedDate=date;$('jumpDate').value=date;const events=eventsForDate(date);openSubscreen(longDate(date),`<div class="section-head" style="border-radius:16px"><h2>أنشطة اليوم</h2><button id="dayAddActivity" class="primary">＋ إضافة</button></div><div class="agenda" style="margin-top:12px">${events.length?events.map(agendaCard).join(''):'<div class="empty">لا توجد أحداث لهذا اليوم</div>'}</div>`);$('dayAddActivity').onclick=()=>{closeSubscreen();openEventModal('activity',date)};qsa('#subscreenBody [data-edit-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.editEvent))}
 function openEventDetail(id){const e=itemById(id);if(!e)return;openSubscreen(eventLabel(e),`<article class="event-detail"><h1>${esc(eventLabel(e))}</h1><div class="tags"><span class="tag">${esc(labels[e.type]||e.type)}</span><span class="tag">${esc(labels[e.status]||e.status)}</span><span class="tag">${esc(e.date||e.startDate)}</span>${e.time?`<span class="tag">${esc(e.time)}</span>`:''}</div>${e.location?`<p><b>المكان:</b> ${esc(e.location)}</p>`:''}${e.notes?`<div class="notes-box">${esc(e.notes)}</div>`:''}<div class="card-actions"><button class="primary" id="detailEdit">تعديل</button><button class="danger" id="detailDelete">حذف</button></div></article>`);$('detailEdit').onclick=()=>{closeSubscreen();openExistingEvent(id)};$('detailDelete').onclick=async()=>{if(confirm('حذف الحدث؟')){closeSubscreen();await deleteItem(id)}}}
 function setupFormScreens(){const screens=[['purchaseForm','purchaseList','إضافة مشتريات'],['restaurantForm','restaurantList','إضافة مطعم'],['mealForm','restaurantList','إضافة وجبة'],['placeForm','placeList','إضافة مكان'],['outingForm','placeList','إضافة للتقويم'],['expenseForm','expenseList','إضافة مصروف'],['tripForm','tripList','إضافة رحلة']];screens.forEach(([formId,listId,label])=>{const form=$(formId),list=$(listId);if(!form||!list)return;const panel=form.closest('.panel');panel.classList.add('form-screen');const head=panel.querySelector('.section-head');if(head&&!head.querySelector('.form-screen-back')){const back=document.createElement('button');back.type='button';back.className='form-screen-back';back.textContent='← رجوع';back.onclick=closeFormScreen;head.prepend(back)}const listHead=list.closest('.panel')?.querySelector('.section-head');if(listHead){const add=document.createElement('button');add.type='button';add.className='small primary screen-add';add.textContent='＋ '+label;add.onclick=()=>openFormScreen(panel);listHead.append(add)}})}
-function openFormScreen(panel){qsa('.active-form-screen').forEach(x=>x.classList.remove('active-form-screen'));panel.classList.add('active-form-screen');document.body.classList.add('form-screen-active');panel.scrollTop=0;history.pushState({form:true},'',location.pathname+location.search+'#form')}
-function closeFormScreen(){document.body.classList.remove('form-screen-active');qsa('.active-form-screen').forEach(x=>x.classList.remove('active-form-screen'));if(location.hash==='#form')history.replaceState({},'',location.pathname+location.search)}
+function openFormScreen(panel){qsa('.active-form-screen').forEach(x=>x.classList.remove('active-form-screen'));panel.classList.add('active-form-screen');document.body.classList.add('form-screen-active');panel.scrollTop=0;pushScreen('#form',{form:true})}
+function closeFormScreen(){document.body.classList.remove('form-screen-active');qsa('.active-form-screen').forEach(x=>x.classList.remove('active-form-screen'));clearScreenHash('#form')}
 window.addEventListener('popstate',()=>{if(document.body.classList.contains('form-screen-active'))closeFormScreen();else if($('appSubscreen').classList.contains('open'))closeSubscreen()});
 async function bootstrapUser(){
   profile = localProfileFromFirebase();
@@ -302,8 +306,8 @@ function renderHeader(){
   if($('scopeLabel1')) $('scopeLabel1').textContent=labels[state.scope];
   if($('purchaseScopeLabel')) $('purchaseScopeLabel').textContent=labels[state.scope];
 }
-function visibleItems(){ return state.items.filter(i=> i.scope==='family' || i.ownerUid===profile?.uid).filter(i=>state.scope==='family'?i.scope==='family':i.scope==='personal'); }
-function setTab(tab){state.tab=tab;qsa('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));$('calendarToolbar').classList.toggle('hidden',tab!=='calendarTab');renderLists();window.scrollTo({top:0,behavior:'smooth'});}
+function visibleItems(){return visibleItemsForScope(state.items,profile?.uid,state.scope)}
+function setTab(tab){state.tab=activateTab(tab,{buttons:qsa('[data-tab]'),panes:qsa('.tabpane'),calendarToolbar:$('calendarToolbar')});renderLists();window.scrollTo({top:0,behavior:'smooth'});}
 function renderCalendar(){
   const appMode=true;let months=[];
   if(appMode){const [y,m]=state.calendarMonth.split('-').map(Number);months=[{y,m:m-1}]}else{const cursor=new Date(trip.startDate+'T00:00:00'),end=new Date(trip.endDate+'T00:00:00');cursor.setDate(1);while(cursor<=end){months.push({y:cursor.getFullYear(),m:cursor.getMonth()});cursor.setMonth(cursor.getMonth()+1)}}
@@ -319,7 +323,7 @@ function monthHtml(y,m){
   while(cells.length%7)cells.push('<div class="day-cell muted"></div>');
   const name=new Date(y,m,1).toLocaleDateString('ar-EG',{month:'long'}); return `<div class="month-card"><div class="month-title"><span>${name} ${y}</span><span>${days} يوم</span></div><div class="weekday-row">${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].map(w=>`<div>${w}</div>`).join('')}</div><div class="month-grid">${cells.join('')}</div></div>`;
 }
-function eventsForDate(date){return visibleItems().filter(i=>i.kind==='event').filter(e=>e.type==='trip' ? date>=e.startDate&&date<=e.endDate : (e.date||e.startDate)===date).sort((a,b)=>(a.time||'').localeCompare(b.time||''));}
+function eventsForDate(date){return eventsOnDate(visibleItems(),date)}
 function renderSelectedDay(){
   const ev=eventsForDate(state.selectedDate); $('selectedDayPanel').innerHTML=`<h3 style="color:var(--p);margin:0 0 5px">${longDate(state.selectedDate)}</h3><div class="helper">${labels[state.scope]} · ${ev.length} أحداث</div><div class="agenda" style="margin-top:12px">${ev.length?ev.map(agendaCard).join(''):'<div class="empty">لا توجد أحداث لهذا اليوم</div>'}</div>`;
   qsa('[data-edit-event]').forEach(b=>b.onclick=()=>openEventDetail(b.dataset.editEvent));
@@ -370,7 +374,7 @@ async function deleteInvite(email){if(!confirm('حذف الدعوة؟'))return;a
 
 async function resetPassword(email){if(!email)return alert('اكتب البريد أولاً');try{await sendPasswordResetEmail(auth,email);alert('تم إرسال رابط تغيير كلمة السر')}catch(e){authError(e)}}
 function authError(e){$('authMsg').textContent=e.message||'حدث خطأ'}
-async function apiPublic(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(await r.text());return r.json()}
+async function apiPublic(url){return publicJson(url)}
 async function getFreshFirebaseIdToken(){
   if(!auth || !auth.currentUser) throw new Error('جلسة الدخول غير موجودة. اعمل تسجيل خروج ثم دخول مرة أخرى.');
   currentUser = auth.currentUser;
@@ -389,15 +393,6 @@ async function getFreshFirebaseIdToken(){
     throw new Error('توكن تسجيل الدخول غير صالح في المتصفح. اعمل خروج ثم دخول مرة أخرى. التفاصيل: '+e.message);
   }
   return token;
-}
-async function api(url,opts={}){
-  // V4.7: do not use Authorization header because Azure Functions/EasyAuth may replace it.
-  if(!currentUser) throw new Error('لم يتم تسجيل الدخول.');
-  const token = await getFreshFirebaseIdToken();
-  const r=await fetch(url,{method:opts.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json','X-Client-Version':'v4.8','X-Firebase-ID-Token':token},body:opts.body?JSON.stringify(opts.body):undefined});
-  const text=await r.text();
-  if(!r.ok)throw new Error(text||r.status);
-  return text?JSON.parse(text):{};
 }
 function itemById(id){return state.items.find(i=>i.id===id)}function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 const esc=escapeHtml;function shortDate(d){return d||''}
