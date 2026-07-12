@@ -42,6 +42,10 @@
       .mobile-nav .nav-icon{font-size:24px!important}
       .mobile-nav .nav-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
     }
+    /* Trip management belongs to the trip home only, never above feature screens. */
+    #appView:not([data-active-tab="overviewTab"])>.app-header{display:none!important}
+    #appView:not([data-active-tab="calendarTab"])>.app-shell>.tabs{display:none!important}
+    #appView:not([data-active-tab="overviewTab"]){margin-top:6px}
   </style>
 </head>
 <body>
@@ -333,7 +337,7 @@ function renderHeader(){
   if($('purchaseScopeLabel')) $('purchaseScopeLabel').textContent=labels[state.scope];
 }
 function visibleItems(){return visibleItemsForScope(state.items,profile?.uid,state.scope)}
-function setTab(tab){state.tab=activateTab(tab,{buttons:qsa('[data-tab]'),panes:qsa('.tabpane'),calendarToolbar:$('calendarToolbar')});renderLists();window.scrollTo({top:0,behavior:'smooth'});}
+function setTab(tab){state.tab=activateTab(tab,{buttons:qsa('[data-tab]'),panes:qsa('.tabpane'),calendarToolbar:$('calendarToolbar')});$('appView').dataset.activeTab=state.tab;renderLists();window.scrollTo({top:0,behavior:'smooth'});}
 function renderCalendar(){
   const appMode=true;let months=[];
   if(appMode){const [y,m]=state.calendarMonth.split('-').map(Number);months=[{y,m:m-1}]}else{const cursor=new Date(trip.startDate+'T00:00:00'),end=new Date(trip.endDate+'T00:00:00');cursor.setDate(1);while(cursor<=end){months.push({y:cursor.getFullYear(),m:cursor.getMonth()});cursor.setMonth(cursor.getMonth()+1)}}
