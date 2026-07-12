@@ -13,10 +13,17 @@ const html = readFileSync('src/index.html', 'utf8');
 test('PWA files and metadata exist', () => {
   assert.match(html, /rel="manifest" href="\/manifest\.webmanifest"/);
   assert.match(html, /registerPwa\(\)/);
-  for (const file of ['src/manifest.webmanifest', 'src/sw.js', 'src/icons/app-icon.svg', 'src/js/pwa.js']) assert.equal(existsSync(file), true, file);
+  for (const file of ['src/manifest.webmanifest', 'src/sw.js', 'src/offline.html', 'src/icons/app-icon.svg', 'src/js/pwa.js']) assert.equal(existsSync(file), true, file);
   const manifest = JSON.parse(readFileSync('src/manifest.webmanifest', 'utf8'));
   assert.equal(manifest.display, 'standalone');
   assert.equal(manifest.dir, 'rtl');
+});
+
+test('install, update, search, export, and print features exist', () => {
+  for (const marker of ['installAppBtn','updateBanner','openGlobalSearch','exportExpensesCsv','طباعة الجدول','tripStatusFilter']) assert.match(html,new RegExp(marker),marker);
+  const worker=readFileSync('src/sw.js','utf8');
+  assert.match(worker,/offline\.html/);
+  assert.match(worker,/SKIP_WAITING/);
 });
 
 test('primary application screens and navigation exist', () => {

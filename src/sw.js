@@ -1,5 +1,5 @@
-const CACHE = 'vacation-planner-v1';
-const STATIC = ['/manifest.webmanifest', '/icons/app-icon.svg'];
+const CACHE = 'vacation-planner-v2';
+const STATIC = ['/offline.html', '/manifest.webmanifest', '/icons/app-icon.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)));
@@ -15,7 +15,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).pathname.startsWith('/api/')) return;
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match('/')));
+    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match('/offline.html')));
     return;
   }
   event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
@@ -23,3 +23,5 @@ self.addEventListener('fetch', event => {
     return response;
   })));
 });
+
+self.addEventListener('message', event => { if (event.data?.type === 'SKIP_WAITING') self.skipWaiting(); });
