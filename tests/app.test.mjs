@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { tripStatus, selectActiveTrip, daysRemaining } from '../src/js/trips.js';
+import { dashboardSummary } from '../src/js/dashboard.js';
 
 const html = readFileSync('src/index.html', 'utf8');
 
@@ -41,8 +43,34 @@ test('inline module JavaScript parses', () => {
 });
 
 test('extracted modules parse', () => {
-  for (const file of ['src/js/format.js','src/js/pwa.js','src/sw.js']) {
+  for (const file of ['src/js/format.js','src/js/pwa.js','src/js/trips.js','src/js/dashboard.js','src/js/dom.js','src/sw.js']) {
     const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
     assert.equal(result.status, 0, `${file}: ${result.stderr}`);
   }
+});
+
+test('trip lifecycle and automatic selection work', () => {
+  const today = new Date('2026-07-20T00:00:00');
+  const trips = [
+    { id:'old', startDate:'2026-01-01', endDate:'2026-01-10' },
+    { id:'current', startDate:'2026-07-16', endDate:'2026-08-23' },
+    { id:'next', startDate:'2026-12-01', endDate:'2026-12-10' }
+  ];
+  assert.equal(tripStatus(trips[0], today), 'completed');
+  assert.equal(tripStatus(trips[1], today), 'ongoing');
+  assert.equal(tripStatus(trips[2], today), 'upcoming');
+  assert.equal(selectActiveTrip(trips, '', '', today).id, 'current');
+  assert.equal(daysRemaining(trips[1], today), 34);
+});
+
+test('dashboard summary finds pending tasks and next event', () => {
+  const items = [
+    { id:'1', kind:'event', type:'task', status:'planned', date:'2026-07-21', time:'10:00' },
+    { id:'2', kind:'event', type:'activity', status:'planned', date:'2026-07-20', time:'09:00' },
+    { id:'3', kind:'purchase', status:'planned' }
+  ];
+  const summary = dashboardSummary(items, { startDate:'2026-07-16', endDate:'2026-08-23' }, '2026-07-20', new Date('2026-07-20T00:00:00'));
+  assert.equal(summary.tasks.length, 1);
+  assert.equal(summary.nextEvent.id, '2');
+  assert.equal(summary.selectedEvents.length, 1);
 });

@@ -24,6 +24,7 @@
       .overview-hero{display:block;padding:20px;border-radius:19px}.overview-hero h1{font-size:22px}.quick-actions{margin-top:16px;display:grid;grid-template-columns:1fr 1fr}.quick-actions button:last-child{grid-column:1/-1}.overview-grid{display:flex;flex-direction:column;margin-top:12px;gap:12px}.overview-grid>.panel{border-radius:18px;border:1px solid #eee;overflow:hidden}.schedule-day{display:block;padding:12px}.schedule-date{margin-bottom:10px;font-size:15px}.schedule-event{display:block;min-width:0;overflow-wrap:anywhere;padding:13px}.schedule-event small{display:block;margin-top:6px}.app-header .stats{display:none!important}.month-grid,.weekday-row{width:100%;min-width:0}.day-cell{min-width:0;max-width:100%;overflow:hidden}.form-screen-active .active-form-screen{padding:0 0 90px}.form-screen-active .active-form-screen>.section-head{border-radius:0}.form-screen-active .active-form-screen>.section-body{padding:16px}.form-screen-active .mobile-nav,.app-subscreen.open~.mobile-nav{display:none}.subscreen-body{padding:14px}.event-detail{border-radius:18px;padding:17px}
     }
     @media(max-width:10000px){html,body{width:100%;max-width:100%;overflow-x:hidden}.page,.app-shell,.tabpane,.panel{width:100%!important;max-width:100%!important;min-width:0!important}.head-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.head-actions>*{min-width:0!important;max-width:100%!important}.expense-summary{grid-template-columns:1fr!important}#calendarTab .calendar-layout>aside{display:none!important}#calendarTab .calendar-layout{display:block!important}#calendarToolbar{display:none!important}}
+    .dashboard-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.metric-card{padding:14px;border:1px solid var(--line);border-radius:17px;background:#fff;min-width:0}.metric-card span{display:block;color:var(--muted);font-size:12px}.metric-card b{display:block;color:var(--p);font-size:20px;margin-top:4px;overflow-wrap:anywhere}@media(max-width:10000px){.dashboard-metrics{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -79,6 +80,7 @@
 
     <div class="tabpane" id="overviewTab">
       <div class="overview-hero"><div><h1 id="overviewTitle">رحلتنا</h1><p id="overviewSubtitle"></p></div><div class="quick-actions"><button id="addActivityBtn">＋ نشاط</button><button id="addTaskBtn">✓ مهمة</button><button data-tab="calendarTab">🗓 عرض التقويم</button></div></div>
+      <div id="dashboardMetrics" class="dashboard-metrics"></div>
       <div class="overview-grid"><div class="panel"><div class="section-head"><h2>جدول الرحلة</h2><span class="helper">الأحداث القادمة حسب اليوم</span></div><div class="section-body"><div id="upcomingSchedule" class="schedule-list"></div></div></div><aside class="panel"><div class="section-head"><h2>اليوم المختار</h2><button class="small" id="overviewQuickAdd">إضافة</button></div><div class="section-body" id="overviewDayPanel"></div></aside></div>
     </div>
 
@@ -160,6 +162,9 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import { money, shortDay, longDate } from './js/format.js';
 import { registerPwa } from './js/pwa.js';
+import { tripStatus, selectActiveTrip, daysRemaining } from './js/trips.js';
+import { dashboardSummary } from './js/dashboard.js';
+import { escapeHtml } from './js/dom.js';
 
 let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
 let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab' };
@@ -169,7 +174,7 @@ const qsa = sel => Array.from(document.querySelectorAll(sel));
 
 const labels = {
   family:'مساحة العائلة', personal:'مساحتي الشخصية', planned:'مخطط', bought:'تم الشراء', visited:'تمت الزيارة', cancelled:'ملغي', done:'تم', movedToFamily:'تم نقله للعائلة',
-  purchase:'مشتريات', restaurant:'مطعم', outingPlace:'مكان خروج', event:'حدث', breakfast:'الإفطار', lunch:'الغداء', dinner:'العشاء', activity:'نشاط', trip:'رحلة', task:'مهمة', purchaseActivity:'نشاط شراء', restaurantMeal:'وجبة مطعم', outingActivity:'خروج'
+  purchase:'مشتريات', restaurant:'مطعم', outingPlace:'مكان خروج', event:'حدث', breakfast:'الإفطار', lunch:'الغداء', dinner:'العشاء', activity:'نشاط', trip:'رحلة', task:'مهمة', purchaseActivity:'نشاط شراء', restaurantMeal:'وجبة مطعم', outingActivity:'خروج', upcoming:'قادمة', ongoing:'جارية', completed:'منتهية', archived:'مؤرشفة'
 };
 
 registerPwa();
@@ -243,8 +248,8 @@ async function bootstrapUser(){
   await loadTrips(); await loadItems(); if(profile.role==='admin') await loadExpenses();
 }
 
-async function loadTrips(){const data=await api('/api/trips');state.trips=data.trips||[];const saved=localStorage.getItem('activeTripId');trip=state.trips.find(t=>t.id===saved)||state.trips.find(t=>t.id===trip.id)||state.trips[0]||trip;state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;renderTrips();}
-function renderTrips(){$('tripPicker').innerHTML=state.trips.map(t=>`<option value="${esc(t.id)}" ${t.id===trip.id?'selected':''}>${esc(t.name)}</option>`).join('');$('tripList').innerHTML=state.trips.map(t=>`<div class="resource-card" data-view-trip="${esc(t.id)}"><div class="title"><h3>${esc(t.name)}</h3><span class="tag">${esc(t.destination||'')}</span></div><div class="meta">${esc(t.startDate)} — ${esc(t.endDate)}</div><div class="card-actions"><button data-view-trip-btn="${esc(t.id)}">عرض التفاصيل</button><button data-open-trip="${esc(t.id)}">فتح الرحلة</button></div></div>`).join('');qsa('[data-open-trip]').forEach(b=>b.onclick=e=>{e.stopPropagation();$('tripPicker').value=b.dataset.openTrip;selectTrip()});qsa('[data-view-trip-btn]').forEach(b=>b.onclick=e=>{e.stopPropagation();openTripDetail(b.dataset.viewTripBtn)});qsa('[data-view-trip]').forEach(c=>c.onclick=()=>openTripDetail(c.dataset.viewTrip));}
+async function loadTrips(){const data=await api('/api/trips');state.trips=data.trips||[];const selected=selectActiveTrip(state.trips,localStorage.getItem('activeTripId'),trip.id);if(selected)trip=selected;state.selectedDate=trip.startDate;state.calendarMonth=trip.startDate.slice(0,7);$('jumpDate').value=trip.startDate;localStorage.setItem('activeTripId',trip.id);renderTrips();}
+function renderTrips(){$('tripPicker').innerHTML=state.trips.map(t=>`<option value="${esc(t.id)}" ${t.id===trip.id?'selected':''}>${esc(t.name)} · ${labels[tripStatus(t)]}</option>`).join('');$('tripList').innerHTML=state.trips.map(t=>`<div class="resource-card" data-view-trip="${esc(t.id)}"><div class="title"><h3>${esc(t.name)}</h3><span class="tag">${labels[tripStatus(t)]}</span></div><div class="tags"><span class="tag">${esc(t.destination||'بدون وجهة')}</span></div><div class="meta">${esc(t.startDate)} — ${esc(t.endDate)}</div><div class="card-actions"><button data-view-trip-btn="${esc(t.id)}">عرض التفاصيل</button><button data-open-trip="${esc(t.id)}">فتح الرحلة</button></div></div>`).join('');qsa('[data-open-trip]').forEach(b=>b.onclick=e=>{e.stopPropagation();$('tripPicker').value=b.dataset.openTrip;selectTrip()});qsa('[data-view-trip-btn]').forEach(b=>b.onclick=e=>{e.stopPropagation();openTripDetail(b.dataset.viewTripBtn)});qsa('[data-view-trip]').forEach(c=>c.onclick=()=>openTripDetail(c.dataset.viewTrip));}
 function openTripDetail(id){const t=state.trips.find(x=>x.id===id);if(!t)return;openSubscreen(t.name,`<article class="event-detail"><h1>${esc(t.name)}</h1><div class="tags"><span class="tag">${esc(t.destination||'بدون وجهة')}</span><span class="tag">${esc(t.startDate)}</span><span class="tag">${esc(t.endDate)}</span></div><div class="card-actions"><button class="primary" id="tripDetailOpen">فتح الرحلة</button>${profile?.role==='admin'?'<button id="tripDetailEdit">تعديل</button>':''}</div></article>`);$('tripDetailOpen').onclick=()=>{closeSubscreen();$('tripPicker').value=t.id;selectTrip()};if($('tripDetailEdit'))$('tripDetailEdit').onclick=()=>{closeSubscreen();editTrip(t.id)}}
 async function selectTrip(){trip=state.trips.find(t=>t.id===$('tripPicker').value)||trip;localStorage.setItem('activeTripId',trip.id);state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;await loadItems();if(profile.role==='admin')await loadExpenses();renderTrips();setTab('overviewTab');}
 async function saveTrip(e){e.preventDefault();const body={id:$('tripId').value||undefined,name:$('tripName').value,destination:$('tripDestination').value,startDate:$('tripStart').value,endDate:$('tripEnd').value};await api('/api/trips',{method:body.id?'PUT':'POST',body});clearTrip();await loadTrips();renderAll();closeFormScreen();}
@@ -273,7 +278,8 @@ async function loadItems(){
     showCalendarNotice('تعذر تحميل البيانات من Azure: ' + readableError(error));
   }
 }
-function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderOverview(); renderLists(); }
+function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderOverview(); renderDashboardMetrics(); renderLists(); }
+function renderDashboardMetrics(){const summary=dashboardSummary(visibleItems(),trip,state.selectedDate);$('dashboardMetrics').innerHTML=`<div class="metric-card"><span>الأيام المتبقية</span><b>${daysRemaining(trip)}</b></div><div class="metric-card"><span>المهام غير المنجزة</span><b>${summary.tasks.length}</b></div><div class="metric-card"><span>النشاط التالي</span><b>${summary.nextEvent?esc(eventLabel(summary.nextEvent)):'لا يوجد'}</b></div>`}
 function safeRenderAll(){ try{ renderAll(); }catch(error){ showCalendarNotice('خطأ في رسم الواجهة: ' + readableError(error)); } }
 function showCalendarNotice(message){
   const box = $('calendarMonths');
@@ -394,7 +400,7 @@ async function api(url,opts={}){
   return text?JSON.parse(text):{};
 }
 function itemById(id){return state.items.find(i=>i.id===id)}function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function shortDate(d){return d||''}
+const esc=escapeHtml;function shortDate(d){return d||''}
 </script>
 </body>
 </html>
