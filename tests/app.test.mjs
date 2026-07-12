@@ -36,6 +36,10 @@ test('mobile navigation and expense search are fixed and usable', () => {
   assert.match(html,/class="nav-label"/);
   assert.match(html,/#appView:not\(\[data-active-tab="overviewTab"\]\)>\.app-header\{display:none!important\}/);
   assert.match(html,/\$\('appView'\)\.dataset\.activeTab=state\.tab/);
+  assert.match(html,/id="expenseEntryNav" class="active"/);
+  assert.match(html,/id="expenseDashboardNav"/);
+  assert.match(html,/if\(tab==='expensesTab'\)showExpenseView\('entry'\)/);
+  assert.match(html,/id="expenseDashboardView" class="expense-view hidden"/);
   assert.match(html,/#expenseSearch\{[^}]*flex:1 0 100%!important/);
   assert.match(html,/\.dashboard-metrics\{grid-template-columns:1fr 1fr!important/);
 });
