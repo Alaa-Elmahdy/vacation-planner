@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#a81f50" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icons/app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icons/app-icon.svg" />
   <title>مخطط الرحلات العائلي | V5.0</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
@@ -152,6 +158,8 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { money, shortDay, longDate } from './js/format.js';
+import { registerPwa } from './js/pwa.js';
 
 let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
 let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab' };
@@ -164,6 +172,7 @@ const labels = {
   purchase:'مشتريات', restaurant:'مطعم', outingPlace:'مكان خروج', event:'حدث', breakfast:'الإفطار', lunch:'الغداء', dinner:'العشاء', activity:'نشاط', trip:'رحلة', task:'مهمة', purchaseActivity:'نشاط شراء', restaurantMeal:'وجبة مطعم', outingActivity:'خروج'
 };
 
+registerPwa();
 init();
 async function init(){
   bindStaticUI();
@@ -310,7 +319,6 @@ function renderSelectedDay(){
   qsa('[data-edit-event]').forEach(b=>b.onclick=()=>openEventDetail(b.dataset.editEvent));
 }
 function renderOverview(){const events=visibleItems().filter(i=>i.kind==='event').sort((a,b)=>String(a.date||a.startDate).localeCompare(String(b.date||b.startDate))||(a.time||'').localeCompare(b.time||''));const grouped={};events.forEach(e=>{const d=e.date||e.startDate;if(d>=trip.startDate&&d<=trip.endDate)(grouped[d]??=[]).push(e)});$('overviewTitle').textContent=trip.name;$('overviewSubtitle').textContent=`${trip.destination||''} · ${trip.startDate} — ${trip.endDate}`;$('upcomingSchedule').innerHTML=Object.entries(grouped).length?Object.entries(grouped).map(([date,items])=>`<div class="schedule-day"><div class="schedule-date">${shortDay(date)}</div><div class="schedule-events">${items.map(e=>`<div class="schedule-event" data-overview-event="${e.id}"><b>${esc(eventLabel(e))}</b><small>${esc(e.time||'بدون وقت')} ${e.location?'· '+esc(e.location):''}</small></div>`).join('')}</div></div>`).join(''):'<div class="empty">لا توجد أنشطة بعد. ابدأ بإضافة نشاط أو مهمة.</div>';const day=eventsForDate(state.selectedDate);$('overviewDayPanel').innerHTML=`<h3 style="color:var(--p);margin:0 0 5px">${longDate(state.selectedDate)}</h3><div class="agenda" style="margin-top:12px">${day.length?day.map(agendaCard).join(''):'<div class="empty">لا توجد أحداث لهذا اليوم</div>'}</div>`;qsa('[data-overview-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.overviewEvent));qsa('#overviewDayPanel [data-edit-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.editEvent));}
-function shortDay(date){return new Date(date+'T00:00:00').toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'})}
 function agendaCard(e){return `<div class="agenda-card"><b>${esc(eventLabel(e))}</b><div class="meta">${esc(e.location||e.area||'')} ${e.time?'· '+e.time:''}</div><div class="tags"><span class="tag">${labels[e.type]||e.type}</span><span class="tag">${labels[e.status]||e.status}</span>${e.ownerName?`<span class="tag">${esc(e.ownerName)}</span>`:''}</div>${e.notes?`<div class="notes-box">${esc(e.notes)}</div>`:''}<button class="small" data-edit-event="${e.id}">تعديل</button></div>`}
 function eventLabel(e){if(e.type==='restaurantMeal')return `${labels[e.mealSlot]||'وجبة'} · ${e.title}`; if(e.type==='outingActivity')return `خروج · ${e.title}`; return e.title||e.name||e.item||'حدث';}
 function renderLists(){renderPurchaseAssignments();renderPurchases();renderRestaurants();renderPlaces();}
@@ -322,7 +330,6 @@ async function saveExpense(e){e.preventDefault();const body={id:$('expenseId').v
 function editExpense(id){const e=state.expenses.find(x=>x.id===id);if(!e)return;openFormScreen($('expenseForm').closest('.panel'));$('expenseId').value=e.id;$('expenseDescription').value=e.description;$('expenseAmount').value=e.amount;$('expenseDate').value=e.date;$('expenseCategory').value=e.category;}
 async function deleteExpense(id){if(!confirm('حذف المصروف؟'))return;await api(`/api/expenses?tripId=${encodeURIComponent(trip.id)}&id=${encodeURIComponent(id)}`,{method:'DELETE'});await loadExpenses();}
 function clearExpense(){$('expenseForm').reset();$('expenseId').value='';$('expenseDate').value=state.selectedDate||trip.startDate;}
-function money(value){return new Intl.NumberFormat('ar-EG-u-nu-latn',{style:'currency',currency:'EGP',maximumFractionDigits:2}).format(Number(value||0));}
 function renderPurchaseAssignments(){const opts=visibleItems().filter(i=>i.kind==='event'&&i.type==='purchaseActivity').map(i=>`<option value="${i.id}">${esc(i.title)} · ${shortDate(i.date||i.startDate)}</option>`).join(''); $('purchaseAssignedTo').innerHTML='<option value="">بدون</option>'+opts; $('eventParentTrip').innerHTML='<option value="">بدون</option>'+visibleItems().filter(i=>i.kind==='event'&&i.type==='trip').map(i=>`<option value="${i.id}">${esc(i.title)}</option>`).join('')}
 function renderPurchases(){const arr=visibleItems().filter(i=>i.kind==='purchase');$('purchaseList').innerHTML=arr.length?arr.map(i=>resourceCard(i,'purchase')).join(''):'<div class="empty">لا توجد مشتريات</div>';bindResourceButtons();}
 function renderRestaurants(){const arr=visibleItems().filter(i=>i.kind==='restaurant');$('restaurantList').innerHTML=arr.length?arr.map(i=>resourceCard(i,'restaurant')).join(''):'<div class="empty">لا توجد مطاعم</div>';$('mealRestaurant').innerHTML=arr.map(i=>`<option value="${i.id}">${esc(i.name||i.title)}</option>`).join('');bindResourceButtons();}
@@ -387,7 +394,7 @@ async function api(url,opts={}){
   return text?JSON.parse(text):{};
 }
 function itemById(id){return state.items.find(i=>i.id===id)}function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function shortDate(d){return d||''}function longDate(d){return new Date(d+'T00:00:00').toLocaleDateString('ar-EG-u-nu-latn',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function shortDate(d){return d||''}
 </script>
 </body>
 </html>

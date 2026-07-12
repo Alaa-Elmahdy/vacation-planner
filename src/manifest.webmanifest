@@ -1,0 +1,16 @@
+{
+  "name": "مخطط الرحلات العائلي",
+  "short_name": "رحلاتنا",
+  "description": "تخطيط الرحلات والأنشطة والمشتريات والمصاريف العائلية",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f1f4",
+  "theme_color": "#a81f50",
+  "icons": [
+    { "src": "/icons/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
