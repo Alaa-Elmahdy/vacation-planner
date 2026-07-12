@@ -14,7 +14,7 @@
     .money{font-size:28px;font-weight:900;color:var(--p)}.expense-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.bar{height:10px;background:#f2e6eb;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}.trip-picker{min-width:230px}.admin-only.hidden{display:none!important}.mobile-nav{display:none}
     .overview-hero{padding:24px;background:linear-gradient(135deg,#8f1743,#c73468);color:#fff;border-radius:22px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}.overview-hero h1{margin:0 0 6px;font-size:28px}.overview-hero p{margin:0;opacity:.86}.quick-actions{display:flex;gap:9px;flex-wrap:wrap}.quick-actions button{background:rgba(255,255,255,.96);color:var(--p);border:0}.schedule-list{display:grid;gap:10px}.schedule-day{display:grid;grid-template-columns:95px 1fr;gap:12px;padding:14px;border:1px solid var(--line);border-radius:17px;background:#fff}.schedule-date{font-weight:900;color:var(--p)}.schedule-events{display:grid;gap:7px}.schedule-event{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:12px;background:var(--soft);cursor:pointer}.overview-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.7fr);gap:16px;margin-top:16px}
     .tabpane .form-screen{display:none}.grid-2:has(.form-screen){grid-template-columns:1fr}.form-screen-back{display:none}.form-screen-active{overflow:hidden}.form-screen-active .active-form-screen{display:block!important;position:fixed;inset:0;z-index:120;background:#f7f7f7;overflow:auto;padding:18px}.form-screen-active .active-form-screen>.section-head{position:sticky;top:0;z-index:2}.form-screen-active .form-screen-back{display:inline-flex}.screen-add{margin-inline-start:auto}.app-subscreen{display:none;position:fixed;inset:0;z-index:115;background:#f7f7f7;overflow-y:auto}.app-subscreen.open{display:block}.subscreen-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}.subscreen-head h2{margin:0}.subscreen-body{width:min(900px,100%);margin:auto;padding:18px}.event-detail{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px}.event-detail h1{margin:0 0 10px;overflow-wrap:anywhere}.event-detail .notes-box{max-height:none;overflow:visible;white-space:pre-wrap}.agenda-card,.schedule-event,.resource-card{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere}.agenda-card b,.schedule-event b,.resource-card h3{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
-    @media(max-width:1100px){
+    @media(max-width:1100px), (pointer:coarse){
       .overview-hero{display:block;padding:20px;border-radius:19px}.overview-hero h1{font-size:22px}.quick-actions{margin-top:16px;display:grid;grid-template-columns:1fr 1fr}.quick-actions button:last-child{grid-column:1/-1}.overview-grid{display:flex;flex-direction:column;margin-top:12px;gap:12px}.overview-grid>.panel{border-radius:18px;border:1px solid #eee;overflow:hidden}.schedule-day{display:block;padding:12px}.schedule-date{margin-bottom:10px;font-size:15px}.schedule-event{display:block;min-width:0;overflow-wrap:anywhere;padding:13px}.schedule-event small{display:block;margin-top:6px}.app-header .stats{display:none!important}.month-grid,.weekday-row{width:100%;min-width:0}.day-cell{min-width:0;max-width:100%;overflow:hidden}.form-screen-active .active-form-screen{padding:0 0 90px}.form-screen-active .active-form-screen>.section-head{border-radius:0}.form-screen-active .active-form-screen>.section-body{padding:16px}.form-screen-active .mobile-nav,.app-subscreen.open~.mobile-nav{display:none}.subscreen-body{padding:14px}.event-detail{border-radius:18px;padding:17px}
     }
   </style>
@@ -84,7 +84,7 @@
 
     <div class="tabpane hidden" id="calendarTab">
       <div class="calendar-layout">
-        <div class="panel"><div class="section-head"><h2>التقويم الشهري</h2><span class="helper" id="scopeLabel1">مساحة العائلة</span></div><div class="section-body calendar-scroll" id="calendarMonths"></div></div>
+        <div class="panel"><div class="section-head"><h2>التقويم</h2><div style="display:flex;gap:6px"><button class="small" id="calendarPrev">‹</button><button class="small" id="calendarToday">اليوم</button><button class="small" id="calendarNext">›</button></div></div><div class="section-body calendar-scroll" id="calendarMonths"></div></div>
         <aside class="panel"><div class="section-head"><h2>اليوم المختار</h2><button class="small" id="quickAddBtn">إضافة</button></div><div class="section-body" id="selectedDayPanel"></div></aside>
       </div>
     </div>
@@ -153,7 +153,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
 let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
-let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, scope: 'family', tab: 'overviewTab' };
+let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab' };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
@@ -191,6 +191,7 @@ function bindStaticUI(){
   $('overviewQuickAdd').onclick=()=>openEventModal('activity',state.selectedDate);$('addActivityBtn').onclick=()=>openEventModal('activity',state.selectedDate);$('addTaskBtn').onclick=()=>openEventModal('task',state.selectedDate);
   $('jumpBtn').onclick=()=>{state.selectedDate=$('jumpDate').value||trip.startDate;renderAll()};
   $('tripStartBtn').onclick=()=>{state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;renderAll()};
+  $('calendarPrev').onclick=()=>changeCalendarMonth(-1);$('calendarNext').onclick=()=>changeCalendarMonth(1);$('calendarToday').onclick=()=>{state.calendarMonth=(state.selectedDate||trip.startDate).slice(0,7);renderCalendar()};
   $('manageTripsBtn').onclick=()=>setTab('tripsTab');$('tripPicker').onchange=selectTrip;$('tripForm').onsubmit=saveTrip;$('clearTripBtn').onclick=clearTrip;
   $('expenseForm').onsubmit=saveExpense;$('clearExpenseBtn').onclick=clearExpense;$('expenseSearch').oninput=()=>{renderExpenses();enhanceExpenseCards()};
   qsa('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -287,10 +288,13 @@ function renderHeader(){
 function visibleItems(){ return state.items.filter(i=> i.scope==='family' || i.ownerUid===profile?.uid).filter(i=>state.scope==='family'?i.scope==='family':i.scope==='personal'); }
 function setTab(tab){state.tab=tab;qsa('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));qsa('.tabpane').forEach(p=>p.classList.toggle('hidden',p.id!==tab));$('calendarToolbar').classList.toggle('hidden',tab!=='calendarTab');renderLists();window.scrollTo({top:0,behavior:'smooth'});}
 function renderCalendar(){
-  const months=[], cursor=new Date(trip.startDate+'T00:00:00'), end=new Date(trip.endDate+'T00:00:00');cursor.setDate(1);while(cursor<=end){months.push({y:cursor.getFullYear(),m:cursor.getMonth()});cursor.setMonth(cursor.getMonth()+1)} $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
+  const appMode=matchMedia('(max-width:1100px), (pointer:coarse)').matches;let months=[];
+  if(appMode){const [y,m]=state.calendarMonth.split('-').map(Number);months=[{y,m:m-1}]}else{const cursor=new Date(trip.startDate+'T00:00:00'),end=new Date(trip.endDate+'T00:00:00');cursor.setDate(1);while(cursor<=end){months.push({y:cursor.getFullYear(),m:cursor.getMonth()});cursor.setMonth(cursor.getMonth()+1)}}
+  $('calendarMonths').innerHTML=months.map(x=>monthHtml(x.y,x.m)).join('');
   qsa('.day-cell.in-range').forEach(c=>c.onclick=()=>openDayScreen(c.dataset.date));
   qsa('[data-event-id]').forEach(p=>p.onclick=e=>{e.stopPropagation();openEventDetail(p.dataset.eventId)});
 }
+function changeCalendarMonth(delta){const [y,m]=state.calendarMonth.split('-').map(Number),d=new Date(y,m-1+delta,1);const min=trip.startDate.slice(0,7),max=trip.endDate.slice(0,7),next=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;state.calendarMonth=next<min?min:next>max?max:next;renderCalendar()}
 function monthHtml(y,m){
   const first=new Date(y,m,1), last=new Date(y,m+1,0), days=last.getDate(), blanks=first.getDay(); let cells=[];
   for(let i=0;i<blanks;i++)cells.push('<div class="day-cell muted"></div>');
