@@ -1,5 +1,5 @@
-const CACHE = 'vacation-planner-v2';
-const STATIC = ['/offline.html', '/manifest.webmanifest', '/icons/app-icon.svg'];
+const CACHE = 'vacation-planner-v3';
+const STATIC = ['/offline.html', '/manifest.webmanifest', '/icons/app-icon.svg', '/icons/app-icon-192.png', '/icons/app-icon-512.png', '/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)));
