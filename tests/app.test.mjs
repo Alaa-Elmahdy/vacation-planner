@@ -20,10 +20,17 @@ test('PWA files and metadata exist', () => {
 });
 
 test('install, update, search, export, and print features exist', () => {
-  for (const marker of ['installAppBtn','updateBanner','openGlobalSearch','exportExpensesCsv','طباعة الجدول','tripStatusFilter']) assert.match(html,new RegExp(marker),marker);
+  for (const marker of ['installAppBtn','updateBanner','openGlobalSearch','exportExpensesCsv','طباعة التقويم','tripStatusFilter','nextEventMetric']) assert.match(html,new RegExp(marker),marker);
   const worker=readFileSync('src/sw.js','utf8');
   assert.match(worker,/offline\.html/);
   assert.match(worker,/SKIP_WAITING/);
+});
+
+test('mobile navigation and expense search are fixed and usable', () => {
+  assert.match(html,/\.tab-list\{display:none!important\}/);
+  assert.match(html,/\.mobile-nav\{display:flex!important;position:fixed!important/);
+  assert.match(html,/#expenseSearch\{[^}]*flex:1 0 100%!important/);
+  assert.match(html,/\.dashboard-metrics\{grid-template-columns:1fr 1fr!important/);
 });
 
 test('primary application screens and navigation exist', () => {

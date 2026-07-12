@@ -1,18 +1,19 @@
 {
   "name": "مخطط الرحلات العائلي",
   "short_name": "رحلاتنا",
+  "id": "/elmahdy-family-trips-v2",
   "description": "تخطيط الرحلات والأنشطة والمشتريات والمصاريف العائلية",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/?source=pwa",
+  "start_url": "/?source=pwa&app=elmahdy-v2",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#f7f1f4",
   "theme_color": "#a81f50",
   "icons": [
-    { "src": "/icons/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/elmahdy-travel-v2-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/elmahdy-travel-v2-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icons/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }

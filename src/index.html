@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/icons/app-icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <link rel="icon" href="/icons/elmahdy-travel-v2-192.png" type="image/png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/elmahdy-travel-v2-180.png" />
   <title>مخطط الرحلات العائلي | V5.0</title>
   <style>
     :root{--bg:#f7f1f4;--card:#fff;--soft:#fbf4f7;--line:#eadde3;--text:#2f2930;--muted:#77717a;--p:#a81f50;--p2:#bd3a67;--danger:#c72d52;--ok:#18865a;--shadow:0 16px 40px rgba(123,31,64,.10);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
@@ -25,6 +25,8 @@
     }
     @media(max-width:10000px){html,body{width:100%;max-width:100%;overflow-x:hidden}.page,.app-shell,.tabpane,.panel{width:100%!important;max-width:100%!important;min-width:0!important}.head-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.head-actions>*{min-width:0!important;max-width:100%!important}.expense-summary{grid-template-columns:1fr!important}#calendarTab .calendar-layout>aside{display:none!important}#calendarTab .calendar-layout{display:block!important}#calendarToolbar{display:none!important}}
     .dashboard-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.metric-card{padding:14px;border:1px solid var(--line);border-radius:17px;background:#fff;min-width:0}.metric-card span{display:block;color:var(--muted);font-size:12px}.metric-card b{display:block;color:var(--p);font-size:20px;margin-top:4px;overflow-wrap:anywhere}@media(max-width:10000px){.dashboard-metrics{grid-template-columns:1fr}}
+    .tab-list{display:none!important}.mobile-nav{display:flex!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:180!important}.quick-actions{grid-template-columns:1fr 1fr!important}.quick-actions button{width:100%;min-width:0}.quick-actions button:last-child{grid-column:auto!important}.dashboard-metrics{grid-template-columns:1fr 1fr!important}.dashboard-metrics .metric-card:nth-child(3){grid-column:1/-1;cursor:pointer}#expensesTab .section-head{flex-wrap:wrap}#expenseSearch{order:10;flex:1 0 100%!important;width:100%!important;max-width:none!important;min-width:0!important}.app-subscreen.open~.mobile-nav,.form-screen-active .mobile-nav{display:none!important}
+    .mobile-nav.hidden{display:none!important}
   </style>
 </head>
 <body>
@@ -146,7 +148,7 @@
 
 <section id="appSubscreen" class="app-subscreen" aria-hidden="true"><header class="subscreen-head"><button id="subscreenBack">← رجوع</button><h2 id="subscreenTitle">التفاصيل</h2></header><main id="subscreenBody" class="subscreen-body"></main></section>
 
-<nav class="mobile-nav" aria-label="التنقل الرئيسي">
+<nav id="mobileNav" class="mobile-nav hidden" aria-label="التنقل الرئيسي">
   <button class="active" data-tab="overviewTab"><span>✈️</span>الرحلة</button>
   <button data-tab="calendarTab"><span>🗓️</span>التقويم</button>
   <button data-tab="purchasesTab"><span>🛍️</span>المشتريات</button>
@@ -193,8 +195,8 @@ async function init(){
   auth = getAuth(firebaseApp);
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); await bootstrapUser(); }
-    else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); }
+    if(user){ $('authView').classList.add('hidden'); $('appView').classList.remove('hidden'); $('mobileNav').classList.remove('hidden'); await bootstrapUser(); }
+    else { $('appView').classList.add('hidden'); $('authView').classList.remove('hidden'); $('mobileNav').classList.add('hidden'); }
   });
 }
 function bindStaticUI(){
@@ -228,7 +230,7 @@ function bindStaticUI(){
   setupFormScreens();
   setupFeatureTools();
 }
-function setupFeatureTools(){const search=document.createElement('button');search.type='button';search.className='soft';search.textContent='🔎 بحث';search.onclick=openGlobalSearch;$('logoutBtn').before(search);const print=document.createElement('button');print.type='button';print.textContent='🖨 طباعة الجدول';print.onclick=()=>{setTab('overviewTab');setTimeout(()=>window.print(),150)};document.querySelector('.quick-actions').append(print);const expenseHead=$('expenseList')?.closest('.panel')?.querySelector('.section-head');if(expenseHead){const csv=document.createElement('button');csv.type='button';csv.className='small';csv.textContent='تصدير CSV';csv.onclick=exportExpensesCsv;expenseHead.append(csv)}const tripHead=$('tripList')?.closest('.panel')?.querySelector('.section-head');if(tripHead){const filter=document.createElement('select');filter.id='tripStatusFilter';filter.style='max-width:150px';filter.innerHTML='<option value="all">كل الرحلات</option><option value="upcoming">قادمة</option><option value="ongoing">جارية</option><option value="completed">منتهية</option><option value="archived">مؤرشفة</option>';filter.onchange=renderTrips;tripHead.append(filter)}}
+function setupFeatureTools(){const search=document.createElement('button');search.type='button';search.className='soft';search.textContent='🔎 بحث';search.onclick=openGlobalSearch;$('logoutBtn').before(search);const print=document.createElement('button');print.type='button';print.textContent='🖨 طباعة التقويم';print.onclick=()=>{setTab('calendarTab');setTimeout(()=>window.print(),150)};document.querySelector('.quick-actions').append(print);const expenseHead=$('expenseList')?.closest('.panel')?.querySelector('.section-head');if(expenseHead){const csv=document.createElement('button');csv.type='button';csv.className='small';csv.textContent='تصدير CSV';csv.onclick=exportExpensesCsv;expenseHead.append(csv)}const tripHead=$('tripList')?.closest('.panel')?.querySelector('.section-head');if(tripHead){const filter=document.createElement('select');filter.id='tripStatusFilter';filter.style='max-width:150px';filter.innerHTML='<option value="all">كل الرحلات</option><option value="upcoming">قادمة</option><option value="ongoing">جارية</option><option value="completed">منتهية</option><option value="archived">مؤرشفة</option>';filter.onchange=renderTrips;tripHead.append(filter)}}
 function openGlobalSearch(){openSubscreen('البحث في الرحلة',`<div class="field"><label>اكتب كلمة للبحث</label><input id="globalSearchInput" autofocus placeholder="نشاط، مطعم، مكان، مشتريات..."></div><div id="globalSearchResults" class="resource-grid" style="margin-top:14px"></div>`);$('globalSearchInput').oninput=renderGlobalSearch;renderGlobalSearch()}
 function renderGlobalSearch(){const term=($('globalSearchInput')?.value||'').trim().toLowerCase(),items=visibleItems().filter(i=>!term||[i.title,i.name,i.item,i.category,i.location,i.notes].some(v=>String(v||'').toLowerCase().includes(term)));$('globalSearchResults').innerHTML=items.length?items.map(i=>`<div class="resource-card" data-search-id="${i.id}"><h3>${esc(i.title||i.name||i.item)}</h3><div class="tags"><span class="tag">${esc(labels[i.type]||labels[i.kind]||i.kind)}</span></div></div>`).join(''):'<div class="empty">لا توجد نتائج</div>';qsa('[data-search-id]').forEach(x=>x.onclick=()=>{const i=itemById(x.dataset.searchId);if(i.kind==='event')openEventDetail(i.id);else openResourceDetail(i.id,i.kind)})}
 function exportExpensesCsv(){const rows=[['البيان','المبلغ','التاريخ','البند'],...state.expenses.map(e=>[e.description,e.amount,e.date,e.category])];const csv='\uFEFF'+rows.map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=`expenses-${trip.id}.csv`;a.click();URL.revokeObjectURL(url)}
@@ -292,7 +294,7 @@ async function loadItems(){
   }
 }
 function renderAll(){ renderHeader(); renderCalendar(); renderSelectedDay(); renderOverview(); renderDashboardMetrics(); renderLists(); }
-function renderDashboardMetrics(){const summary=dashboardSummary(visibleItems(),trip,state.selectedDate);$('dashboardMetrics').innerHTML=`<div class="metric-card"><span>الأيام المتبقية</span><b>${daysRemaining(trip)}</b></div><div class="metric-card"><span>المهام غير المنجزة</span><b>${summary.tasks.length}</b></div><div class="metric-card"><span>النشاط التالي</span><b>${summary.nextEvent?esc(eventLabel(summary.nextEvent)):'لا يوجد'}</b></div>`}
+function renderDashboardMetrics(){const summary=dashboardSummary(visibleItems(),trip,state.selectedDate),done=summary.events.filter(e=>e.type==='task'&&e.status==='done').length;$('dashboardMetrics').innerHTML=`<div class="metric-card"><span>الأيام المتبقية</span><b>${daysRemaining(trip)}</b></div><div class="metric-card"><span>المهام المنجزة</span><b>${done}</b></div><div class="metric-card" id="nextEventMetric"><span>النشاط التالي</span><b>${summary.nextEvent?esc(eventLabel(summary.nextEvent)):'لا يوجد'}</b></div>`;if(summary.nextEvent)$('nextEventMetric').onclick=()=>openEventDetail(summary.nextEvent.id)}
 function safeRenderAll(){ try{ renderAll(); }catch(error){ showCalendarNotice('خطأ في رسم الواجهة: ' + readableError(error)); } }
 function showCalendarNotice(message){
   const box = $('calendarMonths');
