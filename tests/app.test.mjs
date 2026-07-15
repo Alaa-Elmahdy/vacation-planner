@@ -40,6 +40,11 @@ test('mobile navigation and expense search are fixed and usable', () => {
   assert.match(html,/id="expenseDashboardNav"/);
   assert.match(html,/if\(tab==='expensesTab'\)showExpenseView\('entry'\)/);
   assert.match(html,/id="expenseDashboardView" class="expense-view hidden"/);
+  assert.match(html,/body\.screen-locked\{overflow:hidden!important/);
+  assert.match(html,/\.modal-wrap\{z-index:240!important/);
+  assert.match(html,/\.modal-actions\{position:sticky;bottom:0/);
+  assert.match(html,/function lockScreen\(kind\)/);
+  assert.match(html,/lockScreen\('event-modal-open'\)/);
   assert.match(html,/#expenseSearch\{[^}]*flex:1 0 100%!important/);
   assert.match(html,/\.dashboard-metrics\{grid-template-columns:1fr 1fr!important/);
 });
