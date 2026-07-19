@@ -14,6 +14,14 @@ export function dashboardSummary(items, trip, selectedDate, today = new Date()) 
   return { events, tasks, nextEvent, selectedEvents, grouped };
 }
 
+export function isFinishedEvent(event) {
+  return ['done', 'visited', 'bought', 'cancelled'].includes(event?.status);
+}
+
+export function filterScheduleEvents(events, showFinished = false) {
+  return showFinished ? [...events] : events.filter(event => !isFinishedEvent(event));
+}
+
 function sortEvents(a,b) {
   return String(a.date || a.startDate).localeCompare(String(b.date || b.startDate)) || (a.time || '').localeCompare(b.time || '');
 }
