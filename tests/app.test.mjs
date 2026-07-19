@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tripStatus, selectActiveTrip, daysRemaining } from '../src/js/trips.js';
-import { dashboardSummary } from '../src/js/dashboard.js';
+import { dashboardSummary, filterScheduleEvents, isFinishedEvent } from '../src/js/dashboard.js';
 import { createApiClient } from '../src/js/api.js';
 import { visibleItemsForScope, eventsOnDate } from '../src/js/resources.js';
 import { activateTab } from '../src/js/navigation.js';
@@ -139,4 +139,15 @@ test('dashboard summary finds pending tasks and next event', () => {
   assert.equal(summary.tasks.length, 1);
   assert.equal(summary.nextEvent.id, '2');
   assert.equal(summary.selectedEvents.length, 1);
+});
+
+test('finished schedule items stay hidden until requested', () => {
+  const events = [
+    { id:'open', status:'planned', date:'2026-07-19' },
+    { id:'done', status:'done', date:'2026-07-18' },
+    { id:'visited', status:'visited', date:'2026-07-17' }
+  ];
+  assert.equal(isFinishedEvent(events[1]), true);
+  assert.deepEqual(filterScheduleEvents(events).map(x => x.id), ['open']);
+  assert.equal(filterScheduleEvents(events, true).length, 3);
 });
