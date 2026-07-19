@@ -70,6 +70,10 @@
       .modal-head{padding-top:calc(14px + env(safe-area-inset-top,0px))}
       .modal-actions>div{flex:1}.modal-actions>div button{flex:1}
     }
+    .schedule-filter{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--text);font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}
+    .schedule-filter input{width:18px;height:18px;margin:0;accent-color:var(--p)}
+    .schedule-event.is-finished{opacity:.62;background:#f5f1f3}.schedule-event.is-finished b{text-decoration:line-through}.finished-tag{color:var(--p);font-weight:900}
+    @media(max-width:700px){#overviewScheduleHead{align-items:center;flex-wrap:wrap}#overviewScheduleHead .helper{display:none}.schedule-filter{margin-inline-start:auto}}
   </style>
 </head>
 <body>
@@ -127,7 +131,7 @@
     <div class="tabpane" id="overviewTab">
       <div class="overview-hero"><div><h1 id="overviewTitle">رحلتنا</h1><p id="overviewSubtitle"></p></div><div class="quick-actions"><button id="addActivityBtn">＋ نشاط</button><button id="addTaskBtn">✓ مهمة</button><button data-tab="calendarTab">🗓 عرض التقويم</button></div></div>
       <div id="dashboardMetrics" class="dashboard-metrics"></div>
-      <div class="overview-grid"><div class="panel"><div class="section-head"><h2>جدول الرحلة</h2><span class="helper">الأحداث القادمة حسب اليوم</span></div><div class="section-body"><div id="upcomingSchedule" class="schedule-list"></div></div></div><aside class="panel"><div class="section-head"><h2>اليوم المختار</h2><button class="small" id="overviewQuickAdd">إضافة</button></div><div class="section-body" id="overviewDayPanel"></div></aside></div>
+      <div class="overview-grid"><div class="panel"><div class="section-head" id="overviewScheduleHead"><div><h2>جدول الرحلة</h2><span class="helper">المهام والأنشطة غير المنتهية</span></div><label class="schedule-filter"><input id="showFinishedEvents" type="checkbox"> إظهار المنتهي والسابق</label></div><div class="section-body"><div id="upcomingSchedule" class="schedule-list"></div></div></div><aside class="panel"><div class="section-head"><h2>اليوم المختار</h2><button class="small" id="overviewQuickAdd">إضافة</button></div><div class="section-body" id="overviewDayPanel"></div></aside></div>
     </div>
 
     <div class="tabpane hidden" id="expensesTab">
@@ -210,14 +214,14 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPas
 import { money, shortDay, longDate } from './js/format.js';
 import { registerPwa, installPwa, applyPwaUpdate } from './js/pwa.js';
 import { tripStatus, selectActiveTrip, daysRemaining } from './js/trips.js';
-import { dashboardSummary } from './js/dashboard.js';
+import { dashboardSummary, filterScheduleEvents, isFinishedEvent } from './js/dashboard.js';
 import { escapeHtml } from './js/dom.js';
 import { createApiClient, publicJson } from './js/api.js';
 import { activateTab, pushScreen, clearScreenHash } from './js/navigation.js';
 import { visibleItemsForScope, eventsOnDate } from './js/resources.js';
 
 let trip = { name:'رحلة مصر 2026', startDate:'2026-07-16', endDate:'2026-08-23', id:'egypt-2026' };
-let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab' };
+let firebaseApp, auth, currentUser, profile, state = { items: [], trips:[], expenses:[], selectedDate: trip.startDate, calendarMonth:trip.startDate.slice(0,7), scope: 'family', tab: 'overviewTab', showFinishedEvents:false };
 const $ = id => document.getElementById(id);
 const qs = sel => document.querySelector(sel);
 const qsa = sel => Array.from(document.querySelectorAll(sel));
@@ -255,6 +259,7 @@ function bindStaticUI(){
   $('openEventBtn').onclick=()=>openEventModal('activity',state.selectedDate);
   $('quickAddBtn').onclick=()=>openEventModal('activity',state.selectedDate);
   $('overviewQuickAdd').onclick=()=>openEventModal('activity',state.selectedDate);$('addActivityBtn').onclick=()=>openEventModal('activity',state.selectedDate);$('addTaskBtn').onclick=()=>openEventModal('task',state.selectedDate);
+  $('showFinishedEvents').onchange=e=>{state.showFinishedEvents=e.target.checked;renderOverview()};
   $('jumpBtn').onclick=()=>{state.selectedDate=$('jumpDate').value||trip.startDate;renderAll()};
   $('tripStartBtn').onclick=()=>{state.selectedDate=trip.startDate;$('jumpDate').value=trip.startDate;renderAll()};
   $('calendarPrev').onclick=()=>changeCalendarMonth(-1);$('calendarNext').onclick=()=>changeCalendarMonth(1);$('calendarToday').onclick=()=>{state.calendarMonth=(state.selectedDate||trip.startDate).slice(0,7);renderCalendar()};
@@ -386,7 +391,7 @@ function renderSelectedDay(){
   const ev=eventsForDate(state.selectedDate); $('selectedDayPanel').innerHTML=`<h3 style="color:var(--p);margin:0 0 5px">${longDate(state.selectedDate)}</h3><div class="helper">${labels[state.scope]} · ${ev.length} أحداث</div><div class="agenda" style="margin-top:12px">${ev.length?ev.map(agendaCard).join(''):'<div class="empty">لا توجد أحداث لهذا اليوم</div>'}</div>`;
   qsa('[data-edit-event]').forEach(b=>b.onclick=()=>openEventDetail(b.dataset.editEvent));
 }
-function renderOverview(){const events=visibleItems().filter(i=>i.kind==='event').sort((a,b)=>String(a.date||a.startDate).localeCompare(String(b.date||b.startDate))||(a.time||'').localeCompare(b.time||''));const grouped={};events.forEach(e=>{const d=e.date||e.startDate;if(d>=trip.startDate&&d<=trip.endDate)(grouped[d]??=[]).push(e)});$('overviewTitle').textContent=trip.name;$('overviewSubtitle').textContent=`${trip.destination||''} · ${trip.startDate} — ${trip.endDate}`;$('upcomingSchedule').innerHTML=Object.entries(grouped).length?Object.entries(grouped).map(([date,items])=>`<div class="schedule-day"><div class="schedule-date">${shortDay(date)}</div><div class="schedule-events">${items.map(e=>`<div class="schedule-event" data-overview-event="${e.id}"><b>${esc(eventLabel(e))}</b><small>${esc(e.time||'بدون وقت')} ${e.location?'· '+esc(e.location):''}</small></div>`).join('')}</div></div>`).join(''):'<div class="empty">لا توجد أنشطة بعد. ابدأ بإضافة نشاط أو مهمة.</div>';const day=eventsForDate(state.selectedDate);$('overviewDayPanel').innerHTML=`<h3 style="color:var(--p);margin:0 0 5px">${longDate(state.selectedDate)}</h3><div class="agenda" style="margin-top:12px">${day.length?day.map(agendaCard).join(''):'<div class="empty">لا توجد أحداث لهذا اليوم</div>'}</div>`;qsa('[data-overview-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.overviewEvent));qsa('#overviewDayPanel [data-edit-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.editEvent));}
+function renderOverview(){const allEvents=visibleItems().filter(i=>i.kind==='event').sort((a,b)=>String(a.date||a.startDate).localeCompare(String(b.date||b.startDate))||(a.time||'').localeCompare(b.time||'')),events=filterScheduleEvents(allEvents,state.showFinishedEvents),grouped={};events.forEach(e=>{const d=e.date||e.startDate;if(d>=trip.startDate&&d<=trip.endDate)(grouped[d]??=[]).push(e)});$('showFinishedEvents').checked=state.showFinishedEvents;$('overviewTitle').textContent=trip.name;$('overviewSubtitle').textContent=`${trip.destination||''} · ${trip.startDate} — ${trip.endDate}`;$('upcomingSchedule').innerHTML=Object.entries(grouped).length?Object.entries(grouped).map(([date,items])=>`<div class="schedule-day"><div class="schedule-date">${shortDay(date)}</div><div class="schedule-events">${items.map(e=>`<div class="schedule-event ${isFinishedEvent(e)?'is-finished':''}" data-overview-event="${e.id}"><b>${esc(eventLabel(e))}</b><small>${esc(e.time||'بدون وقت')} ${e.location?'· '+esc(e.location):''} ${isFinishedEvent(e)?`<span class="finished-tag">· ${esc(labels[e.status]||'منتهي')}</span>`:''}</small></div>`).join('')}</div></div>`).join(''):`<div class="empty">${state.showFinishedEvents?'لا توجد أنشطة في الرحلة.':'لا توجد مهام أو أنشطة معلقة. فعّل «إظهار المنتهي والسابق» لمراجعة السجل.'}</div>`;const day=filterScheduleEvents(eventsForDate(state.selectedDate),state.showFinishedEvents);$('overviewDayPanel').innerHTML=`<h3 style="color:var(--p);margin:0 0 5px">${longDate(state.selectedDate)}</h3><div class="agenda" style="margin-top:12px">${day.length?day.map(agendaCard).join(''):'<div class="empty">لا توجد مهام معلقة لهذا اليوم</div>'}</div>`;qsa('[data-overview-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.overviewEvent));qsa('#overviewDayPanel [data-edit-event]').forEach(x=>x.onclick=()=>openEventDetail(x.dataset.editEvent));}
 function agendaCard(e){return `<div class="agenda-card"><b>${esc(eventLabel(e))}</b><div class="meta">${esc(e.location||e.area||'')} ${e.time?'· '+e.time:''}</div><div class="tags"><span class="tag">${labels[e.type]||e.type}</span><span class="tag">${labels[e.status]||e.status}</span>${e.ownerName?`<span class="tag">${esc(e.ownerName)}</span>`:''}</div>${e.notes?`<div class="notes-box">${esc(e.notes)}</div>`:''}<button class="small" data-edit-event="${e.id}">تعديل</button></div>`}
 function eventLabel(e){if(e.type==='restaurantMeal')return `${labels[e.mealSlot]||'وجبة'} · ${e.title}`; if(e.type==='outingActivity')return `خروج · ${e.title}`; return e.title||e.name||e.item||'حدث';}
 function renderLists(){renderPurchaseAssignments();renderPurchases();renderRestaurants();renderPlaces();}
