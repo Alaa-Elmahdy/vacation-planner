@@ -151,3 +151,11 @@ test('finished schedule items stay hidden until requested', () => {
   assert.deepEqual(filterScheduleEvents(events).map(x => x.id), ['open']);
   assert.equal(filterScheduleEvents(events, true).length, 3);
 });
+
+test('expenses can receive an additional amount without creating a duplicate', () => {
+  for (const marker of ['data-add-expense', 'openExpenseIncrement', 'expenseIncrementAmount', 'expenseIncrementTotal']) {
+    assert.match(html, new RegExp(marker), marker);
+  }
+  assert.match(html, /amount:current\+added/);
+  assert.match(html, /method:'PUT'/);
+});
