@@ -159,3 +159,11 @@ test('expenses can receive an additional amount without creating a duplicate', (
   assert.match(html, /amount:current\+added/);
   assert.match(html, /method:'PUT'/);
 });
+
+test('expense categories filter transactions and prefill quick entry', () => {
+  for (const marker of ['data-expense-category', 'expenseCategoryFilterBar', 'newExpenseInCategory', 'clearExpenseCategoryFilter']) {
+    assert.match(html, new RegExp(marker), marker);
+  }
+  assert.match(html, /e\.category===category/);
+  assert.match(html, /\$\('expenseCategory'\)\.value=category/);
+});
